@@ -1,3 +1,8 @@
+/**
+ * Upload Middleware
+ * Handles multipart/form-data image uploads via Multer and stores
+ * them directly in Cloudinary. Only JPEG and PNG files up to 5MB are accepted.
+ */
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
