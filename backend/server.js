@@ -1,3 +1,7 @@
+/**
+ * Loomee Backend API Server
+ * Virtual try-on and fashion recommendation platform
+ */
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
