@@ -15,6 +15,7 @@ const presetImageSchema = new mongoose.Schema({
     enum: ['front', 'side', 'back', 'custom'],
     default: 'front'
   },
+  // Only one preset image per user can be the default at a time
   isDefault: {
     type: Boolean,
     default: false
