@@ -55,6 +55,11 @@ app.use('/api/fashion-recommendations', fashionRecommendationRoutes);
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
+// 404 handler for unregistered API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ success: false, message: 'API endpoint not found' });
+});
+
 // Database connection
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
