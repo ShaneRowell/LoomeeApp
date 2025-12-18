@@ -23,6 +23,10 @@ const presetImageSchema = new mongoose.Schema({
   uploadedAt: {
     type: Date,
     default: Date.now
+  },
+  // Cloudinary public_id for future deletion via Cloudinary API
+  cloudinaryPublicId: {
+    type: String
   }
 });
 
