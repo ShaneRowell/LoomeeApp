@@ -8,7 +8,8 @@ const generateToken = (userId) => {
 
 exports.register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name: rawName } = req.body;
+    const name = rawName?.trim();
 
     if (!email || !password || !name) {
       return res.status(400).json({
