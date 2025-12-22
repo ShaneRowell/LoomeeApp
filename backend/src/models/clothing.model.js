@@ -75,7 +75,7 @@ const clothingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+}, { timestamps: { createdAt: false, updatedAt: 'updatedAt' } });
 
 // Enable text search on name, description, and brand fields
 clothingSchema.index({ name: 'text', description: 'text', brand: 'text' });
