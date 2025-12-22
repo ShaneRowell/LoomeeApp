@@ -77,4 +77,7 @@ const clothingSchema = new mongoose.Schema({
   }
 });
 
+// Enable text search on name, description, and brand fields
+clothingSchema.index({ name: 'text', description: 'text', brand: 'text' });
+
 module.exports = mongoose.model('Clothing', clothingSchema);
