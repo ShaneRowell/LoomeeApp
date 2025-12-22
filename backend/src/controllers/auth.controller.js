@@ -2,6 +2,13 @@ const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// Salt rounds: 10 is a good balance between security and CPU performance
+const BCRYPT_SALT_ROUNDS = 10;
+
+/**
+ * Generates a signed JWT token for the given user ID.
+ * Tokens expire after 7 days.
+ */
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
@@ -43,7 +50,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 
     const user = new User({
       email,
