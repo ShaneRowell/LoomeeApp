@@ -50,6 +50,7 @@ const measurementSchema = new mongoose.Schema({
   photoUrl: {
     type: String
   },
+  // Measurement unit — all stored values must use the same unit consistently
   unit: {
     type: String,
     enum: ['cm', 'inches'],
