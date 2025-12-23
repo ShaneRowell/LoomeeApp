@@ -147,7 +147,14 @@ exports.getMe = async (req, res) => {
 
     res.json({
       success: true,
-      user
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        avatarImage: user.avatarImage || null,
+        bodyMeasurements: user.bodyMeasurements || null,
+        createdAt: user.createdAt
+      }
     });
   } catch (error) {
     res.status(500).json({ 
