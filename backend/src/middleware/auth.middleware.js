@@ -1,7 +1,13 @@
 const jwt = require('jsonwebtoken');
 
+/**
+ * Authentication middleware
+ * Extracts and verifies the JWT from the Authorization: Bearer <token> header.
+ * Attaches decoded userId to req.userId for downstream handlers.
+ */
 const authMiddleware = (req, res, next) => {
   try {
+    // Extract token from "Bearer <token>" format
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
