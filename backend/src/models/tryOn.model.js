@@ -39,7 +39,7 @@ const tryOnSchema = new mongoose.Schema({
     enum: ['pending', 'processing', 'completed', 'failed'],
     default: 'pending'
   },
-  errorMessage: String,
+  errorMessage: String,  // Populated only when status is 'failed'
   createdAt: {
     type: Date,
     default: Date.now
