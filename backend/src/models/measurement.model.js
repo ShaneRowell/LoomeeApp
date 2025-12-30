@@ -37,6 +37,7 @@ const measurementSchema = new mongoose.Schema({
     min: 30,
     max: 300
   },
+  // Optional measurements for more precise size recommendations
   shoulderWidth: {
     type: Number,
     min: 30,
