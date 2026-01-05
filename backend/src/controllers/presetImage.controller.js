@@ -37,7 +37,8 @@ exports.uploadPresetImage = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Preset image uploaded successfully',
-      image: presetImage
+      image: presetImage,
+      totalImages: await PresetImage.countDocuments({ userId })
     });
   } catch (error) {
     console.error('Upload preset image error:', error);
