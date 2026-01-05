@@ -23,10 +23,11 @@ exports.uploadPresetImage = async (req, res) => {
       );
     }
 
-    // Create preset image record
+    // Create preset image record — req.file.path is the Cloudinary URL after upload
     const presetImage = new PresetImage({
       userId,
-      imageUrl: req.file.path,  // Cloudinary URL
+      imageUrl: req.file.path,
+      cloudinaryPublicId: req.file.filename || null,
       imageType: imageType || 'front',
       isDefault: isDefault === 'true' || isDefault === true
     });
