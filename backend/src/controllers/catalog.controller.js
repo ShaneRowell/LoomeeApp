@@ -26,7 +26,7 @@ exports.addClothing = async (req, res) => {
 // Get all clothing items with filters
 exports.getAllClothing = async (req, res) => {
   try {
-    const { category, gender, minPrice, maxPrice, brand, search } = req.query;
+    const { category, gender, minPrice, maxPrice, brand, search, sortBy = 'createdAt', order = 'desc' } = req.query;
 
     let filter = { isActive: true };
 
@@ -46,7 +46,8 @@ exports.getAllClothing = async (req, res) => {
       ];
     }
 
-    const clothing = await Clothing.find(filter).sort({ createdAt: -1 });
+    const sortOrder = order === 'asc' ? 1 : -1;
+    const clothing = await Clothing.find(filter).sort({ [sortBy]: sortOrder });
 
     res.json({
       success: true,
