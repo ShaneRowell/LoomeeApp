@@ -51,6 +51,7 @@ exports.getAllClothing = async (req, res) => {
     res.json({
       success: true,
       count: clothing.length,
+      filters: { category, gender, brand, minPrice, maxPrice, search },
       clothing
     });
   } catch (error) {
