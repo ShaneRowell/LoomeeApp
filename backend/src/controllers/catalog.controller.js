@@ -104,10 +104,12 @@ exports.getClothingById = async (req, res) => {
 exports.getClothingByCategory = async (req, res) => {
   try {
     const { category } = req.params;
+    // Normalize to lowercase to ensure consistent matching against schema enum
+    const normalizedCategory = category.toLowerCase().trim();
 
-    const clothing = await Clothing.find({ 
-      category: category.toLowerCase(), 
-      isActive: true 
+    const clothing = await Clothing.find({
+      category: normalizedCategory,
+      isActive: true
     }).sort({ createdAt: -1 });
 
     res.json({
