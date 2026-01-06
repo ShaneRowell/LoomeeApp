@@ -5,6 +5,13 @@ exports.addClothing = async (req, res) => {
   try {
     const clothingData = req.body;
 
+    if (!clothingData.name || !clothingData.category || !clothingData.brand || !clothingData.price) {
+      return res.status(400).json({
+        success: false,
+        message: 'name, category, brand, and price are required fields'
+      });
+    }
+
     const clothing = new Clothing(clothingData);
     await clothing.save();
 
