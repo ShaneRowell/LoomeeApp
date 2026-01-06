@@ -13,7 +13,10 @@ const genAI = process.env.GEMINI_API_KEY
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
-// Helper function to convert image to base64
+/**
+ * Converts an image path or URL to a base64 string.
+ * Supports both Cloudinary URLs (fetched via HTTP) and local file paths.
+ */
 const imageToBase64 = async (imagePath) => {
   // Check if it's a Cloudinary URL
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
