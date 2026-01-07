@@ -16,7 +16,7 @@ exports.addMeasurements = async (req, res) => {
       });
     }
 
-    // Check if measurements already exist
+    // Upsert pattern: update existing record or create new one to enforce one-per-user
     let measurement = await Measurement.findOne({ userId });
 
     if (measurement) {
