@@ -233,9 +233,10 @@ exports.createTryOn = async (req, res) => {
       await tryOn.save();
 
     } catch (aiError) {
-      console.error('AI processing error:', aiError);
+      console.error('AI processing error:', aiError.message);
       tryOn.status = 'failed';
       tryOn.errorMessage = aiError.message;
+      tryOn.completedAt = Date.now();
       await tryOn.save();
     }
 
