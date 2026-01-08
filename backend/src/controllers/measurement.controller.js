@@ -97,7 +97,8 @@ exports.getMeasurements = async (req, res) => {
 
     res.json({
       success: true,
-      measurement
+      measurement,
+      lastUpdated: measurement.lastUpdated
     });
   } catch (error) {
     console.error('Get measurements error:', error);
