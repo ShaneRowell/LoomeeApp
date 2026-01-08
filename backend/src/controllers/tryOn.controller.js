@@ -108,7 +108,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no backticks):
     
     console.log('🤖 Gemini raw response:', text);
 
-    // Extract JSON from response (remove markdown if present)
+    // Gemini may wrap JSON in markdown code fences — strip them before parsing
     let jsonText = text.trim();
     if (jsonText.startsWith('```json')) {
       jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
