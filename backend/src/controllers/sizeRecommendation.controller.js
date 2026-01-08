@@ -1,7 +1,11 @@
 const Measurement = require('../models/measurement.model');
 const Clothing = require('../models/clothing.model');
 
-// Size recommendation algorithm
+/**
+ * Size recommendation algorithm
+ * Scores each available size by comparing clothing measurements to user measurements.
+ * Each dimension contributes equally; a 1cm difference reduces score by 2 points from 100.
+ */
 const calculateSizeRecommendation = (userMeasurements, clothingSizes) => {
   const recommendations = [];
 
