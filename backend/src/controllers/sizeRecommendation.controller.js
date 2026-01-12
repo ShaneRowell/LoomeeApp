@@ -121,9 +121,11 @@ exports.getSizeRecommendation = async (req, res) => {
       fitScore: bestSize.fitScore,
       fitDescription: bestSize.fitDescription,
       allSizes: recommendations,
-      advice: bestSize.fitScore >= 75 
-        ? 'This size should fit you well!' 
-        : 'Consider trying the next size up or down for better fit.'
+      advice: bestSize.fitScore >= 90
+        ? 'This is your perfect size — order with confidence!'
+        : bestSize.fitScore >= 75
+          ? 'This size should fit you well!'
+          : 'Consider trying the next size up or down for better fit.'
     });
   } catch (error) {
     console.error('Size recommendation error:', error);
