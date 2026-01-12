@@ -151,6 +151,17 @@ const generateOutfitSuggestions = (clothing, categoryRecs) => {
       ],
       occasion: 'Office, business meeting'
     });
+  } else if (clothing.category === 'jacket') {
+    suggestions.push({
+      name: 'Street Style',
+      items: [
+        `${clothing.name}`,
+        'Plain t-shirt',
+        'Slim jeans',
+        'Sneakers'
+      ],
+      occasion: 'Casual outing, weekend'
+    });
   }
 
   return suggestions;
