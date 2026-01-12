@@ -32,7 +32,10 @@ const colorMatching = {
   gray: ['white', 'black', 'pink', 'blue', 'yellow'],
   beige: ['white', 'brown', 'navy', 'olive', 'burgundy'],
   red: ['black', 'white', 'navy', 'gray', 'denim'],
-  blue: ['white', 'beige', 'brown', 'gray', 'orange']
+  blue: ['white', 'beige', 'brown', 'gray', 'orange'],
+  green: ['white', 'beige', 'brown', 'navy', 'tan'],
+  purple: ['white', 'gray', 'black', 'gold', 'navy'],
+  orange: ['white', 'navy', 'brown', 'beige', 'black']
 };
 
 // Get fashion recommendations for a clothing item
