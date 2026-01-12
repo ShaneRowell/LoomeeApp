@@ -44,6 +44,7 @@ const calculateSizeRecommendation = (userMeasurements, clothingSizes) => {
     const fitScore = measurementCount > 0 ? Math.round(totalScore / measurementCount) : 0;
 
     // Determine fit description
+    // Fit description thresholds: 90+ = Perfect, 75+ = Great, 60+ = Good, 40+ = Acceptable
     let fitDescription = '';
     if (fitScore >= 90) fitDescription = 'Perfect Fit';
     else if (fitScore >= 75) fitDescription = 'Great Fit';
