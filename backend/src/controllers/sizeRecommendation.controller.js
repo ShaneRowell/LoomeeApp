@@ -150,6 +150,14 @@ exports.getBulkSizeRecommendations = async (req, res) => {
       });
     }
 
+    // Cap bulk requests to prevent excessive DB load
+    if (clothingIds.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum 20 items allowed per bulk request'
+      });
+    }
+
     // Get user measurements
     const userMeasurement = await Measurement.findOne({ userId });
     if (!userMeasurement) {
