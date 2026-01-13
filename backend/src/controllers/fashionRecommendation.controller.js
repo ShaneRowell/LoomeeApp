@@ -171,7 +171,7 @@ const generateOutfitSuggestions = (clothing, categoryRecs) => {
 const generateStyleTips = (clothing) => {
   const tips = [];
 
-  // Material-based tips
+  // Material-based care and styling tips
   if (clothing.material) {
     if (clothing.material.toLowerCase().includes('cotton')) {
       tips.push('Cotton is breathable and comfortable for all-day wear');
