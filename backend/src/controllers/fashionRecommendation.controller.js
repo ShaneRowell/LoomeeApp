@@ -215,10 +215,14 @@ exports.getPersonalizedRecommendations = async (req, res) => {
     // For now, provide general recommendations
 
     const recommendations = {
-      forYou: [
-        'Based on your measurements, athletic fit styles suit you best',
+      forYou: measurements ? [
+        `Based on your ${measurements.chest}cm chest, athletic fit styles suit you best`,
         'Your height is perfect for standard length garments',
         'Consider slim-fit options for a modern look'
+      ] : [
+        'Add your body measurements to receive personalized recommendations',
+        'Slim-fit and athletic cuts are currently trending',
+        'Neutral tones are versatile wardrobe staples'
       ],
       trendingNow: [
         'Oversized blazers are trending this season',
