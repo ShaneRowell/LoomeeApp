@@ -4,7 +4,7 @@ const presetImageController = require('../controllers/presetImage.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 const upload = require('../middleware/upload.middleware');
 
-// All routes require authentication
+// All routes require authentication — upload.single('image') accepts one file per request (max 5MB)
 router.post('/', authMiddleware, upload.single('image'), presetImageController.uploadPresetImage);
 router.get('/', authMiddleware, presetImageController.getPresetImages);
 router.get('/default', authMiddleware, presetImageController.getDefaultPresetImage);
