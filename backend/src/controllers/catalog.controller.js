@@ -177,7 +177,8 @@ exports.deleteClothing = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Clothing item deleted successfully'
+      message: 'Clothing item deleted successfully',
+      deletedId: id
     });
   } catch (error) {
     console.error('Delete clothing error:', error);
