@@ -289,7 +289,7 @@ exports.getTryOnById = async (req, res) => {
   }
 };
 
-// Get all try-ons for user
+// Get all try-ons for user (optionally filtered by status)
 exports.getUserTryOns = async (req, res) => {
   try {
     const userId = req.userId;
