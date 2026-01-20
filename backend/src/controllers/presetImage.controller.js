@@ -115,7 +115,7 @@ exports.deletePresetImage = async (req, res) => {
       });
     }
 
-    // Delete file from disk
+    // Attempt local file cleanup (for backward compatibility — Cloudinary files are managed separately)
     const filePath = path.join(__dirname, '../../', image.imageUrl);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
