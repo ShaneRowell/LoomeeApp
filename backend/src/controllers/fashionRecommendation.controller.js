@@ -1,7 +1,11 @@
 const Clothing = require('../models/clothing.model');
 const Measurement = require('../models/measurement.model');
 
-// Fashion recommendation database (in production, this could use Gemini AI)
+/**
+ * Fashion recommendation rules
+ * Maps clothing categories to complementary accessories, shoes, and layering items.
+ * In production this could be replaced with a Gemini AI call for dynamic suggestions.
+ */
 const fashionRules = {
   shirt: {
     accessories: ['watch', 'belt', 'necklace', 'bracelet'],
