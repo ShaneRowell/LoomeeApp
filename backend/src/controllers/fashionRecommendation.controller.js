@@ -201,8 +201,8 @@ const generateStyleTips = (clothing) => {
     tips.push('Versatile piece that works for any body type');
   }
 
-  // Season tips
-  tips.push('Layer appropriately based on weather');
+  // General seasonal tip — always applicable
+  tips.push('Layer appropriately based on weather and season');
 
   return tips;
 };
