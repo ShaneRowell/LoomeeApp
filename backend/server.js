@@ -22,6 +22,14 @@ app.get('/api/health', (req, res) => {
 const authRoutes = require('./src/routes/auth.routes');
 app.use('/api/auth', authRoutes);
 
+// Measurement routes
+const measurementRoutes = require('./src/routes/measurement.routes');
+app.use('/api/measurements', measurementRoutes);
+
+// Catalog routes
+const catalogRoutes = require('./src/routes/catalog.routes');
+app.use('/api/catalog', catalogRoutes);
+
 // Database connection
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -41,6 +49,10 @@ mongoose.connect(MONGODB_URI)
       console.log(`   POST http://localhost:${PORT}/api/auth/register`);
       console.log(`   POST http://localhost:${PORT}/api/auth/login`);
       console.log(`   GET  http://localhost:${PORT}/api/auth/me`);
+      console.log(`   POST http://localhost:${PORT}/api/measurements`);
+      console.log(`   GET  http://localhost:${PORT}/api/measurements`);
+      console.log(`   GET  http://localhost:${PORT}/api/catalog`);
+      console.log(`   POST http://localhost:${PORT}/api/catalog`);
     });
   })
   .catch((error) => {
