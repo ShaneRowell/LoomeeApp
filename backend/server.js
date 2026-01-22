@@ -30,6 +30,10 @@ app.use('/api/measurements', measurementRoutes);
 const catalogRoutes = require('./src/routes/catalog.routes');
 app.use('/api/catalog', catalogRoutes);
 
+// Size recommendation routes
+const sizeRecommendationRoutes = require('./src/routes/sizeRecommendation.routes');
+app.use('/api/size-recommendation', sizeRecommendationRoutes);
+
 // Database connection
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -53,6 +57,8 @@ mongoose.connect(MONGODB_URI)
       console.log(`   GET  http://localhost:${PORT}/api/measurements`);
       console.log(`   GET  http://localhost:${PORT}/api/catalog`);
       console.log(`   POST http://localhost:${PORT}/api/catalog`);
+      console.log(`   GET  http://localhost:${PORT}/api/size-recommendation/:clothingId`);
+      console.log(`   POST http://localhost:${PORT}/api/size-recommendation/bulk`);
     });
   })
   .catch((error) => {
