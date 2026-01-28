@@ -34,6 +34,17 @@ app.use('/api/catalog', catalogRoutes);
 const sizeRecommendationRoutes = require('./src/routes/sizeRecommendation.routes');
 app.use('/api/size-recommendation', sizeRecommendationRoutes);
 
+// Preset image routes
+const presetImageRoutes = require('./src/routes/presetImage.routes');
+app.use('/api/preset-images', presetImageRoutes);
+
+// AI Try-on routes
+const tryOnRoutes = require('./src/routes/tryOn.routes');
+app.use('/api/try-on', tryOnRoutes);
+
+// Serve uploaded files statically
+app.use('/uploads', express.static('uploads'));
+
 // Database connection
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -59,6 +70,10 @@ mongoose.connect(MONGODB_URI)
       console.log(`   POST http://localhost:${PORT}/api/catalog`);
       console.log(`   GET  http://localhost:${PORT}/api/size-recommendation/:clothingId`);
       console.log(`   POST http://localhost:${PORT}/api/size-recommendation/bulk`);
+      console.log(`   POST http://localhost:${PORT}/api/preset-images`);
+      console.log(`   GET  http://localhost:${PORT}/api/preset-images`);
+      console.log(`   POST http://localhost:${PORT}/api/try-on`);
+      console.log(`   GET  http://localhost:${PORT}/api/try-on`);
     });
   })
   .catch((error) => {
