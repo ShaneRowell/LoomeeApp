@@ -42,6 +42,10 @@ app.use('/api/preset-images', presetImageRoutes);
 const tryOnRoutes = require('./src/routes/tryOn.routes');
 app.use('/api/try-on', tryOnRoutes);
 
+// Fashion recommendation routes
+const fashionRecommendationRoutes = require('./src/routes/fashionRecommendation.routes');
+app.use('/api/fashion-recommendations', fashionRecommendationRoutes);
+
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
@@ -74,6 +78,8 @@ mongoose.connect(MONGODB_URI)
       console.log(`   GET  http://localhost:${PORT}/api/preset-images`);
       console.log(`   POST http://localhost:${PORT}/api/try-on`);
       console.log(`   GET  http://localhost:${PORT}/api/try-on`);
+      console.log(`   GET  http://localhost:${PORT}/api/fashion-recommendations/:clothingId`);
+      console.log(`   GET  http://localhost:${PORT}/api/fashion-recommendations/personalized/for-you`);
     });
   })
   .catch((error) => {
