@@ -7,6 +7,9 @@ const fs = require('fs');
 const path = require('path');
 
 // Initialize Gemini AI
+console.log('🔑 Gemini API Key:', process.env.GEMINI_API_KEY ? 'Loaded ✅' : 'Not found ❌');
+console.log('🔑 Key starts with:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 15) + '...' : 'N/A');
+
 const genAI = process.env.GEMINI_API_KEY 
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
@@ -18,9 +21,8 @@ const imageToBase64 = (imagePath) => {
   return imageBuffer.toString('base64');
 };
 
-// Simulate AI try-on (will use real Gemini API when key is added)
+// Simulate AI try-on (fallback)
 const simulateAITryOn = async (userImagePath, clothingImagePath, userMeasurements) => {
-  // This is a placeholder that will be replaced with real Gemini API calls
   return {
     success: true,
     resultImageUrl: '/uploads/tryon-result-placeholder.jpg',
@@ -29,78 +31,100 @@ const simulateAITryOn = async (userImagePath, clothingImagePath, userMeasurement
       tightAreas: [],
       looseAreas: ['shoulders'],
       recommendations: [
-        'The fit looks good overall',
-        'Slightly loose around shoulders - consider size down',
-        'Length is perfect for your height'
+        'The fit looks good overall based on your measurements',
+        'Chest: ' + userMeasurements.chest + 'cm should fit comfortably',
+        'Consider your preferred fit style when ordering'
       ],
       confidence: 85
     }
   };
 };
 
-// Real Gemini API integration (will be used when API key is configured)
-const processWithGemini = async (userImagePath, clothingImagePath, userMeasurements) => {
+// Real Gemini API integration
+const processWithGemini = async (userImagePath, clothingImagePath, userMeasurements, clothingDetails) => {
   if (!genAI) {
     throw new Error('Gemini API key not configured');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+  try {
+    const model = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
 
-  // Convert images to base64
-  const userImageBase64 = imageToBase64(userImagePath);
-  const clothingImageBase64 = imageToBase64(clothingImagePath);
+    // Read clothing image
+    const clothingImageBase64 = imageToBase64(clothingImagePath);
 
-  const prompt = `
-You are an AI fashion assistant. Analyze how this clothing item would fit on this person.
+    const prompt = `You are an AI fashion assistant analyzing clothing items for fit recommendations.
 
-User's body measurements:
+Analyze this clothing item and provide fit advice for a person with these measurements:
 - Chest: ${userMeasurements.chest}cm
-- Waist: ${userMeasurements.waist}cm  
+- Waist: ${userMeasurements.waist}cm
 - Hips: ${userMeasurements.hips}cm
 - Height: ${userMeasurements.height}cm
 
-Tasks:
-1. Analyze the fit based on the user's measurements
-2. Identify any areas that might be too tight or loose
-3. Provide specific recommendations
-4. Give an overall fit rating (perfect/good/acceptable/poor)
+Clothing Details:
+- Name: ${clothingDetails.name}
+- Category: ${clothingDetails.category}
+- Brand: ${clothingDetails.brand}
 
-Respond in JSON format with this structure:
+Tasks:
+1. Describe the clothing item you see
+2. Based on the measurements provided, suggest the best size
+3. Identify any potential fit issues (too tight/loose areas)
+4. Provide 2-3 specific recommendations
+
+Respond ONLY with valid JSON in this exact format (no markdown, no backticks):
 {
-  "overallFit": "good",
+  "clothingDescription": "brief description of the item",
+  "recommendedSize": "S/M/L/XL",
+  "overallFit": "perfect/good/acceptable/poor",
   "tightAreas": ["area1", "area2"],
   "looseAreas": ["area1"],
-  "recommendations": ["recommendation1", "recommendation2"],
+  "recommendations": ["recommendation1", "recommendation2", "recommendation3"],
   "confidence": 85
-}
-`;
+}`;
 
-  const result = await model.generateContent([
-    prompt,
-    {
-      inlineData: {
-        mimeType: 'image/jpeg',
-        data: userImageBase64
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: clothingImageBase64
+        }
       }
-    },
-    {
-      inlineData: {
-        mimeType: 'image/jpeg',
-        data: clothingImageBase64
-      }
+    ]);
+
+    const response = await result.response;
+    const text = response.text();
+    
+    console.log('🤖 Gemini raw response:', text);
+
+    // Extract JSON from response (remove markdown if present)
+    let jsonText = text.trim();
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+    } else if (jsonText.startsWith('```')) {
+      jsonText = jsonText.replace(/```\n?/g, '');
     }
-  ]);
 
-  const response = await result.response;
-  const text = response.text();
-  
-  // Parse JSON response
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    return JSON.parse(jsonMatch[0]);
+    const aiAnalysis = JSON.parse(jsonText);
+
+    return {
+      success: true,
+      resultImageUrl: '/uploads/tryon-result-placeholder.jpg',
+      fitAnalysis: {
+        overallFit: aiAnalysis.overallFit || 'good',
+        tightAreas: aiAnalysis.tightAreas || [],
+        looseAreas: aiAnalysis.looseAreas || [],
+        recommendations: aiAnalysis.recommendations || [],
+        confidence: aiAnalysis.confidence || 80
+      },
+      aiDescription: aiAnalysis.clothingDescription,
+      recommendedSize: aiAnalysis.recommendedSize
+    };
+
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    throw error;
   }
-  
-  throw new Error('Failed to parse AI response');
 };
 
 // Create AI try-on request
@@ -109,7 +133,6 @@ exports.createTryOn = async (req, res) => {
     const userId = req.userId;
     const { clothingId, presetImageId, clothingImageUrl } = req.body;
 
-    // Validate inputs
     if (!clothingId) {
       return res.status(400).json({
         success: false,
@@ -117,7 +140,6 @@ exports.createTryOn = async (req, res) => {
       });
     }
 
-    // Get user's default preset image if not specified
     let presetImage;
     if (presetImageId) {
       presetImage = await PresetImage.findOne({ _id: presetImageId, userId });
@@ -132,7 +154,6 @@ exports.createTryOn = async (req, res) => {
       });
     }
 
-    // Get clothing item
     const clothing = await Clothing.findById(clothingId);
     if (!clothing) {
       return res.status(404).json({
@@ -141,7 +162,6 @@ exports.createTryOn = async (req, res) => {
       });
     }
 
-    // Get user measurements
     const measurements = await Measurement.findOne({ userId });
     if (!measurements) {
       return res.status(404).json({
@@ -150,7 +170,6 @@ exports.createTryOn = async (req, res) => {
       });
     }
 
-    // Create try-on record
     const tryOn = new TryOn({
       userId,
       clothingId,
@@ -161,12 +180,11 @@ exports.createTryOn = async (req, res) => {
 
     await tryOn.save();
 
-    // Process with AI (async - in production this would be a background job)
     try {
       let aiResult;
       
-      if (genAI && process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
-        // Use real Gemini API
+      if (genAI && process.env.GEMINI_API_KEY) {
+        console.log('🤖 Using Gemini AI for analysis...');
         aiResult = await processWithGemini(
           presetImage.imageUrl,
           tryOn.clothingImageUrl,
@@ -175,10 +193,15 @@ exports.createTryOn = async (req, res) => {
             waist: measurements.waist,
             hips: measurements.hips,
             height: measurements.height
+          },
+          {
+            name: clothing.name,
+            category: clothing.category,
+            brand: clothing.brand
           }
         );
       } else {
-        // Use simulation
+        console.log('🔄 Using simulation mode...');
         aiResult = await simulateAITryOn(
           presetImage.imageUrl,
           tryOn.clothingImageUrl,
@@ -191,7 +214,6 @@ exports.createTryOn = async (req, res) => {
         );
       }
 
-      // Update try-on record
       tryOn.resultImageUrl = aiResult.resultImageUrl;
       tryOn.fitAnalysis = aiResult.fitAnalysis;
       tryOn.status = 'completed';
@@ -206,7 +228,6 @@ exports.createTryOn = async (req, res) => {
       await tryOn.save();
     }
 
-    // Return response
     res.status(201).json({
       success: true,
       message: 'Try-on request created successfully',
@@ -300,7 +321,6 @@ exports.deleteTryOn = async (req, res) => {
       });
     }
 
-    // Optionally delete result image file
     if (tryOn.resultImageUrl && tryOn.resultImageUrl.startsWith('/uploads/')) {
       const filePath = path.join(__dirname, '../../', tryOn.resultImageUrl);
       if (fs.existsSync(filePath)) {
