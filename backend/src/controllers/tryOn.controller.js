@@ -15,10 +15,19 @@ const genAI = process.env.GEMINI_API_KEY
   : null;
 
 // Helper function to convert image to base64
-const imageToBase64 = (imagePath) => {
-  const fullPath = path.join(__dirname, '../../', imagePath);
-  const imageBuffer = fs.readFileSync(fullPath);
-  return imageBuffer.toString('base64');
+const imageToBase64 = async (imagePath) => {
+  // Check if it's a Cloudinary URL
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    // Download from Cloudinary
+    const response = await fetch(imagePath);
+    const arrayBuffer = await response.arrayBuffer();
+    return Buffer.from(arrayBuffer).toString('base64');
+  } else {
+    // Local file (for backward compatibility)
+    const fullPath = path.join(__dirname, '../../', imagePath);
+    const imageBuffer = fs.readFileSync(fullPath);
+    return imageBuffer.toString('base64');
+  }
 };
 
 // Simulate AI try-on (fallback)
@@ -49,8 +58,8 @@ const processWithGemini = async (userImagePath, clothingImagePath, userMeasureme
   try {
     const model = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
 
-    // Read clothing image
-    const clothingImageBase64 = imageToBase64(clothingImagePath);
+    // Read clothing image (now supports Cloudinary URLs)
+    const clothingImageBase64 = await imageToBase64(clothingImagePath);
 
     const prompt = `You are an AI fashion assistant analyzing clothing items for fit recommendations.
 
