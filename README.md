@@ -25,20 +25,14 @@ Loomeé is a 2D image-based virtual fitting application that allows users to upl
 - Backend: Node.js + Express
 - AI / CV: MediaPipe, TensorFlow Lite
 - Database: MongoDB Atlas
-- Storage: AWS S3 / Firebase Storage
+- Storage: Cloudinary
 
 ## Repository Structure
 - `frontend/` – Mobile application
 - `backend/` – API and processing server
-- `ai/` – Pose detection, measurements, overlay logic
-- `cloud/` – Cloud and deployment configs
-- `docs/` – Diagrams and reports
 
 ## Team Workflow
 Each folder is owned by specific team members. Please work only in your assigned folders and use feature branches.
-
-## Getting Started
-See the README inside each folder for setup instructions.
 
 ## License
 Copyright © 2025 Team Loomeé - IIT
