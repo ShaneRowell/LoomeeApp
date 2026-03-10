@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/app_routes.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../services/storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -40,7 +41,12 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     if (authProvider.isAuthenticated) {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      final onboardingDone = await StorageService().isOnboardingCompleted();
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(
+        context,
+        onboardingDone ? AppRoutes.home : AppRoutes.onboarding,
+      );
     } else {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
