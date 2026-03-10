@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,31 @@ import '../try_on/try_on_history_screen.dart';
 import '../measurements/measurements_screen.dart';
 import '../preset_images/preset_images_screen.dart';
 
+// Hero carousel slide definitions
+const List<Map<String, dynamic>> _kHeroSlides = [
+  {
+    'colors': [Color(0xFF1A2338), Color(0xFF2D3F6B)],
+    'icon': Icons.layers_outlined,
+    'tag': 'TRY-ONS',
+    'title': 'Your Recent\nLooks',
+    'tab': 4,
+  },
+  {
+    'colors': [Color(0xFF0D1B2A), Color(0xFF1A3A4A)],
+    'icon': Icons.explore_outlined,
+    'tag': 'TRENDING',
+    'title': 'Trending\nStyles',
+    'tab': 1,
+  },
+  {
+    'colors': [Color(0xFF121212), Color(0xFF1E1E2E)],
+    'icon': Icons.favorite_border,
+    'tag': 'CURATED',
+    'title': 'Picked\nfor You',
+    'tab': 1,
+  },
+];
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -21,16 +48,79 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final _searchController = TextEditingController();
 
-  // Deep charcoal card colour as per design spec
+  // Deep charcoal card colour
   static const Color _cardColor = Color(0xFF1A1A1A);
+
+  // ── Entrance animation ─────────────────────────────────────────────
+  late AnimationController _entranceCtrl;
+  late Animation<double> _welcomeFade;
+  late Animation<Offset> _welcomeSlide;
+  late Animation<double> _heroFade;
+  late Animation<Offset> _heroSlide;
+  late Animation<double> _quickFade;
+  late Animation<Offset> _quickSlide;
+
+  // ── Hero carousel ──────────────────────────────────────────────────
+  late PageController _heroPageCtrl;
+  int _heroPage = 0;
+  Timer? _heroTimer;
 
   @override
   void initState() {
     super.initState();
+
+    // Entrance animations – staggered via Interval curves
+    _entranceCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 950),
+    );
+
+    _welcomeFade = CurvedAnimation(
+        parent: _entranceCtrl,
+        curve: const Interval(0.00, 0.55, curve: Curves.easeOut));
+    _welcomeSlide = Tween<Offset>(
+            begin: const Offset(0, 0.22), end: Offset.zero)
+        .animate(CurvedAnimation(
+            parent: _entranceCtrl,
+            curve: const Interval(0.00, 0.55, curve: Curves.easeOutCubic)));
+
+    _heroFade = CurvedAnimation(
+        parent: _entranceCtrl,
+        curve: const Interval(0.18, 0.72, curve: Curves.easeOut));
+    _heroSlide = Tween<Offset>(
+            begin: const Offset(0, 0.22), end: Offset.zero)
+        .animate(CurvedAnimation(
+            parent: _entranceCtrl,
+            curve: const Interval(0.18, 0.72, curve: Curves.easeOutCubic)));
+
+    _quickFade = CurvedAnimation(
+        parent: _entranceCtrl,
+        curve: const Interval(0.36, 1.00, curve: Curves.easeOut));
+    _quickSlide = Tween<Offset>(
+            begin: const Offset(0, 0.22), end: Offset.zero)
+        .animate(CurvedAnimation(
+            parent: _entranceCtrl,
+            curve: const Interval(0.36, 1.00, curve: Curves.easeOutCubic)));
+
+    _entranceCtrl.forward();
+
+    // Hero carousel
+    _heroPageCtrl = PageController();
+    _heroTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) return;
+      final next = (_heroPage + 1) % _kHeroSlides.length;
+      _heroPageCtrl.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CatalogProvider>().fetchClothing();
     });
@@ -38,6 +128,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    _entranceCtrl.dispose();
+    _heroPageCtrl.dispose();
+    _heroTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -55,10 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              'Log out',
-              style: TextStyle(color: AppTheme.errorColor),
-            ),
+            child: const Text('Log out',
+                style: TextStyle(color: AppTheme.errorColor)),
           ),
         ],
       ),
@@ -67,10 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await context.read<AuthProvider>().logout();
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.login,
-          (route) => false,
-        );
+            context, AppRoutes.login, (route) => false);
       }
     }
   }
@@ -79,87 +167,65 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       backgroundColor: AppTheme.white,
       builder: (ctx) => Consumer<AuthProvider>(
-        builder: (_, auth, __) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Handle bar
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppTheme.fontColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+        builder: (_, auth, __) => Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppTheme.fontColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(height: 24),
-                // Avatar
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _cardColor,
-                  ),
-                  child: const Icon(
-                    Icons.person_outline_rounded,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                if (auth.user?.name != null)
-                  Text(
-                    auth.user!.name,
+              ),
+              const SizedBox(height: 24),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: const BoxDecoration(
+                    shape: BoxShape.circle, color: _cardColor),
+                child: const Icon(Icons.person_outline_rounded,
+                    color: Colors.white, size: 30),
+              ),
+              const SizedBox(height: 12),
+              if (auth.user?.name != null)
+                Text(auth.user!.name,
                     style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.fontColor,
-                    ),
-                  ),
-                if (auth.user?.email != null)
-                  Text(
-                    auth.user!.email,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.fontColor)),
+              if (auth.user?.email != null)
+                Text(auth.user!.email,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: AppTheme.fontColor.withValues(alpha: 0.45),
-                    ),
-                  ),
-                const SizedBox(height: 24),
-                Divider(color: AppTheme.fontColor.withValues(alpha: 0.1)),
-                const SizedBox(height: 4),
-                ListTile(
-                  leading: const Icon(
-                    Icons.logout_rounded,
-                    color: AppTheme.errorColor,
-                    size: 20,
-                  ),
-                  title: Text(
-                    'Log out',
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
+                        color: AppTheme.fontColor.withValues(alpha: 0.45))),
+              const SizedBox(height: 24),
+              Divider(color: AppTheme.fontColor.withValues(alpha: 0.1)),
+              const SizedBox(height: 4),
+              ListTile(
+                leading: const Icon(Icons.logout_rounded,
+                    color: AppTheme.errorColor, size: 20),
+                title: Text('Log out',
                     style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.errorColor,
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _logout();
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: AppTheme.errorColor)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _logout();
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -173,22 +239,23 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildHomeTab(),
           _buildCatalogTab(),
-          const PresetImagesScreen(),   // index 2 — Upload (centre FAB)
-          const MeasurementsScreen(),   // index 3
-          const TryOnHistoryScreen(),   // index 4
+          const PresetImagesScreen(),  // index 2 — Upload (centre FAB)
+          const MeasurementsScreen(),  // index 3
+          const TryOnHistoryScreen(),  // index 4
         ],
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  // ── Bottom Navigation ─────────────────────────────────────────────────
+  // ── Bottom navigation ──────────────────────────────────────────────
 
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
             color: AppTheme.fontColor.withValues(alpha: 0.07),
@@ -203,8 +270,10 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 64,
           child: Row(
             children: [
-              _buildNavItem(Icons.home_outlined, Icons.home_rounded, 'Home', 0),
-              _buildNavItem(Icons.explore_outlined, Icons.explore_rounded, 'Explore', 1),
+              _buildNavItem(
+                  Icons.home_outlined, Icons.home_rounded, 'Home', 0),
+              _buildNavItem(Icons.explore_outlined, Icons.explore_rounded,
+                  'Explore', 1),
               // Centre Upload FAB
               Expanded(
                 child: GestureDetector(
@@ -226,18 +295,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.add_rounded,
-                          color: AppTheme.white,
-                          size: 26,
-                        ),
+                        child: const Icon(Icons.add_rounded,
+                            color: AppTheme.white, size: 26),
                       ),
                     ],
                   ),
                 ),
               ),
-              _buildNavItem(Icons.straighten_rounded, Icons.straighten_rounded, 'Measure', 3),
-              _buildNavItem(Icons.layers_outlined, Icons.layers_rounded, 'Try-Ons', 4),
+              _buildNavItem(Icons.straighten_rounded, Icons.straighten_rounded,
+                  'Measure', 3),
+              _buildNavItem(
+                  Icons.layers_outlined, Icons.layers_rounded, 'Try-Ons', 4),
             ],
           ),
         ),
@@ -245,12 +313,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNavItem(
-    IconData outlinedIcon,
-    IconData filledIcon,
-    String label,
-    int index,
-  ) {
+  Widget _buildNavItem(IconData outlinedIcon, IconData filledIcon,
+      String label, int index) {
     final isSelected = _currentIndex == index;
     return Expanded(
       child: GestureDetector(
@@ -271,7 +335,8 @@ class _HomeScreenState extends State<HomeScreen> {
               label,
               style: GoogleFonts.poppins(
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                fontWeight:
+                    isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
                     ? AppTheme.fontColor
                     : AppTheme.fontColor.withValues(alpha: 0.35),
@@ -283,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Home Tab ──────────────────────────────────────────────────────────
+  // ── Home Tab ───────────────────────────────────────────────────────
 
   Widget _buildHomeTab() {
     return SafeArea(
@@ -299,35 +364,71 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Welcome copy
-                      Text(
-                        'Hello, $name.',
-                        style: GoogleFonts.poppins(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.fontColor,
-                        ),
-                      ),
-                      Text(
-                        'What shall we design today?',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: AppTheme.fontColor.withValues(alpha: 0.45),
+                      // Welcome — slide in first
+                      FadeTransition(
+                        opacity: _welcomeFade,
+                        child: SlideTransition(
+                          position: _welcomeSlide,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hello, $name.',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.fontColor,
+                                  letterSpacing: -0.4,
+                                ),
+                              ),
+                              Text(
+                                'What shall we design today?',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                  color: AppTheme.fontColor
+                                      .withValues(alpha: 0.45),
+                                  letterSpacing: 0.1,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 28),
 
-                      // Recent Try-Ons — hero 16:9
-                      _buildSectionLabel('RECENT TRY-ONS'),
-                      const SizedBox(height: 10),
-                      _buildHeroCard(),
+                      // Hero carousel — slide in second
+                      FadeTransition(
+                        opacity: _heroFade,
+                        child: SlideTransition(
+                          position: _heroSlide,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionLabel('RECENT TRY-ONS'),
+                              const SizedBox(height: 10),
+                              _buildHeroCarousel(),
+                            ],
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 24),
 
-                      // Quick access cards
-                      _buildSectionLabel('QUICK ACCESS'),
-                      const SizedBox(height: 10),
-                      _buildQuickAccessCards(),
-                      const SizedBox(height: 8),
+                      // Quick access — slide in third
+                      FadeTransition(
+                        opacity: _quickFade,
+                        child: SlideTransition(
+                          position: _quickSlide,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionLabel('QUICK ACCESS'),
+                              const SizedBox(height: 10),
+                              _buildQuickAccessCards(),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   );
                 },
@@ -354,20 +455,37 @@ class _HomeScreenState extends State<HomeScreen> {
               letterSpacing: 0.5,
             ),
           ),
+          // Profile icon with notification dot
           IconButton(
             onPressed: _showProfileSheet,
-            icon: Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: AppTheme.fontColor.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.person_outline_rounded,
-                size: 20,
-                color: AppTheme.fontColor,
-              ),
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: AppTheme.fontColor.withValues(alpha: 0.06),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.person_outline_rounded,
+                      size: 20, color: AppTheme.fontColor),
+                ),
+                Positioned(
+                  top: -1,
+                  right: -1,
+                  child: Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: AppTheme.accentColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: AppTheme.backgroundColor, width: 1.5),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -381,111 +499,147 @@ class _HomeScreenState extends State<HomeScreen> {
       style: GoogleFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: AppTheme.fontColor.withValues(alpha: 0.4),
-        letterSpacing: 1.2,
+        color: AppTheme.fontColor.withValues(alpha: 0.38),
+        letterSpacing: 1.3,
       ),
     );
   }
 
-  Widget _buildHeroCard() {
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = 4),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Container(
-          decoration: BoxDecoration(
-            color: _cardColor,
-            borderRadius: BorderRadius.circular(24),
-          ),
+  // ── Hero carousel with glassmorphism overlay ───────────────────────
+
+  Widget _buildHeroCarousel() {
+    return Column(
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
-            child: Stack(
-              children: [
-                // Subtle gradient wash
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF1A1A1A), Color(0xFF2C2C2C)],
-                    ),
-                  ),
-                ),
-                // Decorative background icon
-                Positioned(
-                  right: -20,
-                  top: -20,
-                  child: Icon(
-                    Icons.checkroom_outlined,
-                    size: 180,
-                    color: AppTheme.white.withValues(alpha: 0.04),
-                  ),
-                ),
-                // Content
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppTheme.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'TRY-ONS',
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.white.withValues(alpha: 0.6),
-                            letterSpacing: 1.1,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Your Recent\nLooks',
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.white,
-                          height: 1.2,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Text(
-                            'View All',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppTheme.white.withValues(alpha: 0.55),
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.arrow_forward_rounded,
-                            size: 14,
-                            color: AppTheme.white.withValues(alpha: 0.55),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            child: PageView.builder(
+              controller: _heroPageCtrl,
+              itemCount: _kHeroSlides.length,
+              onPageChanged: (p) => setState(() => _heroPage = p),
+              itemBuilder: (_, i) => _buildHeroSlide(_kHeroSlides[i]),
             ),
           ),
         ),
+        const SizedBox(height: 10),
+        // Page indicator dots
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(_kHeroSlides.length, (i) {
+            final active = i == _heroPage;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: active ? 18 : 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: active
+                    ? AppTheme.fontColor
+                    : AppTheme.fontColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            );
+          }),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeroSlide(Map<String, dynamic> slide) {
+    final colors = slide['colors'] as List<Color>;
+    final tabDest = slide['tab'] as int;
+
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = tabDest),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Gradient background
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: colors,
+              ),
+            ),
+          ),
+          // Decorative icon
+          Positioned(
+            right: -20,
+            top: -20,
+            child: Icon(
+              slide['icon'] as IconData,
+              size: 190,
+              color: Colors.white.withValues(alpha: 0.04),
+            ),
+          ),
+          // Frosted glass content overlay at bottom
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 9, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                slide['tag'] as String,
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withValues(alpha: 0.65),
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              slide['title'] as String,
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                height: 1.15,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_rounded,
+                          size: 18,
+                          color: Colors.white.withValues(alpha: 0.5)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  // ── Quick access cards ─────────────────────────────────────────────
 
   Widget _buildQuickAccessCards() {
     return Row(
@@ -528,35 +682,26 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(
-              icon,
-              size: 26,
-              color: AppTheme.white.withValues(alpha: 0.85),
-            ),
+            Icon(icon, size: 26, color: Colors.white.withValues(alpha: 0.85)),
             const SizedBox(height: 20),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.white,
-              ),
-            ),
+            Text(label,
+                style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white)),
             const SizedBox(height: 2),
-            Text(
-              subtitle,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: AppTheme.white.withValues(alpha: 0.4),
-              ),
-            ),
+            Text(subtitle,
+                style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white.withValues(alpha: 0.4))),
           ],
         ),
       ),
     );
   }
 
-  // ── Catalog / Explore Tab ─────────────────────────────────────────────
+  // ── Catalog / Explore Tab ──────────────────────────────────────────
 
   Widget _buildCatalogTab() {
     return SafeArea(
@@ -570,40 +715,60 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: BoxDecoration(
               color: AppTheme.widgetColor.withValues(alpha: 0.06),
               borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(28),
-              ),
+                  bottom: Radius.circular(28)),
             ),
-            child: Text(
-              'Loomeé',
-              style: GoogleFonts.poppins(
-                fontSize: 26,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.fontColor,
-                letterSpacing: 0.5,
-              ),
-            ),
+            child: Text('Loomeé',
+                style: GoogleFonts.poppins(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.fontColor,
+                    letterSpacing: 0.5)),
           ),
           const SizedBox(height: 12),
+          // Translucent glassmorphic search bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) {
-                context.read<CatalogProvider>().setSearchQuery(value);
-              },
-              decoration: InputDecoration(
-                hintText: 'Search clothing...',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
-                        onPressed: () {
-                          _searchController.clear();
-                          context.read<CatalogProvider>().setSearchQuery('');
-                        },
-                      )
-                    : null,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.white.withValues(alpha: 0.78),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                        color: AppTheme.fontColor.withValues(alpha: 0.07)),
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: (v) {
+                      context.read<CatalogProvider>().setSearchQuery(v);
+                      setState(() {}); // refresh clear button
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Search clothing...',
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, size: 18),
+                              onPressed: () {
+                                _searchController.clear();
+                                context
+                                    .read<CatalogProvider>()
+                                    .setSearchQuery('');
+                                setState(() {});
+                              },
+                            )
+                          : null,
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 12),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: false,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -617,28 +782,49 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           const SizedBox(height: 8),
+          // Grid with ripple transition on category change
           Expanded(
             child: Consumer<CatalogProvider>(
               builder: (context, catalog, _) {
+                Widget content;
                 if (catalog.isLoading) {
-                  return const LoadingShimmer.card();
-                }
-                if (catalog.error != null) {
-                  return AppErrorWidget(
+                  content = const LoadingShimmer.card(
+                      key: ValueKey('shimmer'));
+                } else if (catalog.error != null) {
+                  content = AppErrorWidget(
+                    key: const ValueKey('error'),
                     message: catalog.error!,
                     onRetry: () => catalog.fetchClothing(),
                   );
-                }
-                if (catalog.clothingItems.isEmpty) {
-                  return const EmptyStateWidget(
+                } else if (catalog.clothingItems.isEmpty) {
+                  content = const EmptyStateWidget(
+                    key: ValueKey('empty'),
                     icon: Icons.checkroom,
                     title: 'No clothing found',
                     subtitle: 'Try adjusting your filters or search query',
                   );
+                } else {
+                  content = ClothingGrid(
+                    key: ValueKey(catalog.selectedCategory),
+                    items: catalog.clothingItems,
+                    onRefresh: () => catalog.fetchClothing(),
+                  );
                 }
-                return ClothingGrid(
-                  items: catalog.clothingItems,
-                  onRefresh: () => catalog.fetchClothing(),
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 280),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0.06, 0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOutCubic)),
+                      child: child,
+                    ),
+                  ),
+                  child: content,
                 );
               },
             ),

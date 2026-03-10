@@ -11,6 +11,10 @@ class AppTheme {
   static const Color successColor = Color(0xFF388E3C);
   static const Color warningColor = Color(0xFFF57C00);
 
+  // Extended palette
+  static const Color deepNavy = Color(0xFF1A2338);
+  static const Color charcoal = Color(0xFF121212);
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -26,21 +30,21 @@ class AppTheme {
         onError: white,
       ),
       textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-        displayLarge: GoogleFonts.poppins(color: fontColor),
-        displayMedium: GoogleFonts.poppins(color: fontColor),
-        displaySmall: GoogleFonts.poppins(color: fontColor),
-        headlineLarge: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w600),
-        headlineMedium: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w600),
-        headlineSmall: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w600),
-        titleLarge: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w600),
-        titleMedium: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w500),
-        titleSmall: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w500),
-        bodyLarge: GoogleFonts.inter(color: fontColor),
-        bodyMedium: GoogleFonts.inter(color: fontColor),
-        bodySmall: GoogleFonts.inter(color: fontColor),
-        labelLarge: GoogleFonts.inter(color: fontColor, fontWeight: FontWeight.w500),
-        labelMedium: GoogleFonts.inter(color: fontColor),
-        labelSmall: GoogleFonts.inter(color: fontColor),
+        displayLarge: GoogleFonts.poppins(color: fontColor, letterSpacing: -0.5),
+        displayMedium: GoogleFonts.poppins(color: fontColor, letterSpacing: -0.3),
+        displaySmall: GoogleFonts.poppins(color: fontColor, letterSpacing: -0.2),
+        headlineLarge: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+        headlineMedium: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w700, letterSpacing: -0.3),
+        headlineSmall: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w600, letterSpacing: -0.2),
+        titleLarge: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w600, letterSpacing: 0.1),
+        titleMedium: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w500, letterSpacing: 0.1),
+        titleSmall: GoogleFonts.poppins(color: fontColor, fontWeight: FontWeight.w500, letterSpacing: 0.15),
+        bodyLarge: GoogleFonts.inter(color: fontColor, letterSpacing: 0.1),
+        bodyMedium: GoogleFonts.inter(color: fontColor, letterSpacing: 0.1),
+        bodySmall: GoogleFonts.inter(color: fontColor, fontWeight: FontWeight.w300, letterSpacing: 0.2),
+        labelLarge: GoogleFonts.inter(color: fontColor, fontWeight: FontWeight.w500, letterSpacing: 0.3),
+        labelMedium: GoogleFonts.inter(color: fontColor, letterSpacing: 0.2),
+        labelSmall: GoogleFonts.inter(color: fontColor, fontWeight: FontWeight.w300, letterSpacing: 0.4),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColor,

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +7,6 @@ import 'package:provider/provider.dart';
 import '../../config/app_routes.dart';
 import '../../config/app_theme.dart';
 import '../../providers/try_on_provider.dart';
-import '../../widgets/common/empty_state_widget.dart';
 import '../../widgets/common/loading_shimmer.dart';
 import '../../widgets/try_on/try_on_status_badge.dart';
 
@@ -17,15 +17,41 @@ class TryOnHistoryScreen extends StatefulWidget {
   State<TryOnHistoryScreen> createState() => _TryOnHistoryScreenState();
 }
 
-class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
+class _TryOnHistoryScreenState extends State<TryOnHistoryScreen>
+    with SingleTickerProviderStateMixin {
   String? _statusFilter;
+  late AnimationController _particleCtrl;
+  late List<_Particle> _particles;
 
   @override
   void initState() {
     super.initState();
+    _particleCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 8),
+    )..repeat();
+
+    final rng = math.Random(17);
+    _particles = List.generate(32, (_) => _Particle(
+      baseX: rng.nextDouble(),
+      baseY: rng.nextDouble(),
+      amplitude: 8 + rng.nextDouble() * 18,
+      phase: rng.nextDouble() * 2 * math.pi,
+      frequency: 0.35 + rng.nextDouble() * 0.9,
+      radius: 1.5 + rng.nextDouble() * 3.2,
+      opacity: 0.08 + rng.nextDouble() * 0.22,
+      useAccent: rng.nextBool(),
+    ));
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TryOnProvider>().fetchTryOns();
     });
+  }
+
+  @override
+  void dispose() {
+    _particleCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -42,6 +68,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: AppTheme.fontColor,
+                letterSpacing: -0.3,
               ),
             ),
           ),
@@ -68,19 +95,10 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
               builder: (context, provider, _) {
                 if (provider.isLoading) return const LoadingShimmer.list();
                 if (provider.tryOns.isEmpty) {
-                  return EmptyStateWidget(
-                    icon: Icons.camera_alt_outlined,
-                    title: 'No try-ons yet',
-                    subtitle: 'Start a virtual try-on from the catalog',
-                    actionLabel: 'Browse Catalog',
-                    onAction: () =>
-                        Navigator.pushReplacementNamed(context, AppRoutes.home),
-                  );
+                  return _buildParticleEmptyState();
                 }
-
                 return RefreshIndicator(
-                  onRefresh: () =>
-                      provider.fetchTryOns(status: _statusFilter),
+                  onRefresh: () => provider.fetchTryOns(status: _statusFilter),
                   child: ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: provider.tryOns.length,
@@ -129,8 +147,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                           width: 65,
                                           height: 65,
                                           fit: BoxFit.cover,
-                                          errorWidget: (_, __, ___) =>
-                                              _placeholder(),
+                                          errorWidget: (_, __, ___) => _placeholder(),
                                         )
                                       : _placeholder(),
                                 ),
@@ -154,8 +171,8 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                         tryOn.clothing?.brand ?? '',
                                         style: GoogleFonts.inter(
                                           fontSize: 12,
-                                          color: AppTheme.fontColor
-                                              .withValues(alpha: 0.5),
+                                          fontWeight: FontWeight.w300,
+                                          color: AppTheme.fontColor.withValues(alpha: 0.5),
                                         ),
                                       ),
                                       const SizedBox(height: 6),
@@ -165,12 +182,10 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                           const Spacer(),
                                           if (tryOn.createdAt != null)
                                             Text(
-                                              DateFormat('MMM d')
-                                                  .format(tryOn.createdAt!),
+                                              DateFormat('MMM d').format(tryOn.createdAt!),
                                               style: GoogleFonts.inter(
                                                 fontSize: 11,
-                                                color: AppTheme.fontColor
-                                                    .withValues(alpha: 0.4),
+                                                color: AppTheme.fontColor.withValues(alpha: 0.4),
                                               ),
                                             ),
                                         ],
@@ -199,6 +214,155 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
     );
   }
 
+  // ── Particle empty state ───────────────────────────────────────────
+
+  Widget _buildParticleEmptyState() {
+    return Stack(
+      children: [
+        // Particle background
+        AnimatedBuilder(
+          animation: _particleCtrl,
+          builder: (_, __) => CustomPaint(
+            painter: _ParticlePainter(
+              animation: _particleCtrl,
+              particles: _particles,
+            ),
+            child: const SizedBox.expand(),
+          ),
+        ),
+        // Content overlay
+        Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // "Try-On of the Day" blurred placeholder card
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: _buildTodayCard(),
+              ),
+              const SizedBox(height: 36),
+              Text(
+                'No try-ons yet',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.fontColor,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Start a virtual try-on from the catalog',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w300,
+                  color: AppTheme.fontColor.withValues(alpha: 0.5),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pushReplacementNamed(
+                      context, AppRoutes.home),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.deepNavy,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                  ),
+                  child: Text(
+                    'Browse Catalog',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTodayCard() {
+    return AspectRatio(
+      aspectRatio: 3 / 2,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [AppTheme.deepNavy, Color(0xFF2D3F6B)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.deepNavy.withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Stack(
+          children: [
+            // Decorative icon
+            Positioned(
+              right: -12,
+              bottom: -12,
+              child: Icon(
+                Icons.checkroom_outlined,
+                size: 120,
+                color: Colors.white.withValues(alpha: 0.05),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'TRY-ON OF THE DAY',
+                      style: GoogleFonts.inter(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.65),
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Start creating\nyour look',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Filter chips ───────────────────────────────────────────────────
+
   Widget _filterChip(String label, String? status) {
     final isSelected = _statusFilter == status;
     return GestureDetector(
@@ -206,14 +370,15 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
         setState(() => _statusFilter = status);
         context.read<TryOnProvider>().fetchTryOns(status: status);
       },
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.widgetColor : AppTheme.white,
+          color: isSelected ? AppTheme.deepNavy : AppTheme.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
-                ? AppTheme.widgetColor
+                ? AppTheme.deepNavy
                 : AppTheme.fontColor.withValues(alpha: 0.15),
           ),
         ),
@@ -238,4 +403,72 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
       child: const Icon(Icons.checkroom, size: 28, color: Colors.grey),
     );
   }
+}
+
+// ── Particle data ──────────────────────────────────────────────────────
+
+class _Particle {
+  final double baseX;
+  final double baseY;
+  final double amplitude;
+  final double phase;
+  final double frequency;
+  final double radius;
+  final double opacity;
+  final bool useAccent;
+
+  const _Particle({
+    required this.baseX,
+    required this.baseY,
+    required this.amplitude,
+    required this.phase,
+    required this.frequency,
+    required this.radius,
+    required this.opacity,
+    required this.useAccent,
+  });
+}
+
+// ── Particle painter ───────────────────────────────────────────────────
+
+class _ParticlePainter extends CustomPainter {
+  final Animation<double> animation;
+  final List<_Particle> particles;
+
+  _ParticlePainter({required this.animation, required this.particles})
+      : super(repaint: animation);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final t = animation.value;
+    for (final p in particles) {
+      // Smooth orbital floating — x and y use different frequency factors
+      // so each particle traces a slightly elliptical, never-repeating path
+      final x = p.baseX * size.width +
+          math.cos(t * 2 * math.pi * p.frequency + p.phase) * p.amplitude;
+      final y = p.baseY * size.height +
+          math.sin(t * 2 * math.pi * p.frequency * 0.7 + p.phase + math.pi / 3) *
+              p.amplitude;
+
+      // Opacity breathes slightly with time
+      final alpha = (p.opacity *
+              (0.55 +
+                  0.45 *
+                      math.sin(
+                          t * 2 * math.pi * p.frequency * 1.4 + p.phase)))
+          .clamp(0.04, 0.45);
+
+      final color = p.useAccent ? AppTheme.accentColor : AppTheme.deepNavy;
+      canvas.drawCircle(
+        Offset(x, y),
+        p.radius,
+        Paint()
+          ..color = color.withValues(alpha: alpha)
+          ..style = PaintingStyle.fill,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ParticlePainter old) => false;
 }
