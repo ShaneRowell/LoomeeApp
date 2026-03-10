@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,6 +17,7 @@ class PresetImagesScreen extends StatefulWidget {
 
 class _PresetImagesScreenState extends State<PresetImagesScreen> {
   final ImagePicker _picker = ImagePicker();
+  XFile? _selectedImage;
 
   @override
   void initState() {
@@ -33,6 +35,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
       imageQuality: 85,
     );
     if (image == null || !mounted) return;
+    setState(() => _selectedImage = image);
 
     String imageType = 'front';
     bool isDefault = false;
@@ -113,26 +116,35 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                         strokeAlign: BorderSide.strokeAlignOutside,
                       ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.accessibility_new,
-                          size: 64,
-                          color: AppTheme.widgetColor.withValues(alpha: 0.4),
-                        ),
-                        if (provider.images.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: AppTheme.fontColor.withValues(alpha: 0.5),
-                              ),
+                    child: ClipOval(
+                      child: _selectedImage != null
+                          ? Image.file(
+                              File(_selectedImage!.path),
+                              width: 200,
+                              height: 200,
+                              fit: BoxFit.cover,
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.accessibility_new,
+                                  size: 64,
+                                  color: AppTheme.widgetColor.withValues(alpha: 0.4),
+                                ),
+                                if (provider.images.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        color: AppTheme.fontColor.withValues(alpha: 0.5),
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
-                          ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 32),
