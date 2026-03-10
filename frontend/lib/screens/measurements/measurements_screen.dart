@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
@@ -101,6 +102,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
       unit: _unit,
     );
 
+    HapticFeedback.mediumImpact();
     final success =
         await context.read<MeasurementProvider>().saveMeasurements(measurement);
     if (success && mounted) {
@@ -257,7 +259,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
       height: 180,
       decoration: BoxDecoration(
         color: AppTheme.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
             color: AppTheme.fontColor.withValues(alpha: 0.05),
@@ -354,12 +356,27 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
             ),
           ),
         ),
-        Text(
-          display,
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.fontColor,
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.5),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                  parent: animation, curve: Curves.easeOutCubic)),
+              child: child,
+            ),
+          ),
+          child: Text(
+            display,
+            key: ValueKey(display),
+            style: GoogleFonts.poppins(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.fontColor,
+            ),
           ),
         ),
       ],

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_routes.dart';
@@ -11,7 +12,6 @@ import '../../widgets/clothing/category_tabs.dart';
 import '../../widgets/clothing/clothing_grid.dart';
 import '../../widgets/common/loading_shimmer.dart';
 import '../../widgets/common/error_widget.dart';
-import '../../widgets/common/empty_state_widget.dart';
 import '../try_on/try_on_history_screen.dart';
 import '../measurements/measurements_screen.dart';
 import '../preset_images/preset_images_screen.dart';
@@ -52,6 +52,8 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   final _searchController = TextEditingController();
+  final _searchFocus = FocusNode();
+  bool _searchFocused = false;
 
   // Deep charcoal card colour
   static const Color _cardColor = Color(0xFF1A1A1A);
@@ -108,6 +110,9 @@ class _HomeScreenState extends State<HomeScreen>
             curve: const Interval(0.36, 1.00, curve: Curves.easeOutCubic)));
 
     _entranceCtrl.forward();
+    _searchFocus.addListener(() {
+      setState(() => _searchFocused = _searchFocus.hasFocus);
+    });
 
     // Hero carousel
     _heroPageCtrl = PageController();
@@ -132,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen>
     _heroPageCtrl.dispose();
     _heroTimer?.cancel();
     _searchController.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
@@ -251,62 +257,84 @@ class _HomeScreenState extends State<HomeScreen>
   // ── Bottom navigation ──────────────────────────────────────────────
 
   Widget _buildBottomNav() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.white,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.fontColor.withValues(alpha: 0.07),
-            blurRadius: 16,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            children: [
-              _buildNavItem(
-                  Icons.home_outlined, Icons.home_rounded, 'Home', 0),
-              _buildNavItem(Icons.explore_outlined, Icons.explore_rounded,
-                  'Explore', 1),
-              // Centre Upload FAB
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _currentIndex = 2),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: _cardColor,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: _cardColor.withValues(alpha: 0.35),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(Icons.add_rounded,
-                            color: AppTheme.white, size: 26),
-                      ),
-                    ],
-                  ),
-                ),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.white.withValues(alpha: 0.82),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(20)),
+            border: Border(
+              top: BorderSide(
+                color: AppTheme.fontColor.withValues(alpha: 0.05),
+                width: 0.5,
               ),
-              _buildNavItem(Icons.straighten_rounded, Icons.straighten_rounded,
-                  'Measure', 3),
-              _buildNavItem(
-                  Icons.layers_outlined, Icons.layers_rounded, 'Try-Ons', 4),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.fontColor.withValues(alpha: 0.06),
+                blurRadius: 16,
+                offset: const Offset(0, -2),
+              ),
             ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 64,
+              child: Row(
+                children: [
+                  _buildNavItem(
+                      Icons.home_outlined, Icons.home_rounded, 'Home', 0),
+                  _buildNavItem(Icons.explore_outlined, Icons.explore_rounded,
+                      'Explore', 1),
+                  // Centre Upload FAB with 45° rotation animation
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        setState(() => _currentIndex = 2);
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: _cardColor,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: _cardColor.withValues(alpha: 0.35),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: AnimatedRotation(
+                              turns: _currentIndex == 2 ? 0.125 : 0.0,
+                              duration: const Duration(milliseconds: 350),
+                              curve: Curves.easeOutBack,
+                              child: const Icon(Icons.add_rounded,
+                                  color: AppTheme.white, size: 26),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  _buildNavItem(
+                      Icons.straighten_rounded,
+                      Icons.straighten_rounded,
+                      'Measure',
+                      3),
+                  _buildNavItem(Icons.layers_outlined, Icons.layers_rounded,
+                      'Try-Ons', 4),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -318,7 +346,10 @@ class _HomeScreenState extends State<HomeScreen>
     final isSelected = _currentIndex == index;
     return Expanded(
       child: GestureDetector(
-        onTap: () => setState(() => _currentIndex = index),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          setState(() => _currentIndex = index);
+        },
         behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -352,140 +383,149 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildHomeTab() {
     return SafeArea(
-      child: Column(
+      child: Stack(
         children: [
-          _buildHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-              child: Consumer<AuthProvider>(
-                builder: (context, auth, _) {
-                  final name = auth.user?.name ?? 'there';
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // Scrollable content — padded top so it starts below the floating header
+          SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 72, 20, 24),
+            child: Consumer<AuthProvider>(
+              builder: (context, auth, _) {
+                final name = auth.user?.name ?? 'there';
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Welcome — slide in first
+                    FadeTransition(
+                      opacity: _welcomeFade,
+                      child: SlideTransition(
+                        position: _welcomeSlide,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hello, $name.',
+                              style: GoogleFonts.poppins(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w700,
+                                color: AppTheme.fontColor,
+                                letterSpacing: -0.4,
+                              ),
+                            ),
+                            Text(
+                              'What shall we design today?',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w300,
+                                color: AppTheme.fontColor
+                                    .withValues(alpha: 0.45),
+                                letterSpacing: 0.1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Hero carousel — slide in second
+                    FadeTransition(
+                      opacity: _heroFade,
+                      child: SlideTransition(
+                        position: _heroSlide,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionLabel('RECENT TRY-ONS'),
+                            const SizedBox(height: 10),
+                            _buildHeroCarousel(),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Quick access — slide in third
+                    FadeTransition(
+                      opacity: _quickFade,
+                      child: SlideTransition(
+                        position: _quickSlide,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildSectionLabel('QUICK ACCESS'),
+                            const SizedBox(height: 10),
+                            _buildQuickAccessCards(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          // Floating glassmorphic header
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: AppTheme.backgroundColor.withValues(alpha: 0.82),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 8, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Welcome — slide in first
-                      FadeTransition(
-                        opacity: _welcomeFade,
-                        child: SlideTransition(
-                          position: _welcomeSlide,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Hello, $name.',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.fontColor,
-                                  letterSpacing: -0.4,
-                                ),
-                              ),
-                              Text(
-                                'What shall we design today?',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300,
-                                  color: AppTheme.fontColor
-                                      .withValues(alpha: 0.45),
-                                  letterSpacing: 0.1,
-                                ),
-                              ),
-                            ],
-                          ),
+                      Text(
+                        'Loomeé',
+                        style: GoogleFonts.poppins(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.fontColor,
+                          letterSpacing: 0.5,
                         ),
                       ),
-                      const SizedBox(height: 28),
-
-                      // Hero carousel — slide in second
-                      FadeTransition(
-                        opacity: _heroFade,
-                        child: SlideTransition(
-                          position: _heroSlide,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSectionLabel('RECENT TRY-ONS'),
-                              const SizedBox(height: 10),
-                              _buildHeroCarousel(),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Quick access — slide in third
-                      FadeTransition(
-                        opacity: _quickFade,
-                        child: SlideTransition(
-                          position: _quickSlide,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildSectionLabel('QUICK ACCESS'),
-                              const SizedBox(height: 10),
-                              _buildQuickAccessCards(),
-                            ],
-                          ),
+                      IconButton(
+                        onPressed: _showProfileSheet,
+                        icon: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color:
+                                    AppTheme.fontColor.withValues(alpha: 0.06),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.person_outline_rounded,
+                                  size: 20, color: AppTheme.fontColor),
+                            ),
+                            Positioned(
+                              top: -1,
+                              right: -1,
+                              child: Container(
+                                width: 9,
+                                height: 9,
+                                decoration: BoxDecoration(
+                                  color: AppTheme.accentColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: AppTheme.backgroundColor,
+                                      width: 1.5),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 8, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Loomeé',
-            style: GoogleFonts.poppins(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.fontColor,
-              letterSpacing: 0.5,
-            ),
-          ),
-          // Profile icon with notification dot
-          IconButton(
-            onPressed: _showProfileSheet,
-            icon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: AppTheme.fontColor.withValues(alpha: 0.06),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(Icons.person_outline_rounded,
-                      size: 20, color: AppTheme.fontColor),
-                ),
-                Positioned(
-                  top: -1,
-                  right: -1,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(
-                      color: AppTheme.accentColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: AppTheme.backgroundColor, width: 1.5),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
         ],
@@ -513,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen>
         AspectRatio(
           aspectRatio: 16 / 9,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(28),
             child: PageView.builder(
               controller: _heroPageCtrl,
               itemCount: _kHeroSlides.length,
@@ -677,7 +717,7 @@ class _HomeScreenState extends State<HomeScreen>
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: _cardColor,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -708,64 +748,91 @@ class _HomeScreenState extends State<HomeScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-            decoration: BoxDecoration(
-              color: AppTheme.widgetColor.withValues(alpha: 0.06),
-              borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(28)),
+          // Glassmorphic header
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.backgroundColor.withValues(alpha: 0.88),
+                  borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(28)),
+                ),
+                child: Text('Loomeé',
+                    style: GoogleFonts.poppins(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.fontColor,
+                        letterSpacing: 0.5)),
+              ),
             ),
-            child: Text('Loomeé',
-                style: GoogleFonts.poppins(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.fontColor,
-                    letterSpacing: 0.5)),
           ),
           const SizedBox(height: 12),
-          // Translucent glassmorphic search bar
+          // Search bar with focus opacity + shadow animation
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.white.withValues(alpha: 0.78),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                        color: AppTheme.fontColor.withValues(alpha: 0.07)),
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (v) {
-                      context.read<CatalogProvider>().setSearchQuery(v);
-                      setState(() {}); // refresh clear button
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search clothing...',
-                      prefixIcon: const Icon(Icons.search, size: 20),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, size: 18),
-                              onPressed: () {
-                                _searchController.clear();
-                                context
-                                    .read<CatalogProvider>()
-                                    .setSearchQuery('');
-                                setState(() {});
-                              },
-                            )
-                          : null,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 12),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      filled: false,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: _searchFocused
+                    ? [
+                        BoxShadow(
+                          color: AppTheme.fontColor.withValues(alpha: 0.12),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Opacity(
+                opacity: _searchFocused ? 1.0 : 0.72,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.white.withValues(alpha: 0.88),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: _searchFocused
+                              ? AppTheme.fontColor.withValues(alpha: 0.2)
+                              : AppTheme.fontColor.withValues(alpha: 0.07),
+                        ),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocus,
+                        onChanged: (v) {
+                          context.read<CatalogProvider>().setSearchQuery(v);
+                          setState(() {});
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search clothing...',
+                          prefixIcon: const Icon(Icons.search, size: 20),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 18),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    context
+                                        .read<CatalogProvider>()
+                                        .setSearchQuery('');
+                                    setState(() {});
+                                  },
+                                )
+                              : null,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -788,8 +855,8 @@ class _HomeScreenState extends State<HomeScreen>
               builder: (context, catalog, _) {
                 Widget content;
                 if (catalog.isLoading) {
-                  content = const LoadingShimmer.card(
-                      key: ValueKey('shimmer'));
+                  content =
+                      const LoadingShimmer.card(key: ValueKey('shimmer'));
                 } else if (catalog.error != null) {
                   content = AppErrorWidget(
                     key: const ValueKey('error'),
@@ -797,12 +864,8 @@ class _HomeScreenState extends State<HomeScreen>
                     onRetry: () => catalog.fetchClothing(),
                   );
                 } else if (catalog.clothingItems.isEmpty) {
-                  content = const EmptyStateWidget(
-                    key: ValueKey('empty'),
-                    icon: Icons.checkroom,
-                    title: 'No clothing found',
-                    subtitle: 'Try adjusting your filters or search query',
-                  );
+                  content =
+                      _buildMosaicEmptyState(key: const ValueKey('empty'));
                 } else {
                   content = ClothingGrid(
                     key: ValueKey(catalog.selectedCategory),
@@ -819,8 +882,7 @@ class _HomeScreenState extends State<HomeScreen>
                         begin: const Offset(0.06, 0),
                         end: Offset.zero,
                       ).animate(CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeOutCubic)),
+                          parent: animation, curve: Curves.easeOutCubic)),
                       child: child,
                     ),
                   ),
@@ -831,6 +893,94 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMosaicEmptyState({Key? key}) {
+    const List<List<Color>> tiles = [
+      [Color(0xFF1A2338), Color(0xFF2D3F6B)],
+      [Color(0xFF0D1B2A), Color(0xFF1A3A4A)],
+      [Color(0xFFB76E79), Color(0xFF8B4E57)],
+      [Color(0xFF121212), Color(0xFF2D2D2D)],
+      [Color(0xFF1E3A2E), Color(0xFF2D5A3A)],
+      [Color(0xFF2D1B3A), Color(0xFFB76E79)],
+      [Color(0xFF1A2338), Color(0xFFB76E79)],
+      [Color(0xFF2D3A1A), Color(0xFF1A2D14)],
+      [Color(0xFF1A2338), Color(0xFF283752)],
+    ];
+    return Stack(
+      key: key,
+      fit: StackFit.expand,
+      children: [
+        GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            childAspectRatio: 0.75,
+          ),
+          itemCount: tiles.length,
+          itemBuilder: (_, i) => Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: tiles[i],
+              ),
+            ),
+          ),
+        ),
+        BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+          child: Container(
+            color: AppTheme.backgroundColor.withValues(alpha: 0.62),
+          ),
+        ),
+        Center(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 40),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppTheme.white.withValues(alpha: 0.92),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.fontColor.withValues(alpha: 0.08),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.checkroom_outlined,
+                    size: 40,
+                    color: AppTheme.fontColor.withValues(alpha: 0.4)),
+                const SizedBox(height: 12),
+                Text(
+                  'No clothing found',
+                  style: GoogleFonts.poppins(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.fontColor,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Try adjusting your filters\nor search query',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w300,
+                    color: AppTheme.fontColor.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
