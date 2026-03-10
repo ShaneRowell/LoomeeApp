@@ -1,3 +1,7 @@
+/**
+ * Loomee Backend API Server
+ * Virtual try-on and fashion recommendation platform
+ */
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,14 +11,16 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.json({
     status: 'Server is running!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()) + 's',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -49,6 +55,11 @@ app.use('/api/fashion-recommendations', fashionRecommendationRoutes);
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
+// 404 handler for unregistered API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ success: false, message: 'API endpoint not found' });
+});
+
 // Database connection
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -60,7 +71,7 @@ if (!MONGODB_URI) {
 
 mongoose.connect(MONGODB_URI)
   .then(() => {
-    console.log('✅ Connected to MongoDB');
+    console.log('✅ Connected to MongoDB successfully');
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`\n📍 Available endpoints:`);
@@ -84,6 +95,8 @@ mongoose.connect(MONGODB_URI)
   })
   .catch((error) => {
     console.error('❌ MongoDB connection error:', error.message);
+    console.error('💡 Check your MONGODB_URI in .env file');
+    process.exit(1);
   });
 
 module.exports = app;

@@ -8,14 +8,15 @@ exports.addMeasurements = async (req, res) => {
     const userId = req.userId;
 
     // Validate required fields
-    if (!chest || !waist || !hips || !height || !weight) {
+    const missingFields = ['chest', 'waist', 'hips', 'height', 'weight'].filter(f => !req.body[f]);
+    if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide chest, waist, hips, height, and weight'
+        message: `Missing required fields: ${missingFields.join(', ')}`
       });
     }
 
-    // Check if measurements already exist
+    // Upsert pattern: update existing record or create new one to enforce one-per-user
     let measurement = await Measurement.findOne({ userId });
 
     if (measurement) {
@@ -96,7 +97,8 @@ exports.getMeasurements = async (req, res) => {
 
     res.json({
       success: true,
-      measurement
+      measurement,
+      lastUpdated: measurement.lastUpdated
     });
   } catch (error) {
     console.error('Get measurements error:', error);

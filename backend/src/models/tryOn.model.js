@@ -33,12 +33,13 @@ const tryOnSchema = new mongoose.Schema({
     recommendations: [String],
     confidence: Number
   },
+  // Status lifecycle: pending → processing → completed | failed
   status: {
     type: String,
     enum: ['pending', 'processing', 'completed', 'failed'],
     default: 'pending'
   },
-  errorMessage: String,
+  errorMessage: String,  // Populated only when status is 'failed'
   createdAt: {
     type: Date,
     default: Date.now

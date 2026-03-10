@@ -6,15 +6,17 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
 const path = require('path');
 
-// Initialize Gemini AI
+// Initialize Gemini AI — falls back to simulation mode if API key is absent
 console.log('🔑 Gemini API Key:', process.env.GEMINI_API_KEY ? 'Loaded ✅' : 'Not found ❌');
-console.log('🔑 Key starts with:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 15) + '...' : 'N/A');
 
 const genAI = process.env.GEMINI_API_KEY 
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
-// Helper function to convert image to base64
+/**
+ * Converts an image path or URL to a base64 string.
+ * Supports both Cloudinary URLs (fetched via HTTP) and local file paths.
+ */
 const imageToBase64 = async (imagePath) => {
   // Check if it's a Cloudinary URL
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
@@ -106,7 +108,7 @@ Respond ONLY with valid JSON in this exact format (no markdown, no backticks):
     
     console.log('🤖 Gemini raw response:', text);
 
-    // Extract JSON from response (remove markdown if present)
+    // Gemini may wrap JSON in markdown code fences — strip them before parsing
     let jsonText = text.trim();
     if (jsonText.startsWith('```json')) {
       jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -231,9 +233,10 @@ exports.createTryOn = async (req, res) => {
       await tryOn.save();
 
     } catch (aiError) {
-      console.error('AI processing error:', aiError);
+      console.error('AI processing error:', aiError.message);
       tryOn.status = 'failed';
       tryOn.errorMessage = aiError.message;
+      tryOn.completedAt = Date.now();
       await tryOn.save();
     }
 
@@ -286,7 +289,7 @@ exports.getTryOnById = async (req, res) => {
   }
 };
 
-// Get all try-ons for user
+// Get all try-ons for user (optionally filtered by status)
 exports.getUserTryOns = async (req, res) => {
   try {
     const userId = req.userId;

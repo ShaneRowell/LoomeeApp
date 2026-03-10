@@ -1,7 +1,11 @@
 const Clothing = require('../models/clothing.model');
 const Measurement = require('../models/measurement.model');
 
-// Fashion recommendation database (in production, this could use Gemini AI)
+/**
+ * Fashion recommendation rules
+ * Maps clothing categories to complementary accessories, shoes, and layering items.
+ * In production this could be replaced with a Gemini AI call for dynamic suggestions.
+ */
 const fashionRules = {
   shirt: {
     accessories: ['watch', 'belt', 'necklace', 'bracelet'],
@@ -32,7 +36,10 @@ const colorMatching = {
   gray: ['white', 'black', 'pink', 'blue', 'yellow'],
   beige: ['white', 'brown', 'navy', 'olive', 'burgundy'],
   red: ['black', 'white', 'navy', 'gray', 'denim'],
-  blue: ['white', 'beige', 'brown', 'gray', 'orange']
+  blue: ['white', 'beige', 'brown', 'gray', 'orange'],
+  green: ['white', 'beige', 'brown', 'navy', 'tan'],
+  purple: ['white', 'gray', 'black', 'gold', 'navy'],
+  orange: ['white', 'navy', 'brown', 'beige', 'black']
 };
 
 // Get fashion recommendations for a clothing item
@@ -148,6 +155,17 @@ const generateOutfitSuggestions = (clothing, categoryRecs) => {
       ],
       occasion: 'Office, business meeting'
     });
+  } else if (clothing.category === 'jacket') {
+    suggestions.push({
+      name: 'Street Style',
+      items: [
+        `${clothing.name}`,
+        'Plain t-shirt',
+        'Slim jeans',
+        'Sneakers'
+      ],
+      occasion: 'Casual outing, weekend'
+    });
   }
 
   return suggestions;
@@ -157,7 +175,7 @@ const generateOutfitSuggestions = (clothing, categoryRecs) => {
 const generateStyleTips = (clothing) => {
   const tips = [];
 
-  // Material-based tips
+  // Material-based care and styling tips
   if (clothing.material) {
     if (clothing.material.toLowerCase().includes('cotton')) {
       tips.push('Cotton is breathable and comfortable for all-day wear');
@@ -183,8 +201,8 @@ const generateStyleTips = (clothing) => {
     tips.push('Versatile piece that works for any body type');
   }
 
-  // Season tips
-  tips.push('Layer appropriately based on weather');
+  // General seasonal tip — always applicable
+  tips.push('Layer appropriately based on weather and season');
 
   return tips;
 };
@@ -201,10 +219,14 @@ exports.getPersonalizedRecommendations = async (req, res) => {
     // For now, provide general recommendations
 
     const recommendations = {
-      forYou: [
-        'Based on your measurements, athletic fit styles suit you best',
+      forYou: measurements ? [
+        `Based on your ${measurements.chest}cm chest, athletic fit styles suit you best`,
         'Your height is perfect for standard length garments',
         'Consider slim-fit options for a modern look'
+      ] : [
+        'Add your body measurements to receive personalized recommendations',
+        'Slim-fit and athletic cuts are currently trending',
+        'Neutral tones are versatile wardrobe staples'
       ],
       trendingNow: [
         'Oversized blazers are trending this season',
