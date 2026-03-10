@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
                 // Forgot password
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.pushNamed(context, AppRoutes.forgotPassword),
                   child: Text(
                     'Forgot password?',
                     style: GoogleFonts.inter(
