@@ -770,7 +770,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
           const SizedBox(height: 12),
-          // Search bar with focus opacity + shadow animation
+          // Search bar with focus shadow + border animation
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: AnimatedContainer(
@@ -787,51 +787,51 @@ class _HomeScreenState extends State<HomeScreen>
                       ]
                     : [],
               ),
-              child: Opacity(
-                opacity: _searchFocused ? 1.0 : 0.72,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.white.withValues(alpha: 0.88),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: _searchFocused
-                              ? AppTheme.fontColor.withValues(alpha: 0.2)
-                              : AppTheme.fontColor.withValues(alpha: 0.07),
-                        ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: _searchFocused
+                          ? AppTheme.white.withValues(alpha: 0.95)
+                          : AppTheme.white.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: _searchFocused
+                            ? AppTheme.fontColor.withValues(alpha: 0.2)
+                            : AppTheme.fontColor.withValues(alpha: 0.07),
                       ),
-                      child: TextField(
-                        controller: _searchController,
-                        focusNode: _searchFocus,
-                        onChanged: (v) {
-                          context.read<CatalogProvider>().setSearchQuery(v);
-                          setState(() {});
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search clothing...',
-                          prefixIcon: const Icon(Icons.search, size: 20),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 18),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    context
-                                        .read<CatalogProvider>()
-                                        .setSearchQuery('');
-                                    setState(() {});
-                                  },
-                                )
-                              : null,
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 12),
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          filled: false,
-                        ),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocus,
+                      onChanged: (v) {
+                        context.read<CatalogProvider>().setSearchQuery(v);
+                        setState(() {});
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search clothing...',
+                        prefixIcon: const Icon(Icons.search, size: 20),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 18),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  context
+                                      .read<CatalogProvider>()
+                                      .setSearchQuery('');
+                                  setState(() {});
+                                },
+                              )
+                            : null,
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        filled: false,
                       ),
                     ),
                   ),
@@ -929,10 +929,14 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
         ),
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-          child: Container(
-            color: AppTheme.backgroundColor.withValues(alpha: 0.62),
+        Positioned.fill(
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+              child: Container(
+                color: AppTheme.backgroundColor.withValues(alpha: 0.62),
+              ),
+            ),
           ),
         ),
         Center(
