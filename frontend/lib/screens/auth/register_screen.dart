@@ -177,7 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'No account? ',
+                      'Already have an account? ',
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: AppTheme.fontColor.withValues(alpha: 0.6),
@@ -189,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         AppRoutes.login,
                       ),
                       child: Text(
-                        'Sign up',
+                        'Sign in',
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
