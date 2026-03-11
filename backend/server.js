@@ -55,9 +55,15 @@ app.use('/api/fashion-recommendations', fashionRecommendationRoutes);
 // Serve uploaded files statically
 app.use('/uploads', express.static('uploads'));
 
-// 404 handler for unregistered API routes
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ success: false, message: 'API endpoint not found' });
+// 404 handler for unregistered API routes (FIXED - removed wildcard)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'API endpoint not found' 
+    });
+  }
+  next();
 });
 
 // Database connection
