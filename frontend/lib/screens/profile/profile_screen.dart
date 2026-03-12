@@ -41,7 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       radius: 44,
                       backgroundColor: AppTheme.widgetColor,
                       child: Text(
-                        (user?.name ?? 'U')[0].toUpperCase(),
+                        (user?.name?.isNotEmpty == true ? user!.name! : 'U')[0].toUpperCase(),
                         style: GoogleFonts.poppins(
                           fontSize: 32,
                           fontWeight: FontWeight.w600,

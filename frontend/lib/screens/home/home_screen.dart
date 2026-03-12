@@ -365,6 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: TextField(
               controller: _searchController,
               onChanged: (value) {
+                setState(() {});
                 context.read<CatalogProvider>().setSearchQuery(value);
               },
               decoration: InputDecoration(

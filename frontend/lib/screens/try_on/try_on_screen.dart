@@ -33,6 +33,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<PresetImageProvider>();
       await provider.fetchImages();
+      if (!mounted) return;
       if (provider.defaultImage != null) {
         setState(() => _selectedPresetImageId = provider.defaultImage!.id);
       } else if (provider.images.isNotEmpty) {
