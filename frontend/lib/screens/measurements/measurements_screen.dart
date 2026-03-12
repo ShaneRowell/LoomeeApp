@@ -44,7 +44,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
       _shoulderController.text = m.shoulderWidth.toString();
     }
     if (m.inseam != null) _inseamController.text = m.inseam.toString();
-    setState(() => _unit = m.unit);
+    if (mounted) setState(() => _unit = m.unit);
   }
 
   @override
@@ -135,24 +135,40 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             icon: Icons.checkroom,
                             label: 'Chest ($unitLabel)',
                             controller: _chestController,
+                            min: 50,
+                            max: 200,
                           ),
                           const SizedBox(height: 14),
                           _buildMeasurementField(
                             icon: Icons.straighten,
                             label: 'Waist ($unitLabel)',
                             controller: _waistController,
+                            min: 40,
+                            max: 180,
                           ),
                           const SizedBox(height: 14),
                           _buildMeasurementField(
                             icon: Icons.circle_outlined,
                             label: 'Hips ($unitLabel)',
                             controller: _hipsController,
+                            min: 50,
+                            max: 200,
                           ),
                           const SizedBox(height: 14),
                           _buildMeasurementField(
                             icon: Icons.height,
                             label: 'Height ($unitLabel)',
                             controller: _heightController,
+                            min: 100,
+                            max: 250,
+                          ),
+                          const SizedBox(height: 14),
+                          _buildMeasurementField(
+                            icon: Icons.monitor_weight_outlined,
+                            label: 'Weight (kg)',
+                            controller: _weightController,
+                            min: 30,
+                            max: 300,
                           ),
                           const SizedBox(height: 10),
                           Text(
@@ -245,6 +261,8 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     required IconData icon,
     required String label,
     required TextEditingController controller,
+    double? min,
+    double? max,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -274,7 +292,10 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) return 'Required';
-                if (double.tryParse(value) == null) return 'Invalid number';
+                final parsed = double.tryParse(value);
+                if (parsed == null) return 'Invalid number';
+                if (min != null && parsed < min) return 'Min value is $min';
+                if (max != null && parsed > max) return 'Max value is $max';
                 return null;
               },
             ),
