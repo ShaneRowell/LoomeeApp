@@ -138,11 +138,20 @@ class ApiClient {
   }
 
   dynamic _handleResponse(http.Response response) {
-    final body = jsonDecode(response.body);
+    dynamic body;
+    try {
+      if (response.body.isNotEmpty) {
+        body = jsonDecode(response.body);
+      }
+    } catch (_) {
+      // Non-JSON response body
+    }
 
     if (response.statusCode == 401) {
       onUnauthorized?.call();
-      throw UnauthorizedException(body['message'] ?? 'Unauthorized');
+      throw UnauthorizedException(
+        (body is Map ? body['message'] : null) ?? 'Unauthorized',
+      );
     }
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -150,7 +159,7 @@ class ApiClient {
     }
 
     throw ApiException(
-      body['message'] ?? 'Something went wrong',
+      (body is Map ? body['message'] : null) ?? 'Something went wrong',
       statusCode: response.statusCode,
     );
   }
