@@ -2,18 +2,43 @@ const User = require('../models/user.model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+// Salt rounds: 10 is a good balance between security and CPU performance
+const BCRYPT_SALT_ROUNDS = 10;
+
+/**
+ * Generates a signed JWT token for the given user ID.
+ * Tokens expire after 7 days.
+ */
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
 exports.register = async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name: rawName } = req.body;
+    const name = rawName?.trim();
 
     if (!email || !password || !name) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Please provide email, password, and name' 
+        message: 'Please provide email, password, and name'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Enforce minimum password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters long'
       });
     }
 
@@ -25,7 +50,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
 
     const user = new User({
       email,
@@ -44,7 +69,9 @@ exports.register = async (req, res) => {
       user: {
         id: user._id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        avatarImage: user.avatarImage || null,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
@@ -88,12 +115,13 @@ exports.login = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Login successful',
+      message: `Welcome back, ${user.name}!`,
       token,
       user: {
         id: user._id,
         email: user.email,
-        name: user.name
+        name: user.name,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
@@ -119,7 +147,14 @@ exports.getMe = async (req, res) => {
 
     res.json({
       success: true,
-      user
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        avatarImage: user.avatarImage || null,
+        bodyMeasurements: user.bodyMeasurements || null,
+        createdAt: user.createdAt
+      }
     });
   } catch (error) {
     res.status(500).json({ 

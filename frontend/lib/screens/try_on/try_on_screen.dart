@@ -7,6 +7,7 @@ import '../../config/app_theme.dart';
 import '../../providers/preset_image_provider.dart';
 import '../../providers/try_on_provider.dart';
 import '../../widgets/common/custom_app_bar.dart';
+import '../../widgets/common/loomee_logo.dart';
 
 class TryOnScreen extends StatefulWidget {
   final String? clothingId;
@@ -33,6 +34,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<PresetImageProvider>();
       await provider.fetchImages();
+      if (!mounted) return;
       if (provider.defaultImage != null) {
         setState(() => _selectedPresetImageId = provider.defaultImage!.id);
       } else if (provider.images.isNotEmpty) {
@@ -243,7 +245,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
       width: 70,
       height: 70,
       color: AppTheme.backgroundColor,
-      child: const Icon(Icons.checkroom, color: Colors.grey),
+      child: const LomeeLogo(size: 28, color: Colors.grey),
     );
   }
 }

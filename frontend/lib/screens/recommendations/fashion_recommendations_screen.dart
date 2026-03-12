@@ -73,7 +73,7 @@ class _FashionRecommendationsScreenState
                     const SizedBox(height: 24),
                     _buildSection(
                       'Build Your Wardrobe',
-                      Icons.checkroom_rounded,
+                      Icons.style_rounded,
                       AppTheme.successColor,
                       provider.personalizedRecommendation!.buildYourWardrobe,
                     ),

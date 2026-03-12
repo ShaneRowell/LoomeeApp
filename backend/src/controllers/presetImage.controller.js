@@ -23,10 +23,11 @@ exports.uploadPresetImage = async (req, res) => {
       );
     }
 
-    // Create preset image record
+    // Create preset image record — req.file.path is the Cloudinary URL after upload
     const presetImage = new PresetImage({
       userId,
-      imageUrl: req.file.path,  // Cloudinary URL
+      imageUrl: req.file.path,
+      cloudinaryPublicId: req.file.filename || null,
       imageType: imageType || 'front',
       isDefault: isDefault === 'true' || isDefault === true
     });
@@ -36,7 +37,8 @@ exports.uploadPresetImage = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Preset image uploaded successfully',
-      image: presetImage
+      image: presetImage,
+      totalImages: await PresetImage.countDocuments({ userId })
     });
   } catch (error) {
     console.error('Upload preset image error:', error);
@@ -113,7 +115,7 @@ exports.deletePresetImage = async (req, res) => {
       });
     }
 
-    // Delete file from disk
+    // Attempt local file cleanup (for backward compatibility — Cloudinary files are managed separately)
     const filePath = path.join(__dirname, '../../', image.imageUrl);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

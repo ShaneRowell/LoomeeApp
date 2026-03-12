@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
   }
 });
 
+// Strip the hashed password from all JSON responses for security
 userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;

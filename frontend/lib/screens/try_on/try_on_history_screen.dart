@@ -7,6 +7,7 @@ import '../../config/app_routes.dart';
 import '../../config/app_theme.dart';
 import '../../providers/try_on_provider.dart';
 import '../../widgets/common/empty_state_widget.dart';
+import '../../widgets/common/loomee_logo.dart';
 import '../../widgets/common/loading_shimmer.dart';
 import '../../widgets/try_on/try_on_status_badge.dart';
 
@@ -99,7 +100,18 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                           ),
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
-                        onDismissed: (_) => provider.deleteTryOn(tryOn.id),
+                        onDismissed: (_) async {
+                          final success = await provider.deleteTryOn(tryOn.id);
+                          if (!success && mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.error ?? 'Failed to delete try-on'),
+                                backgroundColor: AppTheme.errorColor,
+                              ),
+                            );
+                            await provider.fetchTryOns(status: _statusFilter);
+                          }
+                        },
                         child: GestureDetector(
                           onTap: () => Navigator.pushNamed(
                             context,
@@ -235,7 +247,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
       width: 65,
       height: 65,
       color: AppTheme.backgroundColor,
-      child: const Icon(Icons.checkroom, size: 28, color: Colors.grey),
+      child: const LomeeLogo(size: 28, color: Colors.grey),
     );
   }
 }

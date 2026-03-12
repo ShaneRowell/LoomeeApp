@@ -1,7 +1,11 @@
 const Measurement = require('../models/measurement.model');
 const Clothing = require('../models/clothing.model');
 
-// Size recommendation algorithm
+/**
+ * Size recommendation algorithm
+ * Scores each available size by comparing clothing measurements to user measurements.
+ * Each dimension contributes equally; a 1cm difference reduces score by 2 points from 100.
+ */
 const calculateSizeRecommendation = (userMeasurements, clothingSizes) => {
   const recommendations = [];
 
@@ -40,6 +44,7 @@ const calculateSizeRecommendation = (userMeasurements, clothingSizes) => {
     const fitScore = measurementCount > 0 ? Math.round(totalScore / measurementCount) : 0;
 
     // Determine fit description
+    // Fit description thresholds: 90+ = Perfect, 75+ = Great, 60+ = Good, 40+ = Acceptable
     let fitDescription = '';
     if (fitScore >= 90) fitDescription = 'Perfect Fit';
     else if (fitScore >= 75) fitDescription = 'Great Fit';
@@ -116,9 +121,11 @@ exports.getSizeRecommendation = async (req, res) => {
       fitScore: bestSize.fitScore,
       fitDescription: bestSize.fitDescription,
       allSizes: recommendations,
-      advice: bestSize.fitScore >= 75 
-        ? 'This size should fit you well!' 
-        : 'Consider trying the next size up or down for better fit.'
+      advice: bestSize.fitScore >= 90
+        ? 'This is your perfect size — order with confidence!'
+        : bestSize.fitScore >= 75
+          ? 'This size should fit you well!'
+          : 'Consider trying the next size up or down for better fit.'
     });
   } catch (error) {
     console.error('Size recommendation error:', error);
@@ -140,6 +147,14 @@ exports.getBulkSizeRecommendations = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Please provide an array of clothing IDs'
+      });
+    }
+
+    // Cap bulk requests to prevent excessive DB load
+    if (clothingIds.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum 20 items allowed per bulk request'
       });
     }
 

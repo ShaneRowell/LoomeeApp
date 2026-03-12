@@ -3,18 +3,26 @@ const PresetImage = require('../models/presetImage.model');
 const Clothing = require('../models/clothing.model');
 const Measurement = require('../models/measurement.model');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Replicate = require('replicate');
 const fs = require('fs');
 const path = require('path');
 
-// Initialize Gemini AI
+// Initialize Gemini AI — falls back to simulation mode if API key is absent
 console.log('🔑 Gemini API Key:', process.env.GEMINI_API_KEY ? 'Loaded ✅' : 'Not found ❌');
-console.log('🔑 Key starts with:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 15) + '...' : 'N/A');
 
 const genAI = process.env.GEMINI_API_KEY 
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
   : null;
 
-// Helper function to convert image to base64
+// Initialize Replicate
+const replicate = process.env.REPLICATE_API_TOKEN
+  ? new Replicate({ auth: process.env.REPLICATE_API_TOKEN })
+  : null;
+
+/**
+ * Converts an image path or URL to a base64 string.
+ * Supports both Cloudinary URLs (fetched via HTTP) and local file paths.
+ */
 const imageToBase64 = async (imagePath) => {
   // Check if it's a Cloudinary URL
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
@@ -27,6 +35,87 @@ const imageToBase64 = async (imagePath) => {
     const fullPath = path.join(__dirname, '../../', imagePath);
     const imageBuffer = fs.readFileSync(fullPath);
     return imageBuffer.toString('base64');
+  }
+};
+
+/**
+ * Uses Gemini AI to generate a brief description of a garment from its image.
+ * Falls back to "clothing item" if Gemini is unavailable.
+ */
+const describeGarment = async (clothingImageUrl) => {
+  if (!genAI) {
+    console.log('⚠️ Gemini not configured, using fallback description');
+    return 'clothing item';
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
+    
+    const imageBase64 = await imageToBase64(clothingImageUrl);
+    
+    const prompt = `Describe this clothing item in 1-3 words for a virtual try-on system. 
+Examples: "red dress", "blue jeans", "white shirt", "black skirt", "denim jacket".
+Be specific about the type of garment. Respond with ONLY the description, nothing else.`;
+    
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: imageBase64
+        }
+      }
+    ]);
+    
+    const description = result.response.text().trim().replace(/['"]/g, '');
+    console.log('🤖 Gemini garment description:', description);
+    return description;
+    
+  } catch (error) {
+    console.error('Gemini garment description error:', error);
+    return 'clothing item';
+  }
+};
+
+/**
+ * Generates a virtual try-on image using Replicate's IDM-VTON model.
+ * Returns the URL of the generated image, or null if unavailable/failed.
+ */
+const processWithReplicate = async (humanImageUrl, garmentImageUrl, garmentDescription) => {
+  if (!replicate) {
+    console.log('⚠️ Replicate not configured, skipping virtual try-on generation');
+    return null;
+  }
+
+  try {
+    console.log('🎨 Starting Replicate virtual try-on generation...');
+    console.log('   Human image:', humanImageUrl);
+    console.log('   Garment image:', garmentImageUrl);
+    console.log('   Description:', garmentDescription);
+
+    const prediction = await replicate.predictions.create({
+      version: "c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
+      input: {
+        human_img: humanImageUrl,
+        garm_img: garmentImageUrl,
+        garment_des: garmentDescription
+      }
+    });
+
+    console.log('⏳ Waiting for Replicate to complete (30-60 seconds)...');
+    const completed = await replicate.wait(prediction);
+
+    if (completed.status === 'succeeded' && completed.output) {
+      console.log('✅ Replicate virtual try-on generated:', completed.output);
+      return completed.output;
+    } else {
+      console.error('❌ Replicate failed:', completed.error || 'Unknown error');
+      return null;
+    }
+
+  } catch (error) {
+    console.error('Replicate error:', error);
+    return null;
   }
 };
 
@@ -49,7 +138,7 @@ const simulateAITryOn = async (userImagePath, clothingImagePath, userMeasurement
   };
 };
 
-// Real Gemini API integration
+// Real Gemini API integration for fit analysis
 const processWithGemini = async (userImagePath, clothingImagePath, userMeasurements, clothingDetails) => {
   if (!genAI) {
     throw new Error('Gemini API key not configured');
@@ -58,7 +147,6 @@ const processWithGemini = async (userImagePath, clothingImagePath, userMeasureme
   try {
     const model = genAI.getGenerativeModel({ model: 'models/gemini-2.5-flash' });
 
-    // Read clothing image (now supports Cloudinary URLs)
     const clothingImageBase64 = await imageToBase64(clothingImagePath);
 
     const prompt = `You are an AI fashion assistant analyzing clothing items for fit recommendations.
@@ -104,9 +192,9 @@ Respond ONLY with valid JSON in this exact format (no markdown, no backticks):
     const response = await result.response;
     const text = response.text();
     
-    console.log('🤖 Gemini raw response:', text);
+    console.log('🤖 Gemini fit analysis raw response:', text);
 
-    // Extract JSON from response (remove markdown if present)
+    // Gemini may wrap JSON in markdown code fences — strip them before parsing
     let jsonText = text.trim();
     if (jsonText.startsWith('```json')) {
       jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
@@ -118,7 +206,6 @@ Respond ONLY with valid JSON in this exact format (no markdown, no backticks):
 
     return {
       success: true,
-      resultImageUrl: '/uploads/tryon-result-placeholder.jpg',
       fitAnalysis: {
         overallFit: aiAnalysis.overallFit || 'good',
         tightAreas: aiAnalysis.tightAreas || [],
@@ -190,11 +277,13 @@ exports.createTryOn = async (req, res) => {
     await tryOn.save();
 
     try {
-      let aiResult;
+      let geminiResult;
+      let replicateImageUrl = null;
       
+      // Step 1: Gemini fit analysis
       if (genAI && process.env.GEMINI_API_KEY) {
-        console.log('🤖 Using Gemini AI for analysis...');
-        aiResult = await processWithGemini(
+        console.log('🤖 Using Gemini AI for fit analysis...');
+        geminiResult = await processWithGemini(
           presetImage.imageUrl,
           tryOn.clothingImageUrl,
           {
@@ -210,8 +299,8 @@ exports.createTryOn = async (req, res) => {
           }
         );
       } else {
-        console.log('🔄 Using simulation mode...');
-        aiResult = await simulateAITryOn(
+        console.log('🔄 Using simulation mode for fit analysis...');
+        geminiResult = await simulateAITryOn(
           presetImage.imageUrl,
           tryOn.clothingImageUrl,
           {
@@ -223,17 +312,31 @@ exports.createTryOn = async (req, res) => {
         );
       }
 
-      tryOn.resultImageUrl = aiResult.resultImageUrl;
-      tryOn.fitAnalysis = aiResult.fitAnalysis;
+      // Step 2: Get garment description using Gemini
+      const garmentDescription = await describeGarment(tryOn.clothingImageUrl);
+
+      // Step 3: Generate virtual try-on image with Replicate
+      if (replicate && process.env.REPLICATE_API_TOKEN) {
+        replicateImageUrl = await processWithReplicate(
+          presetImage.imageUrl,
+          tryOn.clothingImageUrl,
+          garmentDescription
+        );
+      }
+
+      // Save results
+      tryOn.resultImageUrl = replicateImageUrl || '/uploads/tryon-result-placeholder.jpg';
+      tryOn.fitAnalysis = geminiResult.fitAnalysis;
       tryOn.status = 'completed';
       tryOn.completedAt = Date.now();
       
       await tryOn.save();
 
     } catch (aiError) {
-      console.error('AI processing error:', aiError);
+      console.error('AI processing error:', aiError.message);
       tryOn.status = 'failed';
       tryOn.errorMessage = aiError.message;
+      tryOn.completedAt = Date.now();
       await tryOn.save();
     }
 
@@ -286,7 +389,7 @@ exports.getTryOnById = async (req, res) => {
   }
 };
 
-// Get all try-ons for user
+// Get all try-ons for user (optionally filtered by status)
 exports.getUserTryOns = async (req, res) => {
   try {
     const userId = req.userId;

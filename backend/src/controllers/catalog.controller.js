@@ -5,6 +5,13 @@ exports.addClothing = async (req, res) => {
   try {
     const clothingData = req.body;
 
+    if (!clothingData.name || !clothingData.category || !clothingData.brand || !clothingData.price) {
+      return res.status(400).json({
+        success: false,
+        message: 'name, category, brand, and price are required fields'
+      });
+    }
+
     const clothing = new Clothing(clothingData);
     await clothing.save();
 
@@ -26,7 +33,7 @@ exports.addClothing = async (req, res) => {
 // Get all clothing items with filters
 exports.getAllClothing = async (req, res) => {
   try {
-    const { category, gender, minPrice, maxPrice, brand, search } = req.query;
+    const { category, gender, minPrice, maxPrice, brand, search, sortBy = 'createdAt', order = 'desc' } = req.query;
 
     let filter = { isActive: true };
 
@@ -46,11 +53,13 @@ exports.getAllClothing = async (req, res) => {
       ];
     }
 
-    const clothing = await Clothing.find(filter).sort({ createdAt: -1 });
+    const sortOrder = order === 'asc' ? 1 : -1;
+    const clothing = await Clothing.find(filter).sort({ [sortBy]: sortOrder });
 
     res.json({
       success: true,
       count: clothing.length,
+      filters: { category, gender, brand, minPrice, maxPrice, search },
       clothing
     });
   } catch (error) {
@@ -95,10 +104,12 @@ exports.getClothingById = async (req, res) => {
 exports.getClothingByCategory = async (req, res) => {
   try {
     const { category } = req.params;
+    // Normalize to lowercase to ensure consistent matching against schema enum
+    const normalizedCategory = category.toLowerCase().trim();
 
-    const clothing = await Clothing.find({ 
-      category: category.toLowerCase(), 
-      isActive: true 
+    const clothing = await Clothing.find({
+      category: normalizedCategory,
+      isActive: true
     }).sort({ createdAt: -1 });
 
     res.json({
@@ -166,7 +177,8 @@ exports.deleteClothing = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Clothing item deleted successfully'
+      message: 'Clothing item deleted successfully',
+      deletedId: id
     });
   } catch (error) {
     console.error('Delete clothing error:', error);

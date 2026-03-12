@@ -11,6 +11,7 @@ import '../../widgets/clothing/color_selector.dart';
 import '../../widgets/clothing/size_badge.dart';
 import '../../widgets/common/loading_shimmer.dart';
 import '../../widgets/common/error_widget.dart';
+import '../../widgets/common/loomee_logo.dart';
 
 class ClothingDetailScreen extends StatefulWidget {
   final String clothingId;
@@ -99,7 +100,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                                 ),
                                 errorWidget: (_, __, ___) => Container(
                                   color: AppTheme.backgroundColor,
-                                  child: const Icon(Icons.checkroom, size: 60),
+                                  child: const Center(child: LomeeLogo(size: 60, color: Colors.grey)),
                                 ),
                               ),
                             ),
@@ -131,7 +132,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       : Container(
                           color: AppTheme.backgroundColor,
                           child: const Center(
-                            child: Icon(Icons.checkroom, size: 80, color: Colors.grey),
+                            child: LomeeLogo(size: 80, color: Colors.grey),
                           ),
                         ),
                 ),
@@ -202,9 +203,9 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         _buildInfoRow('Material', clothing.material!),
                       ],
                       _buildInfoRow('Category',
-                          clothing.category[0].toUpperCase() + clothing.category.substring(1)),
+                          clothing.category.isNotEmpty ? clothing.category[0].toUpperCase() + clothing.category.substring(1) : clothing.category),
                       _buildInfoRow('Gender',
-                          clothing.gender[0].toUpperCase() + clothing.gender.substring(1)),
+                          clothing.gender.isNotEmpty ? clothing.gender[0].toUpperCase() + clothing.gender.substring(1) : clothing.gender),
                       if (clothing.tags.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         Wrap(
