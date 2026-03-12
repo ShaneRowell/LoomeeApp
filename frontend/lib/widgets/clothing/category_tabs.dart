@@ -14,7 +14,7 @@ class CategoryTabs extends StatelessWidget {
 
   static const List<Map<String, dynamic>> categories = [
     {'label': 'All', 'value': '', 'icon': Icons.grid_view_rounded},
-    {'label': 'Shirts', 'value': 'shirt', 'icon': Icons.checkroom},
+    {'label': 'Shirts', 'value': 'shirt', 'icon': Icons.dry_cleaning},
     {'label': 'Pants', 'value': 'pants', 'icon': Icons.straighten},
     {'label': 'Dresses', 'value': 'dress', 'icon': Icons.dry_cleaning},
     {'label': 'Jackets', 'value': 'jacket', 'icon': Icons.layers},

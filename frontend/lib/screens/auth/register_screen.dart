@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_routes.dart';
 import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/common/loomee_logo.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -59,11 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: 60),
                 // Logo / Brand
-                Icon(
-                  Icons.checkroom,
-                  size: 72,
-                  color: AppTheme.widgetColor,
-                ),
+                LomeeLogo(size: 72, color: AppTheme.widgetColor),
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',

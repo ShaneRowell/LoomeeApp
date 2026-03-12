@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../config/app_theme.dart';
 import '../../models/clothing.dart';
+import '../common/loomee_logo.dart';
 
 class ClothingCard extends StatelessWidget {
   final Clothing clothing;
@@ -49,20 +50,20 @@ class ClothingCard extends StatelessWidget {
                         placeholder: (_, __) => Container(
                           color: AppTheme.backgroundColor,
                           child: const Center(
-                            child: Icon(Icons.checkroom, size: 40, color: Colors.grey),
+                            child: LomeeLogo(size: 40, color: Colors.grey),
                           ),
                         ),
                         errorWidget: (_, __, ___) => Container(
                           color: AppTheme.backgroundColor,
                           child: const Center(
-                            child: Icon(Icons.checkroom, size: 40, color: Colors.grey),
+                            child: LomeeLogo(size: 40, color: Colors.grey),
                           ),
                         ),
                       )
                     : Container(
                         color: AppTheme.backgroundColor,
                         child: const Center(
-                          child: Icon(Icons.checkroom, size: 40, color: Colors.grey),
+                          child: LomeeLogo(size: 40, color: Colors.grey),
                         ),
                       ),
               ),

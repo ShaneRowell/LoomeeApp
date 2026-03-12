@@ -177,7 +177,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
                           ),
                           const SizedBox(height: 14),
                           if (outfit.items.top != null)
-                            _itemRow(Icons.checkroom, 'Top', outfit.items.top!),
+                            _itemRow(Icons.dry_cleaning, 'Top', outfit.items.top!),
                           if (outfit.items.bottom != null)
                             _itemRow(Icons.straighten, 'Bottom',
                                 outfit.items.bottom!),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/app_routes.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/common/loomee_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -62,11 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.checkroom,
-                size: 80,
-                color: AppTheme.widgetColor,
-              ),
+              LomeeLogo(size: 80, color: AppTheme.widgetColor),
               const SizedBox(height: 16),
               Text(
                 'Loomeé',
