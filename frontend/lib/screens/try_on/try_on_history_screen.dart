@@ -99,7 +99,18 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                           ),
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
-                        onDismissed: (_) => provider.deleteTryOn(tryOn.id),
+                        onDismissed: (_) async {
+                          final success = await provider.deleteTryOn(tryOn.id);
+                          if (!success && mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.error ?? 'Failed to delete try-on'),
+                                backgroundColor: AppTheme.errorColor,
+                              ),
+                            );
+                            await provider.fetchTryOns(status: _statusFilter);
+                          }
+                        },
                         child: GestureDetector(
                           onTap: () => Navigator.pushNamed(
                             context,
