@@ -11,6 +11,7 @@ import '../../widgets/clothing/color_selector.dart';
 import '../../widgets/clothing/size_badge.dart';
 import '../../widgets/common/loading_shimmer.dart';
 import '../../widgets/common/error_widget.dart';
+import '../../widgets/common/loomee_logo.dart';
 
 class ClothingDetailScreen extends StatefulWidget {
   final String clothingId;
@@ -99,7 +100,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                                 ),
                                 errorWidget: (_, __, ___) => Container(
                                   color: AppTheme.backgroundColor,
-                                  child: const Icon(Icons.checkroom, size: 60),
+                                  child: const Center(child: LomeeLogo(size: 60, color: Colors.grey)),
                                 ),
                               ),
                             ),
@@ -131,7 +132,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       : Container(
                           color: AppTheme.backgroundColor,
                           child: const Center(
-                            child: Icon(Icons.checkroom, size: 80, color: Colors.grey),
+                            child: LomeeLogo(size: 80, color: Colors.grey),
                           ),
                         ),
                 ),

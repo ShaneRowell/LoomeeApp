@@ -13,6 +13,7 @@ import '../../widgets/common/empty_state_widget.dart';
 import '../try_on/try_on_history_screen.dart';
 import '../measurements/measurements_screen.dart';
 import '../preset_images/preset_images_screen.dart';
+import '../../widgets/common/loomee_logo.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -192,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Expanded(
                         child: _buildActionTile(
-                          icon: Icons.checkroom,
+                          icon: Icons.explore,
                           label: 'Catalog',
                           onTap: () => setState(() => _currentIndex = 1),
                         ),
@@ -284,7 +285,10 @@ class _HomeScreenState extends State<HomeScreen> {
               color: AppTheme.widgetColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.checkroom, color: AppTheme.white, size: 20),
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: LomeeLogo(size: 24, color: AppTheme.white),
+            ),
           ),
         ],
       ),
@@ -410,7 +414,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
                 if (catalog.clothingItems.isEmpty) {
                   return const EmptyStateWidget(
-                    icon: Icons.checkroom,
+                    icon: Icons.search_off,
                     title: 'No clothing found',
                     subtitle: 'Try adjusting your filters or search query',
                   );

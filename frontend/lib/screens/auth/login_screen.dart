@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_routes.dart';
 import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../widgets/common/loomee_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -54,11 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 80),
                 // Logo / Brand
-                Icon(
-                  Icons.checkroom,
-                  size: 72,
-                  color: AppTheme.widgetColor,
-                ),
+                LomeeLogo(size: 72, color: AppTheme.widgetColor),
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',

@@ -132,7 +132,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                           const SizedBox(height: 24),
                           // Measurement fields with icons
                           _buildMeasurementField(
-                            icon: Icons.checkroom,
+                            icon: Icons.accessibility_new,
                             label: 'Chest ($unitLabel)',
                             controller: _chestController,
                             min: 50,
