@@ -202,9 +202,9 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         _buildInfoRow('Material', clothing.material!),
                       ],
                       _buildInfoRow('Category',
-                          clothing.category[0].toUpperCase() + clothing.category.substring(1)),
+                          clothing.category.isNotEmpty ? clothing.category[0].toUpperCase() + clothing.category.substring(1) : clothing.category),
                       _buildInfoRow('Gender',
-                          clothing.gender[0].toUpperCase() + clothing.gender.substring(1)),
+                          clothing.gender.isNotEmpty ? clothing.gender[0].toUpperCase() + clothing.gender.substring(1) : clothing.gender),
                       if (clothing.tags.isNotEmpty) ...[
                         const SizedBox(height: 16),
                         Wrap(
