@@ -139,6 +139,34 @@ const processWithReplicate = async (humanImageUrl, garmentImageUrl, garmentDescr
   }
 };
 
+/**
+ * Downloads image from Replicate and uploads to Cloudinary for permanent storage.
+ * Returns the permanent Cloudinary URL.
+ */
+const saveToCloudinary = async (replicateUrl) => {
+  if (!replicateUrl) return null;
+
+  try {
+    const cloudinary = require('cloudinary').v2;
+    
+    console.log('📤 Uploading try-on result to Cloudinary...');
+    
+    // Upload directly from URL to Cloudinary
+    const result = await cloudinary.uploader.upload(replicateUrl, {
+      folder: 'loomee-tryons',
+      resource_type: 'image'
+    });
+
+    console.log('✅ Saved to Cloudinary:', result.secure_url);
+    return result.secure_url;
+
+  } catch (error) {
+    console.error('❌ Cloudinary upload error:', error);
+    // Return original Replicate URL as fallback
+    return replicateUrl;
+  }
+};
+
 // Simulate AI try-on (fallback)
 const simulateAITryOn = async (userImagePath, clothingImagePath, userMeasurements) => {
   return {
@@ -298,7 +326,7 @@ exports.createTryOn = async (req, res) => {
 
     try {
       let geminiResult;
-      let replicateImageUrl = null;
+      let permanentImageUrl = null;
       
       // Step 1: Gemini fit analysis
       if (genAI && process.env.GEMINI_API_KEY) {
@@ -337,15 +365,20 @@ exports.createTryOn = async (req, res) => {
 
       // Step 3: Generate virtual try-on image with Replicate
       if (replicate && process.env.REPLICATE_API_TOKEN) {
-        replicateImageUrl = await processWithReplicate(
+        const replicateTempUrl = await processWithReplicate(
           presetImage.imageUrl,
           tryOn.clothingImageUrl,
           garmentDescription
         );
+        
+        // Step 4: Save to Cloudinary for permanent storage
+        if (replicateTempUrl) {
+          permanentImageUrl = await saveToCloudinary(replicateTempUrl);
+        }
       }
 
       // Save results
-      tryOn.resultImageUrl = replicateImageUrl || '/uploads/tryon-result-placeholder.jpg';
+      tryOn.resultImageUrl = permanentImageUrl || '/uploads/tryon-result-placeholder.jpg';
       tryOn.fitAnalysis = geminiResult.fitAnalysis;
       tryOn.status = 'completed';
       tryOn.completedAt = Date.now();
