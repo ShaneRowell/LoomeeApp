@@ -53,9 +53,20 @@ const describeGarment = async (clothingImageUrl) => {
     
     const imageBase64 = await imageToBase64(clothingImageUrl);
     
-    const prompt = `Describe this clothing item in 1-3 words for a virtual try-on system. 
-Examples: "red dress", "blue jeans", "white shirt", "black skirt", "denim jacket".
-Be specific about the type of garment. Respond with ONLY the description, nothing else.`;
+    const prompt = `Analyze this clothing item and respond with ONLY the garment type and color in this exact format:
+
+For UPPER body garments (shirts, t-shirts, blouses, jackets, sweaters, hoodies): "upper body [color] [type]"
+For LOWER body garments (pants, jeans, skirts, shorts): "lower body [color] [type]"
+For FULL body garments (dresses, jumpsuits, rompers): "full body [color] [type]"
+
+Examples:
+- "upper body white t-shirt"
+- "lower body blue jeans"
+- "lower body pink pants"
+- "upper body black jacket"
+- "full body red dress"
+
+Respond with ONLY the description in this format, nothing else.`;
     
     const result = await model.generateContent([
       prompt,
@@ -93,12 +104,21 @@ const processWithReplicate = async (humanImageUrl, garmentImageUrl, garmentDescr
     console.log('   Garment image:', garmentImageUrl);
     console.log('   Description:', garmentDescription);
 
+    // Extract category from garment description
+    const category = garmentDescription.toLowerCase().includes('upper body') ? 'upper_body' 
+      : garmentDescription.toLowerCase().includes('lower body') ? 'lower_body'
+      : garmentDescription.toLowerCase().includes('full body') ? 'dresses'
+      : 'upper_body'; // default to upper_body if unclear
+
+    console.log('   Category:', category);
+
     const prediction = await replicate.predictions.create({
       version: "c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
       input: {
         human_img: humanImageUrl,
         garm_img: garmentImageUrl,
-        garment_des: garmentDescription
+        garment_des: garmentDescription,
+        category: category  // ← CRITICAL: This tells IDM-VTON where to place the garment!
       }
     });
 
