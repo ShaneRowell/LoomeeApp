@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/try_on.dart';
 import '../services/try_on_service.dart';
@@ -5,6 +6,7 @@ import '../services/api_client.dart';
 
 class TryOnProvider extends ChangeNotifier {
   final TryOnService _tryOnService;
+  Timer? _pollingTimer;
 
   List<TryOn> _tryOns = [];
   TryOn? _currentTryOn;
@@ -76,6 +78,30 @@ class TryOnProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Polls GET /api/try-on/:id every 5 seconds until status is completed or failed.
+  void startPolling(String tryOnId) {
+    _stopPolling();
+    _pollingTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+      try {
+        final updated = await _tryOnService.getTryOnById(tryOnId);
+        _currentTryOn = updated;
+        notifyListeners();
+        if (updated.status == 'completed' || updated.status == 'failed') {
+          _stopPolling();
+        }
+      } catch (_) {
+        // Silently ignore polling errors to avoid disrupting the UX
+      }
+    });
+  }
+
+  void stopPolling() => _stopPolling();
+
+  void _stopPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+  }
+
   Future<bool> deleteTryOn(String id) async {
     try {
       await _tryOnService.deleteTryOn(id);
@@ -88,5 +114,11 @@ class TryOnProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    _stopPolling();
+    super.dispose();
   }
 }
