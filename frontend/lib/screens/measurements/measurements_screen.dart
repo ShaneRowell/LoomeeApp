@@ -92,8 +92,8 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
   @override
   Widget build(BuildContext context) {
     final unitLabel = _unit == 'cm' ? 'cm' : 'in';
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       body: Consumer<MeasurementProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading && provider.measurement == null) {
@@ -120,7 +120,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
-                              color: AppTheme.fontColor,
+                              color: scheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -128,7 +128,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             'Used for size recommendation and AI try ons, enter your measurements below.',
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 13,
-                              color: AppTheme.fontColor.withValues(alpha: 0.5),
+                              color: scheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -177,7 +177,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             'All measurements in ($unitLabel)',
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 12,
-                              color: AppTheme.fontColor.withValues(alpha: 0.4),
+                              color: scheme.onSurface.withValues(alpha: 0.4),
                             ),
                           ),
                           const SizedBox(height: 24),
@@ -232,19 +232,20 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     double? min,
     double? max,
   }) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppTheme.fontColor.withValues(alpha: 0.1),
+          color: scheme.onSurface.withValues(alpha: 0.1),
         ),
       ),
       child: Row(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Icon(icon, size: 20, color: AppTheme.widgetColor),
+            child: Icon(icon, size: 20, color: scheme.onSurface.withValues(alpha: 0.6)),
           ),
           Expanded(
             child: TextFormField(

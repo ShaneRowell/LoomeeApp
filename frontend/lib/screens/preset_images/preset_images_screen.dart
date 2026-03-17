@@ -201,8 +201,8 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         top: false,
         child: Consumer<PresetImageProvider>(
@@ -217,10 +217,10 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
-                      color: AppTheme.widgetColor.withValues(alpha: 0.08),
+                      color: scheme.onSurface.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppTheme.widgetColor.withValues(alpha: 0.2),
+                        color: scheme.onSurface.withValues(alpha: 0.2),
                         width: 2,
                         strokeAlign: BorderSide.strokeAlignOutside,
                       ),
@@ -231,7 +231,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                         Icon(
                           Icons.accessibility_new,
                           size: 64,
-                          color: AppTheme.widgetColor.withValues(alpha: 0.4),
+                          color: scheme.onSurface.withValues(alpha: 0.4),
                         ),
                         if (provider.images.isNotEmpty)
                           Padding(
@@ -240,7 +240,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                               '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
                               style: GoogleFonts.playfairDisplay(
                                 fontSize: 13,
-                                color: AppTheme.fontColor.withValues(alpha: 0.5),
+                                color: scheme.onSurface.withValues(alpha: 0.5),
                               ),
                             ),
                           ),
@@ -278,7 +278,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.white,
+                        color: scheme.surface,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -314,7 +314,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                       ),
@@ -397,6 +397,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
     required String label,
     required VoidCallback onTap,
   }) {
+    final scheme = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -408,7 +409,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
               color: AppTheme.accentColor,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: AppTheme.white, size: 28),
+            child: Icon(icon, color: Colors.white, size: 28),
           ),
           const SizedBox(height: 8),
           Text(
@@ -416,7 +417,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: AppTheme.fontColor,
+              color: scheme.onSurface,
             ),
           ),
         ],
@@ -425,6 +426,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
   }
 
   Widget _buildInstructionItem(String number, String text) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -433,7 +435,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
           style: GoogleFonts.playfairDisplay(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: AppTheme.fontColor.withValues(alpha: 0.6),
+            color: scheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(width: 6),
@@ -442,7 +444,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
             text,
             style: GoogleFonts.playfairDisplay(
               fontSize: 12,
-              color: AppTheme.fontColor.withValues(alpha: 0.6),
+              color: scheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ),

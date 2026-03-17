@@ -32,8 +32,8 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
   Widget build(BuildContext context) {
     final canPop = Navigator.canPop(context);
 
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         top: false,
         child: Column(
@@ -116,11 +116,11 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppTheme.white,
+                                color: scheme.surface,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppTheme.fontColor
+                                    color: scheme.onSurface
                                         .withValues(alpha: 0.06),
                                     blurRadius: 6,
                                     offset: const Offset(0, 2),
@@ -156,7 +156,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                           style: GoogleFonts.playfairDisplay(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
-                                            color: AppTheme.fontColor,
+                                            color: scheme.onSurface,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -166,7 +166,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                           tryOn.clothing?.brand ?? '',
                                           style: GoogleFonts.playfairDisplay(
                                             fontSize: 12,
-                                            color: AppTheme.fontColor
+                                            color: scheme.onSurface
                                                 .withValues(alpha: 0.5),
                                           ),
                                         ),
@@ -182,7 +182,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                                     .format(tryOn.createdAt!),
                                                 style: GoogleFonts.playfairDisplay(
                                                   fontSize: 11,
-                                                  color: AppTheme.fontColor
+                                                  color: scheme.onSurface
                                                       .withValues(alpha: 0.4),
                                                 ),
                                               ),
@@ -194,7 +194,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                   const SizedBox(width: 8),
                                   Icon(
                                     Icons.chevron_right,
-                                    color: AppTheme.fontColor
+                                    color: scheme.onSurface
                                         .withValues(alpha: 0.3),
                                   ),
                                 ],
@@ -218,7 +218,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
     return Container(
       width: 65,
       height: 65,
-      color: AppTheme.backgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: const LomeeLogo(size: 28, color: Colors.grey),
     );
   }
