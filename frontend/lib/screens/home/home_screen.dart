@@ -149,12 +149,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+            filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
             child: Container(
               decoration: BoxDecoration(
-                // Light terracotta tint — visible on every screen background
-                color: AppTheme.accentColor.withValues(alpha: 0.18),
+                // Dark navy frost — visible on every screen (cream, white, terracotta)
+                color: AppTheme.fontColor.withValues(alpha: 0.80),
                 borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.10),
+                  width: 1,
+                ),
               ),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
               child: LayoutBuilder(
@@ -252,19 +256,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           top: 0,
                           bottom: 0,
                           width: pillWidth,
-                          child: ClipRRect(
-                            borderRadius: pillRadius,
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppTheme.accentColor.withValues(alpha: 0.20),
-                                  borderRadius: pillRadius,
-                                  border: Border.all(
-                                    color: AppTheme.accentColor.withValues(alpha: 0.50),
-                                    width: 1.2,
-                                  ),
-                                ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              // Solid terracotta pill pops against dark navbar
+                              color: AppTheme.accentColor.withValues(alpha: 0.90),
+                              borderRadius: pillRadius,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                width: 1,
                               ),
                             ),
                           ),
@@ -307,8 +306,8 @@ class _HomeScreenState extends State<HomeScreen> {
               icon,
               size: 22,
               color: isSelected
-                  ? AppTheme.accentColor
-                  : AppTheme.fontColor.withValues(alpha: 0.42),
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.55),
             ),
             const SizedBox(height: 3),
             Text(
@@ -317,8 +316,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                 color: isSelected
-                    ? AppTheme.accentColor
-                    : AppTheme.fontColor.withValues(alpha: 0.42),
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.55),
               ),
             ),
           ],
