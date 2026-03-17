@@ -28,11 +28,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  /// Format a measurement value: drop the decimal when it's a whole number.
+  String _fmt(double v) =>
+      v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Column(
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
+      body: SafeArea(
+        top: false,
+        child: Column(
         children: [
           const AnimatedTabHeader(title: 'Profile'),
           Expanded(
@@ -56,6 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -298,13 +305,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         final m = provider.measurement!;
         final chips = <Map<String, String>>[
-          {'label': 'Height', 'value': '${m.height}cm'},
-          {'label': 'Weight', 'value': '${m.weight}kg'},
-          {'label': 'Chest', 'value': '${m.chest}cm'},
-          {'label': 'Waist', 'value': '${m.waist}cm'},
-          {'label': 'Hips', 'value': '${m.hips}cm'},
+          {'label': 'Height', 'value': '${_fmt(m.height)}cm'},
+          {'label': 'Weight', 'value': '${_fmt(m.weight)}kg'},
+          {'label': 'Chest', 'value': '${_fmt(m.chest)}cm'},
+          {'label': 'Waist', 'value': '${_fmt(m.waist)}cm'},
+          {'label': 'Hips', 'value': '${_fmt(m.hips)}cm'},
           if (m.shoulderWidth != null)
-            {'label': 'Shoulder', 'value': '${m.shoulderWidth}cm'},
+            {'label': 'Shoulder', 'value': '${_fmt(m.shoulderWidth!)}cm'},
         ];
 
         return Padding(
