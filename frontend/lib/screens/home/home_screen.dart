@@ -484,6 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           // Dot indicators only — no text label
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: List.generate(_heroAssets.length, (i) {
                               final active = i == _heroPage;
                               return AnimatedContainer(
