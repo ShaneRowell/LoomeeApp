@@ -66,7 +66,7 @@ class FitAnalysisCard extends StatelessWidget {
                 ),
                 child: Text(
                   _fitLabel,
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: _fitColor,
@@ -82,7 +82,7 @@ class FitAnalysisCard extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Tight Areas',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.fontColor,
@@ -107,7 +107,7 @@ class FitAnalysisCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Loose Areas',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.fontColor,
@@ -132,7 +132,7 @@ class FitAnalysisCard extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Recommendations',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.fontColor,
@@ -148,7 +148,7 @@ class FitAnalysisCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           rec,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
                             color: AppTheme.fontColor.withValues(alpha: 0.7),
                           ),
@@ -181,7 +181,7 @@ class FitAnalysisCard extends StatelessWidget {
               Center(
                 child: Text(
                   '${confidence.toInt()}%',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.fontColor,

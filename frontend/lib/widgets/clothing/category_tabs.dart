@@ -54,7 +54,7 @@ class CategoryTabs extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 cat['label'],
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                   color: isSelected ? AppTheme.white : AppTheme.fontColor,

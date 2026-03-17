@@ -47,7 +47,7 @@ class TryOnStatusBadge extends StatelessWidget {
       ),
       child: Text(
         _label,
-        style: GoogleFonts.inter(
+        style: GoogleFonts.playfairDisplay(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           color: _color,

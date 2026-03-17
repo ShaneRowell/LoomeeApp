@@ -53,7 +53,7 @@ class SizeBadge extends StatelessWidget {
             children: [
               Text(
                 size,
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: isSelected ? AppTheme.white : AppTheme.fontColor,
