@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -7,8 +8,10 @@ import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/measurement_provider.dart';
 import '../../providers/preset_image_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../providers/try_on_provider.dart';
 import '../../widgets/common/animated_tab_header.dart';
+import '../../widgets/common/legal_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -34,57 +37,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final scaffoldBg = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: scaffoldBg,
       body: SafeArea(
         top: false,
         child: Column(
-        children: [
-          Stack(
-            children: [
-              const AnimatedTabHeader(title: 'Profile'),
-              Positioned(
-                top: MediaQuery.of(context).padding.top + 10,
-                left: 14,
-                child: IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_rounded,
-                    size: 20,
-                    color: Colors.white,
+          children: [
+            Stack(
+              children: [
+                const AnimatedTabHeader(title: 'Profile'),
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  left: 14,
+                  child: IconButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(bottom: 110),
-              child: Column(
-                children: [
-                  const SizedBox(height: 28),
-                  _buildAvatar(),
-                  const SizedBox(height: 28),
-                  _buildStatsRow(),
-                  const SizedBox(height: 20),
-                  _buildMeasurementsCard(),
-                  const SizedBox(height: 16),
-                  _buildMenuSection(),
-                  const SizedBox(height: 24),
-                  _buildLogoutButton(),
-                  const SizedBox(height: 32),
-                ],
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 110),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 28),
+                    _buildAvatar(scheme),
+                    const SizedBox(height: 28),
+                    _buildStatsRow(scheme),
+                    const SizedBox(height: 20),
+                    _buildMeasurementsCard(scheme),
+                    const SizedBox(height: 16),
+                    _buildPreferencesSection(scheme),
+                    const SizedBox(height: 16),
+                    _buildMenuSection(scheme),
+                    const SizedBox(height: 24),
+                    _buildLogoutButton(scheme),
+                    const SizedBox(height: 32),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
   }
 
   // ── Avatar + name + email + member-since ──────────────────────────────
-  Widget _buildAvatar() {
+  Widget _buildAvatar(ColorScheme scheme) {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         final user = auth.user;
@@ -96,7 +107,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return Column(
           children: [
-            // Terracotta circle with initial
             Container(
               width: 96,
               height: 96,
@@ -128,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
@@ -136,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               user?.email ?? '',
               style: GoogleFonts.playfairDisplay(
                 fontSize: 14,
-                color: AppTheme.fontColor.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
             if (memberSince != null) ...[
@@ -165,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ── Stats row ─────────────────────────────────────────────────────────
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -176,6 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.checkroom_rounded,
                 value: '${p.tryOns.length}',
                 label: 'Try-Ons',
+                scheme: scheme,
               ),
             ),
           ),
@@ -186,6 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.photo_rounded,
                 value: '${p.images.length}',
                 label: 'Photos',
+                scheme: scheme,
               ),
             ),
           ),
@@ -196,6 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: Icons.straighten_rounded,
                 value: p.hasMeasurements ? '✓' : '—',
                 label: 'Measured',
+                scheme: scheme,
               ),
             ),
           ),
@@ -208,15 +221,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String value,
     required String label,
+    required ColorScheme scheme,
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.fontColor.withValues(alpha: 0.07),
+            color: Colors.black.withValues(alpha: 0.07),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -231,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 20,
               fontWeight: FontWeight.w700,
-              color: AppTheme.fontColor,
+              color: scheme.onSurface,
             ),
           ),
           const SizedBox(height: 2),
@@ -239,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label,
             style: GoogleFonts.playfairDisplay(
               fontSize: 10,
-              color: AppTheme.fontColor.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),
@@ -249,19 +263,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ── Body measurements snapshot ────────────────────────────────────────
-  Widget _buildMeasurementsCard() {
+  Widget _buildMeasurementsCard(ColorScheme scheme) {
     return Consumer<MeasurementProvider>(
       builder: (context, provider, _) {
         if (!provider.hasMeasurements) {
-          // Prompt to add measurements
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: GestureDetector(
-              onTap: () => Navigator.pop(context, 2),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                Navigator.pop(context, 2);
+              },
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: scheme.surface,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
                     color: AppTheme.accentColor.withValues(alpha: 0.25),
@@ -269,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.fontColor.withValues(alpha: 0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 10,
                       offset: const Offset(0, 3),
                     ),
@@ -296,7 +312,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.fontColor,
+                              color: scheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -304,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Get better size recommendations',
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 13,
-                              color: AppTheme.fontColor.withValues(alpha: 0.5),
+                              color: scheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ],
@@ -335,11 +351,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: scheme.surface,
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.fontColor.withValues(alpha: 0.07),
+                  color: Colors.black.withValues(alpha: 0.07),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -365,12 +381,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.fontColor,
+                        color: scheme.onSurface,
                       ),
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context, 2),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Navigator.pop(context, 2);
+                      },
                       child: Text(
                         'Edit',
                         style: GoogleFonts.playfairDisplay(
@@ -383,24 +402,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Chips in rows of 3
                 ...List.generate((chips.length / 3).ceil(), (row) {
                   final slice = chips.skip(row * 3).take(3).toList();
                   return Padding(
-                    padding: EdgeInsets.only(
-                        top: row == 0 ? 0 : 8),
+                    padding: EdgeInsets.only(top: row == 0 ? 0 : 8),
                     child: Row(
                       children: [
                         for (int i = 0; i < slice.length; i++) ...[
                           if (i > 0) const SizedBox(width: 8),
                           Expanded(
                             child: _buildMeasurementChip(
-                              slice[i]['label']!,
-                              slice[i]['value']!,
-                            ),
+                                slice[i]['label']!, slice[i]['value']!, scheme),
                           ),
                         ],
-                        // Fill empty slots in last row
                         for (int i = slice.length; i < 3; i++) ...[
                           const SizedBox(width: 8),
                           const Expanded(child: SizedBox()),
@@ -417,11 +431,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMeasurementChip(String label, String value) {
+  Widget _buildMeasurementChip(
+      String label, String value, ColorScheme scheme) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundColor,
+        color: scheme.onSurface.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -431,7 +446,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: AppTheme.fontColor,
+              color: scheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
@@ -440,7 +455,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label,
             style: GoogleFonts.playfairDisplay(
               fontSize: 10,
-              color: AppTheme.fontColor.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.5),
             ),
             textAlign: TextAlign.center,
           ),
@@ -449,12 +464,114 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ── Menu tiles ────────────────────────────────────────────────────────
-  Widget _buildMenuSection() {
+  // ── Preferences (dark mode toggle) ────────────────────────────────────
+  Widget _buildPreferencesSection(ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildSectionLabel('Preferences', scheme),
+          const SizedBox(height: 10),
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, _) {
+              return _buildToggleTile(
+                icon: themeProvider.isDark
+                    ? Icons.dark_mode_rounded
+                    : Icons.light_mode_rounded,
+                title: 'Dark Mode',
+                subtitle: themeProvider.isDark
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode',
+                value: themeProvider.isDark,
+                onChanged: (_) {
+                  HapticFeedback.lightImpact();
+                  themeProvider.toggle();
+                },
+                scheme: scheme,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required ColorScheme scheme,
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTheme.accentColor.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 20, color: AppTheme.accentColor),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 13,
+                    color: scheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeColor: AppTheme.accentColor,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Menu tiles ────────────────────────────────────────────────────────
+  Widget _buildMenuSection(ColorScheme scheme) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Activity ──────────────────────────────────────────────────
+          _buildSectionLabel('Activity', scheme),
+          const SizedBox(height: 10),
           _buildMenuTile(
             icon: Icons.photo_library_rounded,
             title: 'My Photos',
@@ -463,11 +580,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 '${p.images.length} uploaded',
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 13,
-                  color: AppTheme.fontColor.withValues(alpha: 0.5),
+                  color: scheme.onSurface.withValues(alpha: 0.5),
                 ),
               ),
             ),
-            onTap: () => Navigator.pop(context, 3),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              Navigator.pop(context, 3);
+            },
+            scheme: scheme,
           ),
           const SizedBox(height: 10),
           _buildMenuTile(
@@ -477,13 +598,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'Browse past virtual try-ons',
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
-                color: AppTheme.fontColor.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
-            onTap: () => Navigator.pop(context, 4),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              Navigator.pop(context, 4);
+            },
+            scheme: scheme,
+          ),
+          const SizedBox(height: 20),
+
+          // ── Legal ──────────────────────────────────────────────────────
+          _buildSectionLabel('Legal', scheme),
+          const SizedBox(height: 10),
+          _buildMenuTile(
+            icon: Icons.description_outlined,
+            title: 'Terms of Service',
+            subtitle: Text(
+              'Usage rules and your rights',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 13,
+                color: scheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              _showLegalSheet(context,
+                  title: 'Terms of Service',
+                  sections: LegalContent.termsOfService);
+            },
+            scheme: scheme,
+          ),
+          const SizedBox(height: 10),
+          _buildMenuTile(
+            icon: Icons.privacy_tip_outlined,
+            title: 'Privacy Policy',
+            subtitle: Text(
+              'How we handle your data',
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 13,
+                color: scheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              _showLegalSheet(context,
+                  title: 'Privacy Policy',
+                  sections: LegalContent.privacyPolicy);
+            },
+            scheme: scheme,
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSectionLabel(String label, ColorScheme scheme) {
+    return Text(
+      label.toUpperCase(),
+      style: GoogleFonts.playfairDisplay(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        color: scheme.onSurface.withValues(alpha: 0.4),
+        letterSpacing: 1.2,
+      ),
+    );
+  }
+
+  void _showLegalSheet(
+    BuildContext context, {
+    required String title,
+    required List<LegalSection> sections,
+  }) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => LegalSheet(title: title, sections: sections),
     );
   }
 
@@ -492,17 +684,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required Widget subtitle,
     required VoidCallback onTap,
+    required ColorScheme scheme,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: scheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.fontColor.withValues(alpha: 0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -528,7 +721,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.fontColor,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -538,7 +731,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: AppTheme.fontColor.withValues(alpha: 0.3),
+              color: scheme.onSurface.withValues(alpha: 0.3),
             ),
           ],
         ),
@@ -547,11 +740,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   // ── Logout ────────────────────────────────────────────────────────────
-  Widget _buildLogoutButton() {
+  Widget _buildLogoutButton(ColorScheme scheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
         onTap: () async {
+          HapticFeedback.mediumImpact();
           final confirm = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
@@ -570,7 +764,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: Text(
                     'Cancel',
                     style: GoogleFonts.playfairDisplay(
-                        color: AppTheme.fontColor),
+                        color: scheme.onSurface),
                   ),
                 ),
                 TextButton(
@@ -596,14 +790,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: scheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppTheme.errorColor.withValues(alpha: 0.30),
             ),
             boxShadow: [
               BoxShadow(
-                color: AppTheme.fontColor.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

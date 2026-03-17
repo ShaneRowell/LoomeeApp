@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../config/app_routes.dart';
 import '../config/app_theme.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/common/loomee_logo.dart';
+import 'auth/login_screen.dart';
+import 'home/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -91,16 +92,18 @@ class _SplashScreenState extends State<SplashScreen>
     final authProvider = context.read<AuthProvider>();
     await Future.wait([
       authProvider.tryAutoLogin(),
-      // Keep splash visible long enough to complete the full animation
-      const Duration(milliseconds: 2800).asFuture(),
+      // Wait just past when the accent line finishes drawing (~1 680 ms)
+      const Duration(milliseconds: 1750).asFuture(),
     ]);
     if (!mounted) return;
 
-    if (authProvider.isAuthenticated) {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
-    } else {
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
-    }
+    final destination = authProvider.isAuthenticated
+        ? const HomeScreen()
+        : const LoginScreen();
+    Navigator.pushReplacement(
+      context,
+      _SplitRevealRoute(destination: destination),
+    );
   }
 
   @override
@@ -112,7 +115,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: AnimatedBuilder(
           animation: _ctrl,
@@ -218,4 +221,62 @@ class _SplashScreenState extends State<SplashScreen>
 
 extension on Duration {
   Future<void> asFuture() => Future.delayed(this);
+}
+
+// ── Split-reveal curtain transition ──────────────────────────────────────────
+//
+// Two cream panels (top & bottom half of the screen) slide away from each
+// other, revealing the destination screen underneath — as if the splash is
+// being torn apart along the accent line.
+class _SplitRevealRoute extends PageRouteBuilder {
+  _SplitRevealRoute({required Widget destination})
+      : super(
+          transitionDuration: const Duration(milliseconds: 680),
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, animation, secondaryAnimation) => destination,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final curved = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeInCubic,
+            );
+
+            return AnimatedBuilder(
+              animation: curved,
+              builder: (context, innerChild) {
+                final h = MediaQuery.of(context).size.height;
+                final halfH = (h / 2).ceilToDouble();
+                final slide = curved.value * halfH;
+                // Use the theme's scaffold colour so the panels blend in dark mode
+                final panelColor =
+                    Theme.of(context).scaffoldBackgroundColor;
+
+                return Stack(
+                  children: [
+                    // ── Destination page renders underneath ───────────────
+                    innerChild!,
+
+                    // ── Top panel slides upward ────────────────────────────
+                    Positioned(
+                      top: -slide,
+                      left: 0,
+                      right: 0,
+                      height: halfH + 1, // +1 to avoid 1-px gap at seam
+                      child: Container(color: panelColor),
+                    ),
+
+                    // ── Bottom panel slides downward ───────────────────────
+                    Positioned(
+                      bottom: -slide,
+                      left: 0,
+                      right: 0,
+                      height: halfH + 1,
+                      child: Container(color: panelColor),
+                    ),
+                  ],
+                );
+              },
+              child: child,
+            );
+          },
+        );
 }

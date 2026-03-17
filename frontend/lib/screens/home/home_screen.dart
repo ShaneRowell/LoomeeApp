@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // ── Tab content — extends behind floating navbar so glass blurs it ──
@@ -200,6 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTapUp: (details) {
                       final idx =
                           (details.localPosition.dx / itemWidth).floor().clamp(0, 4);
+                      if (idx != _currentIndex) HapticFeedback.selectionClick();
                       setState(() {
                         _currentIndex = idx;
                         _navDragFraction = null;

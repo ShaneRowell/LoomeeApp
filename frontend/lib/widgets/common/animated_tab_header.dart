@@ -89,15 +89,20 @@ class _AnimatedTabHeaderState extends State<AnimatedTabHeader>
                       ),
                     ),
                   ),
-                  // Wave — pinned to bottom of the TALLER inner container
+                  // Wave — pinned to bottom of the TALLER inner container.
+                  // Uses the theme scaffold colour so the cutout matches both
+                  // light (cream) and dark (deep navy) backgrounds.
                   Positioned(
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    child: CustomPaint(
-                      size: const Size(double.infinity, 28),
-                      painter:
-                          _WaveBottomPainter(color: AppTheme.backgroundColor),
+                    child: Builder(
+                      builder: (ctx) => CustomPaint(
+                        size: const Size(double.infinity, 28),
+                        painter: _WaveBottomPainter(
+                          color: Theme.of(ctx).scaffoldBackgroundColor,
+                        ),
+                      ),
                     ),
                   ),
                   // Title — positioned relative to actual status bar
