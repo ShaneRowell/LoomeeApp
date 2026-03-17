@@ -43,11 +43,11 @@ class CategoryTabs extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.widgetColor : AppTheme.white,
+                color: isSelected ? AppTheme.accentColor : AppTheme.white,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: isSelected
-                      ? AppTheme.widgetColor
+                      ? AppTheme.accentColor
                       : AppTheme.fontColor.withValues(alpha: 0.15),
                 ),
               ),
