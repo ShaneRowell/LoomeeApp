@@ -150,7 +150,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
                               Expanded(
                                 child: Text(
                                   outfit.name,
-                                  style: GoogleFonts.poppins(
+                                  style: GoogleFonts.playfairDisplay(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                     color: AppTheme.fontColor,
@@ -159,7 +159,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
                               ),
                               Text(
                                 _priceFormat.format(outfit.totalPrice),
-                                style: GoogleFonts.poppins(
+                                style: GoogleFonts.playfairDisplay(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: AppTheme.widgetColor,
@@ -191,7 +191,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
                             const SizedBox(height: 12),
                             Text(
                               outfit.reasoning,
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.playfairDisplay(
                                 fontSize: 13,
                                 fontStyle: FontStyle.italic,
                                 color:
@@ -221,7 +221,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
       ),
       child: Text(
         text,
-        style: GoogleFonts.inter(
+        style: GoogleFonts.playfairDisplay(
             fontSize: 11, fontWeight: FontWeight.w600, color: color),
       ),
     );
@@ -236,7 +236,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
           const SizedBox(width: 8),
           Text(
             '$label: ',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppTheme.fontColor.withValues(alpha: 0.5),
@@ -246,7 +246,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
             child: Text(
               value,
               style:
-                  GoogleFonts.inter(fontSize: 13, color: AppTheme.fontColor),
+                  GoogleFonts.playfairDisplay(fontSize: 13, color: AppTheme.fontColor),
             ),
           ),
         ],

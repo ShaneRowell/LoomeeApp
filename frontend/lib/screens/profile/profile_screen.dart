@@ -42,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: AppTheme.widgetColor,
                       child: Text(
                         (user?.name?.isNotEmpty == true ? user!.name! : 'U')[0].toUpperCase(),
-                        style: GoogleFonts.poppins(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 32,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.white,
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 14),
                     Text(
                       user?.name ?? 'User',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
                         color: AppTheme.fontColor,
@@ -61,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 4),
                     Text(
                       user?.email ?? '',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 14,
                         color: AppTheme.fontColor.withValues(alpha: 0.5),
                       ),
@@ -80,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final m = provider.measurement!;
                     return Text(
                       '${m.height}cm / ${m.weight}kg',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 13,
                         color: AppTheme.fontColor.withValues(alpha: 0.5),
                       ),
@@ -88,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                   return Text(
                     'Not set',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 13,
                       color: AppTheme.accentColor,
                     ),
@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 builder: (context, provider, _) {
                   return Text(
                     '${provider.images.length} photos',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 13,
                       color: AppTheme.fontColor.withValues(alpha: 0.5),
                     ),
@@ -120,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: 'Try-On History',
               subtitle: Text(
                 'View past try-ons',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 13,
                   color: AppTheme.fontColor.withValues(alpha: 0.5),
                 ),
@@ -133,7 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: 'Complete Outfit',
               subtitle: Text(
                 'Get outfit suggestions',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 13,
                   color: AppTheme.fontColor.withValues(alpha: 0.5),
                 ),
@@ -229,7 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.fontColor,

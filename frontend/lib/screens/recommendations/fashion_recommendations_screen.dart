@@ -39,7 +39,7 @@ class _FashionRecommendationsScreenState
                 children: [
                   Text(
                     'Style Guide',
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.fontColor,
@@ -48,7 +48,7 @@ class _FashionRecommendationsScreenState
                   const SizedBox(height: 4),
                   Text(
                     'Personalized fashion recommendations',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
                       color: AppTheme.fontColor.withValues(alpha: 0.5),
                     ),
@@ -91,7 +91,7 @@ class _FashionRecommendationsScreenState
                             Text(
                               'Add your measurements for\npersonalized recommendations',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.playfairDisplay(
                                 fontSize: 15,
                                 color:
                                     AppTheme.fontColor.withValues(alpha: 0.5),
@@ -142,7 +142,7 @@ class _FashionRecommendationsScreenState
             const SizedBox(width: 12),
             Text(
               title,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.fontColor,
@@ -175,7 +175,7 @@ class _FashionRecommendationsScreenState
                     Expanded(
                       child: Text(
                         item,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
                           color: AppTheme.fontColor.withValues(alpha: 0.8),
                         ),
