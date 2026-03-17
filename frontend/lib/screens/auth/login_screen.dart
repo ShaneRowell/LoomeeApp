@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 40,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.fontColor,
@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                             : Text(
                                 'Login',
-                                style: GoogleFonts.poppins(
+                                style: GoogleFonts.playfairDisplay(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {},
                   child: Text(
                     'Forgot password?',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
                       color: AppTheme.fontColor.withValues(alpha: 0.6),
                     ),
@@ -153,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text(
                       'No account? ',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 14,
                         color: AppTheme.fontColor.withValues(alpha: 0.6),
                       ),
@@ -165,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Text(
                         'Sign up',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.accentColor,

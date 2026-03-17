@@ -64,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 40,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.fontColor,
@@ -159,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               )
                             : Text(
                                 'Create Account',
-                                style: GoogleFonts.poppins(
+                                style: GoogleFonts.playfairDisplay(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -175,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 14,
                         color: AppTheme.fontColor.withValues(alpha: 0.6),
                       ),
@@ -187,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: Text(
                         'Sign in',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.accentColor,

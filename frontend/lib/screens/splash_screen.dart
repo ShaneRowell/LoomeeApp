@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 16),
               Text(
                 'Loomeé',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 44,
                   fontWeight: FontWeight.w700,
                   color: AppTheme.fontColor,
@@ -77,7 +77,7 @@ class _SplashScreenState extends State<SplashScreen>
               const SizedBox(height: 8),
               Text(
                 'Virtual Fashion Try-On',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 16,
                   color: AppTheme.fontColor.withValues(alpha: 0.5),
                 ),
