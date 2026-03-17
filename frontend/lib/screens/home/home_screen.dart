@@ -152,11 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
             filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
             child: Container(
               decoration: BoxDecoration(
-                // Dark navy frost — visible on every screen (cream, white, terracotta)
-                color: AppTheme.fontColor.withValues(alpha: 0.80),
+                color: AppTheme.accentColor,
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.10),
+                  color: Colors.white.withValues(alpha: 0.15),
                   width: 1,
                 ),
               ),
@@ -258,11 +257,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: pillWidth,
                           child: Container(
                             decoration: BoxDecoration(
-                              // Solid terracotta pill pops against dark navbar
-                              color: AppTheme.accentColor.withValues(alpha: 0.90),
+                              color: AppTheme.backgroundColor,
                               borderRadius: pillRadius,
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.18),
+                                color: AppTheme.accentColor.withValues(alpha: 0.20),
                                 width: 1,
                               ),
                             ),
@@ -306,8 +304,8 @@ class _HomeScreenState extends State<HomeScreen> {
               icon,
               size: 22,
               color: isSelected
-                  ? Colors.white
-                  : Colors.white.withValues(alpha: 0.55),
+                  ? AppTheme.fontColor
+                  : Colors.white.withValues(alpha: 0.85),
             ),
             const SizedBox(height: 3),
             Text(
@@ -316,8 +314,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
                 color: isSelected
-                    ? Colors.white
-                    : Colors.white.withValues(alpha: 0.55),
+                    ? AppTheme.fontColor
+                    : Colors.white.withValues(alpha: 0.85),
               ),
             ),
           ],
