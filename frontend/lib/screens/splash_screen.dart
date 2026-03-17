@@ -63,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              LomeeLogo(size: 80, color: AppTheme.widgetColor),
+              const LomeeLogo(size: 80),
               const SizedBox(height: 16),
               Text(
                 'Loomeé',

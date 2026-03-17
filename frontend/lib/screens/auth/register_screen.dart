@@ -60,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 const SizedBox(height: 60),
                 // Logo / Brand
-                LomeeLogo(size: 72, color: AppTheme.widgetColor),
+                const LomeeLogo(size: 72),
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',

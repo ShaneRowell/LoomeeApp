@@ -343,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const LomeeLogo(size: 48, color: AppTheme.fontColor),
+                  const LomeeLogo(size: 48),
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(

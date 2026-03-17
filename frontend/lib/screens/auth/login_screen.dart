@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 80),
                 // Logo / Brand
-                LomeeLogo(size: 72, color: AppTheme.widgetColor),
+                const LomeeLogo(size: 72),
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',
