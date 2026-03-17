@@ -146,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               user?.email ?? '',
               style: GoogleFonts.playfairDisplay(
                 fontSize: 14,
-                color: scheme.onSurface.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
             if (memberSince != null) ...[
@@ -155,13 +155,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.calendar_today_rounded,
-                      size: 12, color: AppTheme.accentColor),
+                      size: 12, color: scheme.primary),
                   const SizedBox(width: 5),
                   Text(
                     'Member since $memberSince',
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 12,
-                      color: AppTheme.accentColor,
+                      color: scheme.primary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -238,7 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
-          Icon(icon, size: 20, color: AppTheme.accentColor),
+          Icon(icon, size: 20, color: scheme.primary),
           const SizedBox(height: 6),
           Text(
             value,
@@ -253,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label,
             style: GoogleFonts.playfairDisplay(
               fontSize: 10,
-              color: scheme.onSurface.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.65),
             ),
             textAlign: TextAlign.center,
           ),
@@ -280,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: scheme.surface,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: AppTheme.accentColor.withValues(alpha: 0.25),
+                    color: scheme.primary.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   boxShadow: [
@@ -296,11 +296,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentColor.withValues(alpha: 0.10),
+                        color: scheme.primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(Icons.straighten_rounded,
-                          size: 20, color: AppTheme.accentColor),
+                          size: 20, color: scheme.primary),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -320,14 +320,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             'Get better size recommendations',
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 13,
-                              color: scheme.onSurface.withValues(alpha: 0.5),
+                              color: scheme.onSurface.withValues(alpha: 0.65),
                             ),
                           ),
                         ],
                       ),
                     ),
                     Icon(Icons.add_circle_outline_rounded,
-                        color: AppTheme.accentColor, size: 22),
+                        color: scheme.primary, size: 22),
                   ],
                 ),
               ),
@@ -369,11 +369,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: AppTheme.accentColor.withValues(alpha: 0.10),
+                        color: scheme.primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(Icons.straighten_rounded,
-                          size: 18, color: AppTheme.accentColor),
+                          size: 18, color: scheme.primary),
                     ),
                     const SizedBox(width: 10),
                     Text(
@@ -394,7 +394,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'Edit',
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 13,
-                          color: AppTheme.accentColor,
+                          color: scheme.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -455,7 +455,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label,
             style: GoogleFonts.playfairDisplay(
               fontSize: 10,
-              color: scheme.onSurface.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.65),
             ),
             textAlign: TextAlign.center,
           ),
@@ -523,10 +523,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.accentColor.withValues(alpha: 0.10),
+              color: scheme.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, size: 20, color: AppTheme.accentColor),
+            child: Icon(icon, size: 20, color: scheme.primary),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -546,7 +546,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   subtitle,
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 13,
-                    color: scheme.onSurface.withValues(alpha: 0.5),
+                    color: scheme.onSurface.withValues(alpha: 0.65),
                   ),
                 ),
               ],
@@ -555,7 +555,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: AppTheme.accentColor,
+            activeColor: scheme.primary,
+            activeTrackColor: scheme.primary.withValues(alpha: 0.35),
+            inactiveThumbColor: scheme.onSurface.withValues(alpha: 0.7),
+            inactiveTrackColor: scheme.onSurface.withValues(alpha: 0.12),
+            trackOutlineColor: WidgetStatePropertyAll(
+              scheme.onSurface.withValues(alpha: 0.3),
+            ),
           ),
         ],
       ),
@@ -580,7 +586,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 '${p.images.length} uploaded',
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 13,
-                  color: scheme.onSurface.withValues(alpha: 0.5),
+                  color: scheme.onSurface.withValues(alpha: 0.65),
                 ),
               ),
             ),
@@ -598,7 +604,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'Browse past virtual try-ons',
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
-                color: scheme.onSurface.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
             onTap: () {
@@ -619,7 +625,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'Usage rules and your rights',
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
-                color: scheme.onSurface.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
             onTap: () {
@@ -638,7 +644,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'How we handle your data',
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
-                color: scheme.onSurface.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
             onTap: () {
@@ -660,7 +666,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       style: GoogleFonts.playfairDisplay(
         fontSize: 11,
         fontWeight: FontWeight.w600,
-        color: scheme.onSurface.withValues(alpha: 0.4),
+        color: scheme.onSurface.withValues(alpha: 0.55),
         letterSpacing: 1.2,
       ),
     );
@@ -706,10 +712,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.accentColor.withValues(alpha: 0.10),
+                color: scheme.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, size: 20, color: AppTheme.accentColor),
+              child: Icon(icon, size: 20, color: scheme.primary),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -731,7 +737,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: scheme.onSurface.withValues(alpha: 0.3),
+              color: scheme.onSurface.withValues(alpha: 0.45),
             ),
           ],
         ),
