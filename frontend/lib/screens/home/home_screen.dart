@@ -345,8 +345,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.profile),
+                      onTap: () async {
+                        final tab = await Navigator.pushNamed(
+                            context, AppRoutes.profile);
+                        if (tab is int && mounted) {
+                          setState(() => _currentIndex = tab);
+                        }
+                      },
                       child: Icon(
                         Icons.person_outline_rounded,
                         size: 26,

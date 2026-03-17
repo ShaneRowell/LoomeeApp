@@ -43,19 +43,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Stack(
             children: [
               const AnimatedTabHeader(title: 'Profile'),
-              if (Navigator.canPop(context))
-                Positioned(
-                  top: 22,
-                  left: 20,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 20,
-                      color: Colors.white,
-                    ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10,
+                left: 14,
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 20,
+                    color: Colors.white,
                   ),
                 ),
+              ),
             ],
           ),
           Expanded(
@@ -258,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, AppRoutes.measurements),
+              onTap: () => Navigator.pop(context, 2),
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
@@ -371,8 +370,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.measurements),
+                      onTap: () => Navigator.pop(context, 2),
                       child: Text(
                         'Edit',
                         style: GoogleFonts.playfairDisplay(
@@ -469,7 +467,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            onTap: () => Navigator.pushNamed(context, AppRoutes.presetImages),
+            onTap: () => Navigator.pop(context, 3),
           ),
           const SizedBox(height: 10),
           _buildMenuTile(
@@ -482,7 +480,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: AppTheme.fontColor.withValues(alpha: 0.5),
               ),
             ),
-            onTap: () => Navigator.pushNamed(context, AppRoutes.tryOnHistory),
+            onTap: () => Navigator.pop(context, 4),
           ),
         ],
       ),
