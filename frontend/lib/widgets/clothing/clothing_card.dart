@@ -77,7 +77,7 @@ class ClothingCard extends StatelessWidget {
                   children: [
                     Text(
                       clothing.brand.toUpperCase(),
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.accentColor,
@@ -89,7 +89,7 @@ class ClothingCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       clothing.name,
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: AppTheme.fontColor,
@@ -103,7 +103,7 @@ class ClothingCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             priceFormat.format(clothing.price),
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.widgetColor,
