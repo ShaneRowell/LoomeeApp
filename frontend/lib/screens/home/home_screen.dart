@@ -345,7 +345,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
-                      onTap: _logout,
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.profile),
                       child: Icon(
                         Icons.person_outline_rounded,
                         size: 26,
