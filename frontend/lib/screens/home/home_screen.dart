@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 4),
             Text(
               label,
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 color: isSelected
@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Welcome back, $name!',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.fontColor,
@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 4),
                           Text(
                             "What's on your mind today?",
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               color:
                                   AppTheme.fontColor.withValues(alpha: 0.5),
@@ -240,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       label: Text(
                         'Log out',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
                           color: AppTheme.fontColor.withValues(alpha: 0.5),
                         ),
@@ -271,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             'Loomeé',
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 28,
               fontWeight: FontWeight.w700,
               color: AppTheme.fontColor,
@@ -323,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 10),
               Text(
                 label,
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.white,
@@ -355,7 +355,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Text(
               'Loomeé',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
                 color: AppTheme.fontColor,
