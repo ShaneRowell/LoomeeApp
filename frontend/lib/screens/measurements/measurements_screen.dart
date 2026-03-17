@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../models/measurement.dart';
 import '../../providers/measurement_provider.dart';
+import '../../widgets/common/animated_tab_header.dart';
 
 class MeasurementsScreen extends StatefulWidget {
   const MeasurementsScreen({super.key});
@@ -99,6 +100,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           return SafeArea(
+            top: false,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +117,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'Body Measurements',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 22,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.fontColor,
@@ -124,7 +126,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                           const SizedBox(height: 6),
                           Text(
                             'Used for size recommendation and AI try ons, enter your measurements below.',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 13,
                               color: AppTheme.fontColor.withValues(alpha: 0.5),
                             ),
@@ -173,7 +175,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                           const SizedBox(height: 10),
                           Text(
                             'All measurements in ($unitLabel)',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 12,
                               color: AppTheme.fontColor.withValues(alpha: 0.4),
                             ),
@@ -193,7 +195,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                                     )
                                   : Text(
                                       'Save Measurements',
-                                      style: GoogleFonts.poppins(
+                                      style: GoogleFonts.playfairDisplay(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -221,41 +223,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     );
   }
 
-  Widget _buildHeader() {
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          height: 100,
-          decoration: BoxDecoration(
-            color: AppTheme.widgetColor.withValues(alpha: 0.08),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: CustomPaint(
-            size: const Size(double.infinity, 25),
-            painter: _WavePainter(color: AppTheme.backgroundColor),
-          ),
-        ),
-        Positioned(
-          top: 16,
-          left: 20,
-          child: Text(
-            'Loomeé',
-            style: GoogleFonts.poppins(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.fontColor,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildHeader() => const AnimatedTabHeader(title: 'Measure');
 
   Widget _buildMeasurementField({
     required IconData icon,
@@ -306,38 +274,3 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
   }
 }
 
-class _WavePainter extends CustomPainter {
-  final Color color;
-
-  _WavePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final path = Path()
-      ..moveTo(0, size.height)
-      ..lineTo(0, size.height * 0.4)
-      ..quadraticBezierTo(
-        size.width * 0.25,
-        0,
-        size.width * 0.5,
-        size.height * 0.3,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.75,
-        size.height * 0.6,
-        size.width,
-        size.height * 0.2,
-      )
-      ..lineTo(size.width, size.height)
-      ..close();
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
