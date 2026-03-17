@@ -40,7 +40,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         top: false,
         child: Column(
         children: [
-          const AnimatedTabHeader(title: 'Profile'),
+          Stack(
+            children: [
+              const AnimatedTabHeader(title: 'Profile'),
+              if (Navigator.canPop(context))
+                Positioned(
+                  top: 22,
+                  left: 20,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 110),
@@ -466,19 +483,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             onTap: () => Navigator.pushNamed(context, AppRoutes.tryOnHistory),
-          ),
-          const SizedBox(height: 10),
-          _buildMenuTile(
-            icon: Icons.style_rounded,
-            title: 'Outfit Suggestions',
-            subtitle: Text(
-              'Complete your look with AI',
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 13,
-                color: AppTheme.fontColor.withValues(alpha: 0.5),
-              ),
-            ),
-            onTap: () => Navigator.pushNamed(context, AppRoutes.completeOutfit),
           ),
         ],
       ),
