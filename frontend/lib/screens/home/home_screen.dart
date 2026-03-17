@@ -342,7 +342,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  const LomeeLogo(size: 48),
+                  LomeeLogo(
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
@@ -356,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Icon(
                         Icons.person_outline_rounded,
                         size: 26,
-                        color: AppTheme.fontColor.withValues(alpha: 0.45),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75),
                       ),
                     ),
                   ),
@@ -370,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 30,
                 fontWeight: FontWeight.w700,
-                color: AppTheme.fontColor,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 24),
@@ -391,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 20,
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.fontColor,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   GestureDetector(
@@ -400,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       'View all',
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 14,
-                        color: AppTheme.fontColor.withValues(alpha: 0.5),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                       ),
                     ),
                   ),
@@ -550,26 +553,27 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeroPlaceholder(int index) {
+    final scheme = Theme.of(context).colorScheme;
     // Placeholder gradient shown until real hero images are added
-    final colors = [
-      [AppTheme.fontColor.withValues(alpha: 0.08), AppTheme.accentColor.withValues(alpha: 0.18)],
-      [AppTheme.accentColor.withValues(alpha: 0.12), AppTheme.fontColor.withValues(alpha: 0.10)],
-      [AppTheme.fontColor.withValues(alpha: 0.06), AppTheme.accentColor.withValues(alpha: 0.14)],
-      [AppTheme.accentColor.withValues(alpha: 0.10), AppTheme.fontColor.withValues(alpha: 0.08)],
+    final gradientColors = [
+      [scheme.onSurface.withValues(alpha: 0.08), scheme.primary.withValues(alpha: 0.18)],
+      [scheme.primary.withValues(alpha: 0.12), scheme.onSurface.withValues(alpha: 0.10)],
+      [scheme.onSurface.withValues(alpha: 0.06), scheme.primary.withValues(alpha: 0.14)],
+      [scheme.primary.withValues(alpha: 0.10), scheme.onSurface.withValues(alpha: 0.08)],
     ];
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: colors[index % colors.length],
+          colors: gradientColors[index % gradientColors.length],
         ),
       ),
       child: Center(
         child: Icon(
           Icons.person_outline_rounded,
           size: 90,
-          color: AppTheme.fontColor.withValues(alpha: 0.15),
+          color: scheme.onSurface.withValues(alpha: 0.15),
         ),
       ),
     );
@@ -607,12 +611,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.fontColor.withValues(alpha: 0.20),
+                      color: Colors.black.withValues(alpha: 0.18),
                       blurRadius: 16,
                       offset: const Offset(0, 5),
                     ),
                     BoxShadow(
-                      color: AppTheme.fontColor.withValues(alpha: 0.08),
+                      color: Colors.black.withValues(alpha: 0.07),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -625,15 +629,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
-                            color: AppTheme.fontColor.withValues(alpha: 0.08),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                             child: Icon(
                               Icons.image_not_supported_outlined,
-                              color: AppTheme.fontColor.withValues(alpha: 0.3),
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                           ),
                         )
                       : Container(
-                          color: AppTheme.fontColor.withValues(alpha: 0.08),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                         ),
                 ),
               ),

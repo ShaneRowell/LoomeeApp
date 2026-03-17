@@ -15,8 +15,8 @@ class AppTheme {
   // ── Dark palette ───────────────────────────────────────────────────────
   // Scaffold: deep dark navy — mirrors the inverted cream of the light theme
   static const Color darkBackgroundColor = Color(0xFF0F1720);
-  // Cards / containers: one stop lighter than the scaffold
-  static const Color darkSurfaceColor = Color(0xFF192030);
+  // Cards / containers: clearly lifted above the scaffold
+  static const Color darkSurfaceColor = Color(0xFF1E2B3F);
   // Primary text on dark: warm cream (the light-mode scaffold colour)
   static const Color darkFontColor = Color(0xFFF0EBE0);
   // Interactive accent on dark: a readable steel-blue
