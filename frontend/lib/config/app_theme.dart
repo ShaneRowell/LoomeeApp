@@ -5,7 +5,7 @@ class AppTheme {
   static const Color fontColor = Color(0xFF1C2B39);
   static const Color backgroundColor = Color(0xFFF5F0E8);
   static const Color widgetColor = Color(0xFF2C2C2C);
-  static const Color accentColor = Color(0xFFB5673D);
+  static const Color accentColor = Color(0xFF1C2B39);
   static const Color white = Colors.white;
   static const Color errorColor = Color(0xFFD32F2F);
   static const Color successColor = Color(0xFF388E3C);
