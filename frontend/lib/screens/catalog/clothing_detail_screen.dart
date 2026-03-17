@@ -145,7 +145,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     children: [
                       Text(
                         clothing.brand.toUpperCase(),
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.accentColor,
@@ -155,7 +155,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       const SizedBox(height: 4),
                       Text(
                         clothing.name,
-                        style: GoogleFonts.poppins(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.fontColor,
@@ -164,7 +164,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       const SizedBox(height: 8),
                       Text(
                         _priceFormat.format(clothing.price),
-                        style: GoogleFonts.poppins(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
                           color: AppTheme.widgetColor,
@@ -173,7 +173,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       const SizedBox(height: 16),
                       Text(
                         clothing.description,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
                           color: AppTheme.fontColor.withValues(alpha: 0.7),
                           height: 1.5,
@@ -183,7 +183,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         const SizedBox(height: 20),
                         Text(
                           'Colors',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.fontColor,
@@ -268,7 +268,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
               children: [
                 Text(
                   'Sizes',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.fontColor,
@@ -285,7 +285,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     ),
                     child: Text(
                       'Recommended: ${sizeRec.recommendedSize}',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.successColor,
@@ -342,7 +342,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     Expanded(
                       child: Text(
                         sizeRec.advice,
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 13,
                           color: AppTheme.fontColor.withValues(alpha: 0.7),
                         ),
@@ -365,7 +365,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
         children: [
           Text(
             '$label: ',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: AppTheme.fontColor.withValues(alpha: 0.5),
@@ -373,7 +373,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
           ),
           Text(
             value,
-            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.fontColor),
+            style: GoogleFonts.playfairDisplay(fontSize: 14, color: AppTheme.fontColor),
           ),
         ],
       ),
@@ -392,7 +392,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
             const SizedBox(height: 24),
             Text(
               'Style Suggestions',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppTheme.fontColor,
@@ -414,7 +414,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       children: [
                         Text(
                           outfit.name,
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.fontColor,
@@ -423,7 +423,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         const SizedBox(height: 4),
                         Text(
                           outfit.items.join(' + '),
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
                             color: AppTheme.fontColor.withValues(alpha: 0.6),
                           ),
@@ -438,7 +438,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           ),
                           child: Text(
                             outfit.occasion,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 11,
                               color: AppTheme.accentColor,
                               fontWeight: FontWeight.w500,
@@ -462,7 +462,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         Expanded(
                           child: Text(
                             tip,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 13,
                               color: AppTheme.fontColor.withValues(alpha: 0.7),
                             ),
