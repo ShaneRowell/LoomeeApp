@@ -81,7 +81,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                       children: [
                         Text(
                           'Upload Your Image',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 24,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.fontColor,
@@ -90,7 +90,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                         const SizedBox(height: 6),
                         Text(
                           'Take a full body picture and upload it here',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
                             color: AppTheme.fontColor.withValues(alpha: 0.5),
                           ),
@@ -126,7 +126,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
                               '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
-                              style: GoogleFonts.inter(
+                              style: GoogleFonts.playfairDisplay(
                                 fontSize: 13,
                                 color: AppTheme.fontColor.withValues(alpha: 0.5),
                               ),
@@ -199,7 +199,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Your Photos',
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.fontColor,
@@ -301,7 +301,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
           const SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: AppTheme.fontColor,
@@ -318,7 +318,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
       children: [
         Text(
           number,
-          style: GoogleFonts.inter(
+          style: GoogleFonts.playfairDisplay(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: AppTheme.fontColor.withValues(alpha: 0.6),
@@ -328,7 +328,7 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.inter(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 12,
               color: AppTheme.fontColor.withValues(alpha: 0.6),
             ),
@@ -367,13 +367,13 @@ class _UploadOptionsDialogState extends State<_UploadOptionsDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Photo Options',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.w600)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Photo Type',
-              style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500)),
+              style: GoogleFonts.playfairDisplay(fontSize: 14, fontWeight: FontWeight.w500)),
           const SizedBox(height: 8),
           ImageTypeSelector(
             selectedType: _imageType,
