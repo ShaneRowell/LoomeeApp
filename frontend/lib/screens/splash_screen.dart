@@ -120,6 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: AnimatedBuilder(
           animation: _ctrl,
           builder: (context, _) {
+            final scheme = Theme.of(context).colorScheme;
             // Derived slide values (pixels, not fractional)
             final titleDY = (1.0 - _titleOpacity.value) * 28.0;
             final subtitleDY = (1.0 - _subtitleOpacity.value) * 18.0;
@@ -132,7 +133,7 @@ class _SplashScreenState extends State<SplashScreen>
                   opacity: _logoOpacity.value,
                   child: Transform.scale(
                     scale: _logoScale.value,
-                    child: const LomeeLogo(size: 84),
+                    child: LomeeLogo(size: 84, color: scheme.onSurface),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -147,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 44,
                         fontWeight: FontWeight.w700,
-                        color: AppTheme.fontColor,
+                        color: scheme.onSurface,
                         letterSpacing: 1,
                       ),
                     ),
@@ -169,7 +170,7 @@ class _SplashScreenState extends State<SplashScreen>
                           width: 64,
                           height: 1.5,
                           decoration: BoxDecoration(
-                            color: AppTheme.fontColor.withValues(alpha: 0.25),
+                            color: scheme.onSurface.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(1),
                           ),
                         ),
@@ -188,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen>
                       'Virtual Fashion Try-On',
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 15,
-                        color: AppTheme.fontColor.withValues(alpha: 0.45),
+                        color: scheme.onSurface.withValues(alpha: 0.6),
                         letterSpacing: 0.3,
                       ),
                     ),
@@ -205,7 +206,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        AppTheme.fontColor.withValues(alpha: 0.28),
+                        scheme.onSurface.withValues(alpha: 0.4),
                       ),
                     ),
                   ),
