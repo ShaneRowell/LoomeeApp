@@ -207,184 +207,198 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
         top: false,
         child: Consumer<PresetImageProvider>(
           builder: (context, provider, _) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  const AnimatedTabHeader(title: 'Upload an image'),
-                  const SizedBox(height: 32),
-                  // Large circular upload area
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      color: scheme.onSurface.withValues(alpha: 0.08),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: scheme.onSurface.withValues(alpha: 0.2),
-                        width: 2,
-                        strokeAlign: BorderSide.strokeAlignOutside,
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.accessibility_new,
-                          size: 64,
-                          color: scheme.onSurface.withValues(alpha: 0.4),
-                        ),
-                        if (provider.images.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
-                              style: GoogleFonts.playfairDisplay(
-                                fontSize: 13,
-                                color: scheme.onSurface.withValues(alpha: 0.5),
+            return Stack(
+              children: [
+                Column(
+                  children: [
+                    // ── Fixed header — stays in place while content scrolls ──
+                    const AnimatedTabHeader(title: 'Upload an image'),
+                    // ── Scrollable body ──────────────────────────────────────
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 32),
+                            // Large circular upload area
+                            Container(
+                              width: 200,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: scheme.onSurface.withValues(alpha: 0.08),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: scheme.onSurface.withValues(alpha: 0.2),
+                                  width: 2,
+                                  strokeAlign: BorderSide.strokeAlignOutside,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.accessibility_new,
+                                    size: 64,
+                                    color: scheme.onSurface.withValues(alpha: 0.4),
+                                  ),
+                                  if (provider.images.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Text(
+                                        '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
+                                        style: GoogleFonts.playfairDisplay(
+                                          fontSize: 13,
+                                          color: scheme.onSurface.withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Action buttons
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildUploadButton(
-                            icon: Icons.camera_alt,
-                            label: 'Take a Pic',
-                            onTap: () => _pickAndUpload(ImageSource.camera),
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: _buildUploadButton(
-                            icon: Icons.photo_library,
-                            label: 'Upload',
-                            onTap: () => _pickAndUpload(ImageSource.gallery),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // Instructions
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: scheme.surface,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildInstructionItem(
-                            '1.',
-                            'Upload or choose a full-body or upper-body photo with good lighting.',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInstructionItem(
-                            '2.',
-                            "We'll map your body shape so clothes fit naturally.",
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInstructionItem(
-                            '3.',
-                            'Browse styles and see them overlaid on your image.',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Existing photos grid
-                  if (provider.images.isNotEmpty) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Your Photos',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.7,
-                      ),
-                      itemCount: provider.images.length,
-                      itemBuilder: (context, index) {
-                        final image = provider.images[index];
-                        return PresetImageCard(
-                          image: image,
-                          onDelete: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (ctx) => AlertDialog(
-                                title: const Text('Delete Photo'),
-                                content: const Text(
-                                    'Are you sure you want to delete this photo?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(ctx, false),
-                                    child: const Text('Cancel'),
+                            const SizedBox(height: 32),
+                            // Action buttons
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildUploadButton(
+                                      icon: Icons.camera_alt,
+                                      label: 'Take a Pic',
+                                      onTap: () => _pickAndUpload(ImageSource.camera),
+                                    ),
                                   ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(ctx, true),
-                                    child: const Text('Delete',
-                                        style: TextStyle(color: AppTheme.errorColor)),
+                                  const SizedBox(width: 24),
+                                  Expanded(
+                                    child: _buildUploadButton(
+                                      icon: Icons.photo_library,
+                                      label: 'Upload',
+                                      onTap: () => _pickAndUpload(ImageSource.gallery),
+                                    ),
                                   ),
                                 ],
                               ),
-                            );
-                            if (confirm == true) provider.deleteImage(image.id);
-                          },
-                          onSetDefault: () => provider.setDefault(image.id),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-                  // Upload overlay
-                  if (provider.isUploading)
-                    Container(
-                      color: Colors.black26,
-                      child: const Center(
-                        child: Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(24),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircularProgressIndicator(),
-                                SizedBox(height: 16),
-                                Text('Uploading...'),
-                              ],
                             ),
+                            const SizedBox(height: 32),
+                            // Instructions
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: scheme.surface,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _buildInstructionItem(
+                                      '1.',
+                                      'Upload or choose a full-body or upper-body photo with good lighting.',
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _buildInstructionItem(
+                                      '2.',
+                                      "We'll map your body shape so clothes fit naturally.",
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _buildInstructionItem(
+                                      '3.',
+                                      'Browse styles and see them overlaid on your image.',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            // Existing photos grid
+                            if (provider.images.isNotEmpty) ...[
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Your Photos',
+                                    style: GoogleFonts.playfairDisplay(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: scheme.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                  childAspectRatio: 0.7,
+                                ),
+                                itemCount: provider.images.length,
+                                itemBuilder: (context, index) {
+                                  final image = provider.images[index];
+                                  return PresetImageCard(
+                                    image: image,
+                                    onDelete: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('Delete Photo'),
+                                          content: const Text(
+                                              'Are you sure you want to delete this photo?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx, true),
+                                              child: const Text('Delete',
+                                                  style: TextStyle(color: AppTheme.errorColor)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) provider.deleteImage(image.id);
+                                    },
+                                    onSetDefault: () => provider.setDefault(image.id),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                            // Extra clearance so last grid row clears the floating navbar
+                            const SizedBox(height: 100),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                // ── Full-screen upload overlay ────────────────────────────
+                if (provider.isUploading)
+                  Container(
+                    color: Colors.black26,
+                    child: const Center(
+                      child: Card(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(height: 16),
+                              Text('Uploading...'),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             );
           },
         ),
