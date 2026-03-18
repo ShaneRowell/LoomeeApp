@@ -24,7 +24,7 @@ class ImageTypeSelector extends StatelessWidget {
           child: ChoiceChip(
             label: Text(
               type[0].toUpperCase() + type.substring(1),
-              style: GoogleFonts.inter(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 color: isSelected ? AppTheme.white : AppTheme.fontColor,
               ),

@@ -28,10 +28,17 @@ class ClothingCard extends StatelessWidget {
           color: AppTheme.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
+            // Main lift shadow
             BoxShadow(
-              color: AppTheme.fontColor.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: AppTheme.fontColor.withValues(alpha: 0.16),
+              blurRadius: 16,
+              offset: const Offset(0, 5),
+            ),
+            // Close contact shadow for crispness
+            BoxShadow(
+              color: AppTheme.fontColor.withValues(alpha: 0.07),
+              blurRadius: 4,
+              offset: const Offset(0, 1),
             ),
           ],
         ),
@@ -42,30 +49,54 @@ class ClothingCard extends StatelessWidget {
               flex: 3,
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: clothing.primaryImage.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: clothing.primaryImage,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        placeholder: (_, __) => Container(
-                          color: AppTheme.backgroundColor,
-                          child: const Center(
-                            child: LomeeLogo(size: 40, color: Colors.grey),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    clothing.primaryImage.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: clothing.primaryImage,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            placeholder: (_, __) => Container(
+                              color: AppTheme.backgroundColor,
+                              child: const Center(
+                                child: LomeeLogo(size: 40, color: Colors.grey),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => Container(
+                              color: AppTheme.backgroundColor,
+                              child: const Center(
+                                child: LomeeLogo(size: 40, color: Colors.grey),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: AppTheme.backgroundColor,
+                            child: const Center(
+                              child: LomeeLogo(size: 40, color: Colors.grey),
+                            ),
                           ),
-                        ),
-                        errorWidget: (_, __, ___) => Container(
-                          color: AppTheme.backgroundColor,
-                          child: const Center(
-                            child: LomeeLogo(size: 40, color: Colors.grey),
+                    // Subtle bottom vignette — softens the image-to-text edge
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 40,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.18),
+                            ],
                           ),
-                        ),
-                      )
-                    : Container(
-                        color: AppTheme.backgroundColor,
-                        child: const Center(
-                          child: LomeeLogo(size: 40, color: Colors.grey),
                         ),
                       ),
+                    ),
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -77,7 +108,7 @@ class ClothingCard extends StatelessWidget {
                   children: [
                     Text(
                       clothing.brand.toUpperCase(),
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.accentColor,
@@ -89,7 +120,7 @@ class ClothingCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       clothing.name,
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: AppTheme.fontColor,
@@ -103,7 +134,7 @@ class ClothingCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             priceFormat.format(clothing.price),
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.widgetColor,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_routes.dart';
@@ -24,8 +23,18 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TryOnProvider>().fetchTryOnDetail(widget.tryOnId);
+      final provider = context.read<TryOnProvider>();
+      // Backend is synchronous — result is already complete when we arrive here.
+      // Only fetch if we don't already have this try-on loaded.
+      if (provider.currentTryOn?.id != widget.tryOnId) {
+        provider.fetchTryOnDetail(widget.tryOnId);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -34,6 +43,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
       appBar: const CustomAppBar(title: 'Try-On Result'),
       body: Consumer<TryOnProvider>(
         builder: (context, provider, _) {
+          final scheme = Theme.of(context).colorScheme;
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -50,16 +60,17 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header: clothing name + status badge
                 Row(
                   children: [
                     if (tryOn.clothing != null)
                       Expanded(
                         child: Text(
                           tryOn.clothing!.name,
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                       ),
@@ -70,32 +81,154 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                   const SizedBox(height: 4),
                   Text(
                     tryOn.clothing!.brand,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.accentColor,
+                      color: scheme.secondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
-                const SizedBox(height: 20),
-                if (tryOn.resultImageUrl != null &&
-                    tryOn.resultImageUrl!.isNotEmpty)
-                  ClipRRect(
+                const SizedBox(height: 24),
+
+                // Processing state — AI is still generating
+                if (tryOn.status == 'processing') ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 48, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: scheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
+                    ),
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(
+                          color: scheme.secondary,
+                          strokeWidth: 3,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Generating your virtual try-on...',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Our AI is working on it.\nThis usually takes 60–90 seconds.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 13,
+                            color: scheme.onSurface.withValues(alpha: 0.55),
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                // Completed — show result image (only if URL is absolute)
+                if (tryOn.status == 'completed' &&
+                    tryOn.resultImageUrl != null &&
+                    tryOn.resultImageUrl!.startsWith('http')) ...[
+                  AspectRatio(
+                    aspectRatio: 3 / 4, // portrait — shows full body correctly
+                    child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: CachedNetworkImage(
-                      imageUrl: tryOn.resultImageUrl!,
+                    child: Image.network(
+                      tryOn.resultImageUrl!,
                       width: double.infinity,
-                      height: 300,
+                      height: double.infinity,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(
-                        height: 300,
-                        color: AppTheme.backgroundColor,
-                        child: const Center(
-                          child: Icon(Icons.image_not_supported, size: 48),
+                      alignment: Alignment.topCenter,
+                      loadingBuilder: (_, child, progress) {
+                        if (progress == null) return child;
+                        return Container(
+                          height: 380,
+                          color: scheme.surface,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: progress.expectedTotalBytes != null
+                                  ? progress.cumulativeBytesLoaded /
+                                      progress.expectedTotalBytes!
+                                  : null,
+                              color: scheme.secondary,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (_, error, __) => Container(
+                        height: 380,
+                        color: scheme.surface,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.image_not_supported,
+                                  size: 48, color: Colors.grey),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Failed to load image',
+                                style: GoogleFonts.playfairDisplay(
+                                    fontSize: 13, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  ), // AspectRatio
+                ],
+
+                // No image available (Replicate failed — fit analysis still shows)
+                if (tryOn.status == 'completed' &&
+                    (tryOn.resultImageUrl == null ||
+                        !tryOn.resultImageUrl!.startsWith('http'))) ...[
+                  Container(
+                    width: double.infinity,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      color: scheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.image_not_supported_outlined,
+                            size: 40,
+                            color: scheme.onSurface.withValues(alpha: 0.3)),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Virtual try-on image unavailable',
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 13,
+                            color: scheme.onSurface.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'AI image generation did not complete',
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 11,
+                            color: scheme.onSurface.withValues(alpha: 0.35),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+
+                // Recommended size
                 if (tryOn.recommendedSize != null) ...[
                   const SizedBox(height: 20),
                   Container(
@@ -111,11 +244,11 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Recommended Size: ',
-                          style: GoogleFonts.inter(fontSize: 14),
+                          style: GoogleFonts.playfairDisplay(fontSize: 14),
                         ),
                         Text(
                           tryOn.recommendedSize!,
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.successColor,
@@ -125,31 +258,37 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     ),
                   ),
                 ],
+
+                // AI Analysis description
                 if (tryOn.aiDescription != null &&
                     tryOn.aiDescription!.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Text(
                     'AI Analysis',
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.fontColor,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     tryOn.aiDescription!,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.fontColor.withValues(alpha: 0.7),
+                      color: scheme.onSurface.withValues(alpha: 0.7),
                       height: 1.5,
                     ),
                   ),
                 ],
+
+                // Fit analysis card
                 if (tryOn.fitAnalysis != null) ...[
                   const SizedBox(height: 20),
                   FitAnalysisCard(fitAnalysis: tryOn.fitAnalysis!),
                 ],
+
+                // Failed state — show error
                 if (tryOn.status == 'failed' &&
                     tryOn.errorMessage != null) ...[
                   const SizedBox(height: 20),
@@ -167,7 +306,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         Expanded(
                           child: Text(
                             tryOn.errorMessage!,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                                 fontSize: 13, color: AppTheme.errorColor),
                           ),
                         ),
@@ -175,25 +314,16 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     ),
                   ),
                 ],
+
                 const SizedBox(height: 28),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pushReplacementNamed(
-                            context, AppRoutes.tryOnHistory),
-                        child: const Text('View History'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () =>
-                            Navigator.pushReplacementNamed(context, AppRoutes.home),
-                        child: const Text('Try Another'),
-                      ),
-                    ),
-                  ],
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pushReplacementNamed(
+                        context, AppRoutes.home,
+                        arguments: {'initialTab': 1}),
+                    child: const Text('Try Another'),
+                  ),
                 ),
                 const SizedBox(height: 32),
               ],

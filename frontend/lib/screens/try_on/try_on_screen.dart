@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -51,19 +53,30 @@ class _TryOnScreenState extends State<TryOnScreen> {
       return;
     }
 
+    // Show loading dialog — the backend blocks for 60-90 seconds
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const _TryOnLoadingDialog(),
+    );
+
     final provider = context.read<TryOnProvider>();
     final result = await provider.createTryOn(
       widget.clothingId!,
       presetImageId: _selectedPresetImageId,
+      clothingImageUrl: widget.clothingImage,
     );
 
-    if (result != null && mounted) {
+    if (!mounted) return;
+    Navigator.pop(context); // close loading dialog
+
+    if (result != null) {
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.tryOnResult,
         arguments: result.id,
       );
-    } else if (mounted && provider.error != null) {
+    } else if (provider.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(provider.error!), backgroundColor: AppTheme.errorColor),
       );
@@ -72,6 +85,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: const CustomAppBar(title: 'Virtual Try-On'),
       body: SingleChildScrollView(
@@ -81,19 +95,19 @@ class _TryOnScreenState extends State<TryOnScreen> {
           children: [
             Text(
               'Selected Item',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.white,
+                color: scheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.fontColor.withValues(alpha: 0.1)),
+                border: Border.all(color: scheme.onSurface.withValues(alpha: 0.1)),
               ),
               child: Row(
                 children: [
@@ -114,10 +128,10 @@ class _TryOnScreenState extends State<TryOnScreen> {
                   Expanded(
                     child: Text(
                       widget.clothingName ?? 'Select a clothing item',
-                      style: GoogleFonts.poppins(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.fontColor,
+                        color: scheme.onSurface,
                       ),
                     ),
                   ),
@@ -127,10 +141,10 @@ class _TryOnScreenState extends State<TryOnScreen> {
             const SizedBox(height: 28),
             Text(
               'Your Photo',
-              style: GoogleFonts.poppins(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -143,16 +157,16 @@ class _TryOnScreenState extends State<TryOnScreen> {
                   return Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.1)),
+                          color: scheme.onSurface.withValues(alpha: 0.1)),
                     ),
                     child: Column(
                       children: [
                         Icon(Icons.person_add_alt,
                             size: 48,
-                            color: AppTheme.fontColor.withValues(alpha: 0.3)),
+                            color: scheme.onSurface.withValues(alpha: 0.3)),
                         const SizedBox(height: 12),
                         const Text('No preset photos found'),
                         const SizedBox(height: 12),
@@ -184,7 +198,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
-                                  ? AppTheme.accentColor
+                                  ? scheme.secondary
                                   : Colors.transparent,
                               width: 3,
                             ),
@@ -195,7 +209,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
                               imageUrl: img.imageUrl,
                               fit: BoxFit.cover,
                               errorWidget: (_, __, ___) => Container(
-                                color: AppTheme.backgroundColor,
+                                color: scheme.surface,
                                 child: const Icon(Icons.person, color: Colors.grey),
                               ),
                             ),
@@ -222,11 +236,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
                                 strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.auto_awesome),
-                    label: Text(
-                      provider.isProcessing
-                          ? 'Analyzing Fit...'
-                          : 'Start Try-On',
-                    ),
+                    label: const Text('Start Try-On'),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
@@ -244,8 +254,83 @@ class _TryOnScreenState extends State<TryOnScreen> {
     return Container(
       width: 70,
       height: 70,
-      color: AppTheme.backgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: const LomeeLogo(size: 28, color: Colors.grey),
+    );
+  }
+}
+
+// ─── Loading dialog shown during the 60-90 second AI processing ───────────────
+
+class _TryOnLoadingDialog extends StatefulWidget {
+  const _TryOnLoadingDialog();
+
+  @override
+  State<_TryOnLoadingDialog> createState() => _TryOnLoadingDialogState();
+}
+
+class _TryOnLoadingDialogState extends State<_TryOnLoadingDialog> {
+  static const _messages = [
+    'Analyzing your garment...',
+    'Detecting fit and style...',
+    'Generating your virtual try-on...',
+    'Applying AI magic...',
+    'Almost done...',
+  ];
+
+  int _messageIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 12), (_) {
+      if (mounted && _messageIndex < _messages.length - 1) {
+        setState(() => _messageIndex++);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      content: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: scheme.secondary),
+            const SizedBox(height: 24),
+            Text(
+              _messages[_messageIndex],
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: scheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This takes 60–90 seconds.\nPlease keep the app open.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 12,
+                color: scheme.onSurface.withValues(alpha: 0.5),
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

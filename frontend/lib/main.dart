@@ -19,6 +19,7 @@ import 'providers/measurement_provider.dart';
 import 'providers/preset_image_provider.dart';
 import 'providers/try_on_provider.dart';
 import 'providers/recommendation_provider.dart';
+import 'providers/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +28,14 @@ Future<void> main() async {
   final storageService = StorageService();
   final apiClient = ApiClient(storageService);
 
+  // Load persisted theme before the first frame
+  final themeProvider = ThemeProvider(storageService);
+  await themeProvider.init();
+
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(
             AuthService(apiClient),
@@ -65,12 +71,18 @@ class LoomeeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Loomee',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      initialRoute: AppRoutes.splash,
-      onGenerateRoute: AppRoutes.generateRoute,
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return MaterialApp(
+          title: 'Loomee',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.themeMode,
+          initialRoute: AppRoutes.splash,
+          onGenerateRoute: AppRoutes.generateRoute,
+        );
+      },
     );
   }
 }

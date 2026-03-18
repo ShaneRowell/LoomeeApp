@@ -81,7 +81,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             'Welcome\nto Loomeé',
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 40,
               fontWeight: FontWeight.w700,
               color: AppTheme.fontColor,
@@ -96,7 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 Text(
                   'Before you continue, we need your permission to access certain features.',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 14,
                     color: AppTheme.fontColor.withValues(alpha: 0.7),
                     height: 1.5,
@@ -105,7 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(height: 20),
                 Text(
                   'When the permission pop up appears, please tap Allow to continue.',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 14,
                     color: AppTheme.fontColor.withValues(alpha: 0.7),
                     height: 1.5,
@@ -114,7 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(height: 20),
                 Text(
                   'We only request access that is required for the app to work properly. You can change these permissions later in your device settings if needed.',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 14,
                     color: AppTheme.fontColor.withValues(alpha: 0.7),
                     height: 1.5,
@@ -131,7 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: _nextPage,
               child: Text(
                 'Continue',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -155,7 +155,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             'Welcome\nto Loomeé',
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 40,
               fontWeight: FontWeight.w700,
               color: AppTheme.fontColor,
@@ -189,7 +189,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Text(
                   "'Loomeé' would like to access the Camera.",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.fontColor,
@@ -199,7 +199,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Text(
                   'Allow camera access to snap a photo and create your virtual avatar. This helps you see how your outfits look on you!',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 13,
                     color: AppTheme.fontColor.withValues(alpha: 0.6),
                     height: 1.5,
@@ -220,7 +220,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           child: Text(
                             "Don't Allow",
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -241,7 +241,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           child: Text(
                             'Allow',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -271,7 +271,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           Text(
             'Welcome\nto Loomeé',
             textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 40,
               fontWeight: FontWeight.w700,
               color: AppTheme.fontColor,
@@ -305,7 +305,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Text(
                   "'Loomeé' would like to access your Gallery.",
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.fontColor,
@@ -315,7 +315,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Text(
                   'We need access to your photo library to let you upload a photo and create your virtual avatar for trying on clothes.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 13,
                     color: AppTheme.fontColor.withValues(alpha: 0.6),
                     height: 1.5,
@@ -336,7 +336,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           child: Text(
                             "Don't Allow",
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -357,7 +357,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                           child: Text(
                             'Allow',
-                            style: GoogleFonts.poppins(
+                            style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -406,7 +406,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Spacer(),
           Text(
             'All Set!',
-            style: GoogleFonts.poppins(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 32,
               fontWeight: FontWeight.w700,
               color: AppTheme.fontColor,
@@ -415,7 +415,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const SizedBox(height: 12),
           Text(
             'Welcome to the loomeé experience!',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.playfairDisplay(
               fontSize: 15,
               color: AppTheme.fontColor.withValues(alpha: 0.6),
             ),
@@ -428,7 +428,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: _completeOnboarding,
               child: Text(
                 'Homepage',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.playfairDisplay(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
