@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2400),
+      duration: const Duration(milliseconds: 3400),
     );
 
     _logoScale = Tween<double>(begin: 0.65, end: 1.0).animate(
@@ -92,8 +92,8 @@ class _SplashScreenState extends State<SplashScreen>
     final authProvider = context.read<AuthProvider>();
     await Future.wait([
       authProvider.tryAutoLogin(),
-      // Wait just past when the accent line finishes drawing (~1 680 ms)
-      const Duration(milliseconds: 1750).asFuture(),
+      // Wait just past when the accent line finishes drawing (~2 680 ms)
+      const Duration(milliseconds: 2750).asFuture(),
     ]);
     if (!mounted) return;
 
