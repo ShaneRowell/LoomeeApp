@@ -51,8 +51,9 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Consumer<CatalogProvider>(
         builder: (context, catalog, _) {
           if (catalog.isLoadingDetail) {
@@ -72,11 +73,11 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
               SliverAppBar(
                 expandedHeight: 380,
                 pinned: true,
-                backgroundColor: AppTheme.white,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 leading: Padding(
                   padding: const EdgeInsets.all(8),
                   child: CircleAvatar(
-                    backgroundColor: AppTheme.widgetColor.withValues(alpha: 0.7),
+                    backgroundColor: Colors.black.withValues(alpha: 0.45),
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Colors.white),
                       onPressed: () => Navigator.pop(context),
@@ -96,10 +97,10 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                                 imageUrl: clothing.images[i],
                                 fit: BoxFit.cover,
                                 placeholder: (_, __) => Container(
-                                  color: AppTheme.backgroundColor,
+                                  color: scheme.surface,
                                 ),
                                 errorWidget: (_, __, ___) => Container(
-                                  color: AppTheme.backgroundColor,
+                                  color: scheme.surface,
                                   child: const Center(child: LomeeLogo(size: 60, color: Colors.grey)),
                                 ),
                               ),
@@ -119,8 +120,8 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                                       height: 8,
                                       decoration: BoxDecoration(
                                         color: _currentImageIndex == i
-                                            ? AppTheme.widgetColor
-                                            : Colors.white.withValues(alpha: 0.6),
+                                            ? Colors.white
+                                            : Colors.white.withValues(alpha: 0.5),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                     ),
@@ -130,7 +131,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           ],
                         )
                       : Container(
-                          color: AppTheme.backgroundColor,
+                          color: scheme.surface,
                           child: const Center(
                             child: LomeeLogo(size: 80, color: Colors.grey),
                           ),
@@ -148,7 +149,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.accentColor,
+                          color: scheme.secondary,
                           letterSpacing: 1,
                         ),
                       ),
@@ -158,7 +159,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.fontColor,
+                          color: scheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -167,7 +168,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 22,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.widgetColor,
+                          color: scheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -175,7 +176,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         clothing.description,
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
-                          color: AppTheme.fontColor.withValues(alpha: 0.7),
+                          color: scheme.onSurface.withValues(alpha: 0.7),
                           height: 1.5,
                         ),
                       ),
@@ -186,7 +187,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -259,6 +260,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
   Widget _buildSizeSection() {
     return Consumer<RecommendationProvider>(
       builder: (context, recProvider, _) {
+        final scheme = Theme.of(context).colorScheme;
         final sizeRec = recProvider.sizeRecommendation;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,7 +273,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.fontColor,
+                    color: scheme.onSurface,
                   ),
                 ),
                 if (sizeRec != null) ...[
@@ -331,20 +333,20 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.widgetColor.withValues(alpha: 0.05),
+                  color: scheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.lightbulb_outline,
-                        size: 18, color: AppTheme.accentColor),
+                        size: 18, color: scheme.secondary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         sizeRec.advice,
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 13,
-                          color: AppTheme.fontColor.withValues(alpha: 0.7),
+                          color: scheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ),
@@ -359,6 +361,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
   }
 
   Widget _buildInfoRow(String label, String value) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Row(
@@ -368,12 +371,12 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
             style: GoogleFonts.playfairDisplay(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppTheme.fontColor.withValues(alpha: 0.5),
+              color: scheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.playfairDisplay(fontSize: 14, color: AppTheme.fontColor),
+            style: GoogleFonts.playfairDisplay(fontSize: 14, color: scheme.onSurface),
           ),
         ],
       ),
@@ -383,6 +386,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
   Widget _buildFashionRecommendations() {
     return Consumer<RecommendationProvider>(
       builder: (context, recProvider, _) {
+        final scheme = Theme.of(context).colorScheme;
         final rec = recProvider.fashionRecommendation;
         if (rec == null) return const SizedBox.shrink();
 
@@ -395,7 +399,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             if (rec.outfitSuggestions.isNotEmpty) ...[
@@ -404,10 +408,10 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.08)),
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -417,7 +421,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -425,7 +429,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           outfit.items.join(' + '),
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
-                            color: AppTheme.fontColor.withValues(alpha: 0.6),
+                            color: scheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -433,14 +437,14 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.accentColor.withValues(alpha: 0.1),
+                            color: scheme.secondary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             outfit.occasion,
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 11,
-                              color: AppTheme.accentColor,
+                              color: scheme.secondary,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -457,14 +461,14 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.auto_awesome,
-                            size: 14, color: AppTheme.accentColor),
+                            size: 14, color: scheme.secondary),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             tip,
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 13,
-                              color: AppTheme.fontColor.withValues(alpha: 0.7),
+                              color: scheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),
                         ),

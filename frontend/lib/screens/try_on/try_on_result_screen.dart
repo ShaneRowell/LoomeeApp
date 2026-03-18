@@ -83,7 +83,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     tryOn.clothing!.brand,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.accentColor,
+                      color: scheme.secondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -105,7 +105,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     child: Column(
                       children: [
                         CircularProgressIndicator(
-                          color: AppTheme.accentColor,
+                          color: scheme.secondary,
                           strokeWidth: 3,
                         ),
                         const SizedBox(height: 24),
@@ -158,7 +158,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                                   ? progress.cumulativeBytesLoaded /
                                       progress.expectedTotalBytes!
                                   : null,
-                              color: AppTheme.accentColor,
+                              color: scheme.secondary,
                             ),
                           ),
                         );

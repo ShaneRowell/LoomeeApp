@@ -85,6 +85,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: const CustomAppBar(title: 'Virtual Try-On'),
       body: SingleChildScrollView(
@@ -97,16 +98,16 @@ class _TryOnScreenState extends State<TryOnScreen> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.white,
+                color: scheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppTheme.fontColor.withValues(alpha: 0.1)),
+                border: Border.all(color: scheme.onSurface.withValues(alpha: 0.1)),
               ),
               child: Row(
                 children: [
@@ -130,7 +131,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
                       style: GoogleFonts.playfairDisplay(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.fontColor,
+                        color: scheme.onSurface,
                       ),
                     ),
                   ),
@@ -143,7 +144,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -156,16 +157,16 @@ class _TryOnScreenState extends State<TryOnScreen> {
                   return Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.1)),
+                          color: scheme.onSurface.withValues(alpha: 0.1)),
                     ),
                     child: Column(
                       children: [
                         Icon(Icons.person_add_alt,
                             size: 48,
-                            color: AppTheme.fontColor.withValues(alpha: 0.3)),
+                            color: scheme.onSurface.withValues(alpha: 0.3)),
                         const SizedBox(height: 12),
                         const Text('No preset photos found'),
                         const SizedBox(height: 12),
@@ -197,7 +198,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
-                                  ? AppTheme.accentColor
+                                  ? scheme.secondary
                                   : Colors.transparent,
                               width: 3,
                             ),
@@ -208,7 +209,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
                               imageUrl: img.imageUrl,
                               fit: BoxFit.cover,
                               errorWidget: (_, __, ___) => Container(
-                                color: AppTheme.backgroundColor,
+                                color: scheme.surface,
                                 child: const Icon(Icons.person, color: Colors.grey),
                               ),
                             ),
@@ -253,7 +254,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
     return Container(
       width: 70,
       height: 70,
-      color: AppTheme.backgroundColor,
+      color: scheme.surface,
       child: const LomeeLogo(size: 28, color: Colors.grey),
     );
   }
@@ -298,6 +299,7 @@ class _TryOnLoadingDialogState extends State<_TryOnLoadingDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       content: Padding(
@@ -305,7 +307,7 @@ class _TryOnLoadingDialogState extends State<_TryOnLoadingDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: AppTheme.accentColor),
+            CircularProgressIndicator(color: scheme.secondary),
             const SizedBox(height: 24),
             Text(
               _messages[_messageIndex],
@@ -313,7 +315,7 @@ class _TryOnLoadingDialogState extends State<_TryOnLoadingDialog> {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
@@ -322,7 +324,7 @@ class _TryOnLoadingDialogState extends State<_TryOnLoadingDialog> {
               textAlign: TextAlign.center,
               style: GoogleFonts.playfairDisplay(
                 fontSize: 12,
-                color: AppTheme.fontColor.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.5),
                 height: 1.5,
               ),
             ),
