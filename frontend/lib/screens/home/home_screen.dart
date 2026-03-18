@@ -606,12 +606,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCatalogTab() {
     return SafeArea(
-      top: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const AnimatedTabHeader(title: 'Explore'),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextField(
