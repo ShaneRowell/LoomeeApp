@@ -5,66 +5,99 @@ const Clothing = require('../models/clothing.model');
  * Size recommendation algorithm
  * Scores each available size by comparing clothing measurements to user measurements.
  * Each dimension contributes equally; a 1cm difference reduces score by 2 points from 100.
+ *
+ * userMeasurements must include { chest, waist, hips, unit } where unit is 'cm' or 'inches'.
+ * All garment measurements in the DB are assumed to be in cm.
  */
 const calculateSizeRecommendation = (userMeasurements, clothingSizes) => {
+  // ── Unit conversion ───────────────────────────────────────────────────
+  // Garment measurements are stored in cm. If the user saved their
+  // measurements in inches we must convert before comparing, otherwise a
+  // 38" chest is compared to an 86 cm chest (diff = 48 → score ≈ 0 for
+  // every size) and the stable sort silently returns S every time.
+  const factor = userMeasurements.unit === 'inches' ? 2.54 : 1;
+  const userChest = userMeasurements.chest ? userMeasurements.chest * factor : null;
+  const userWaist = userMeasurements.waist ? userMeasurements.waist * factor : null;
+  const userHips  = userMeasurements.hips  ? userMeasurements.hips  * factor : null;
+
   const recommendations = [];
 
   clothingSizes.forEach(sizeOption => {
-    const sizeMeasurements = sizeOption.measurements;
-    
-    // Calculate fit scores for each measurement
+    const m = sizeOption.measurements || {};
+
+    // Calculate fit scores for each measurement dimension
     let totalScore = 0;
     let measurementCount = 0;
 
-    // Chest fit score
-    if (sizeMeasurements.chest && userMeasurements.chest) {
-      const chestDiff = Math.abs(sizeMeasurements.chest - userMeasurements.chest);
-      const chestScore = Math.max(0, 100 - (chestDiff * 2));
-      totalScore += chestScore;
+    // Chest
+    if (m.chest && userChest) {
+      totalScore += Math.max(0, 100 - Math.abs(m.chest - userChest) * 2);
       measurementCount++;
     }
 
-    // Waist fit score
-    if (sizeMeasurements.waist && userMeasurements.waist) {
-      const waistDiff = Math.abs(sizeMeasurements.waist - userMeasurements.waist);
-      const waistScore = Math.max(0, 100 - (waistDiff * 2));
-      totalScore += waistScore;
+    // Waist
+    if (m.waist && userWaist) {
+      totalScore += Math.max(0, 100 - Math.abs(m.waist - userWaist) * 2);
       measurementCount++;
     }
 
-    // Hip fit score (if applicable)
-    if (sizeMeasurements.hips && userMeasurements.hips) {
-      const hipDiff = Math.abs(sizeMeasurements.hips - userMeasurements.hips);
-      const hipScore = Math.max(0, 100 - (hipDiff * 2));
-      totalScore += hipScore;
+    // Hips
+    if (m.hips && userHips) {
+      totalScore += Math.max(0, 100 - Math.abs(m.hips - userHips) * 2);
       measurementCount++;
     }
 
-    // Average fit score
-    const fitScore = measurementCount > 0 ? Math.round(totalScore / measurementCount) : 0;
+    // null means "no garment measurements available for this size" — kept
+    // separate from a genuine score of 0 so we can handle it below.
+    const fitScore = measurementCount > 0
+      ? Math.round(totalScore / measurementCount)
+      : null;
 
-    // Determine fit description
-    // Fit description thresholds: 90+ = Perfect, 75+ = Great, 60+ = Good, 40+ = Acceptable
-    let fitDescription = '';
-    if (fitScore >= 90) fitDescription = 'Perfect Fit';
-    else if (fitScore >= 75) fitDescription = 'Great Fit';
-    else if (fitScore >= 60) fitDescription = 'Good Fit';
-    else if (fitScore >= 40) fitDescription = 'Acceptable Fit';
-    else fitDescription = 'Poor Fit';
+    let fitDescription = 'No size data available';
+    if (fitScore !== null) {
+      if (fitScore >= 90)      fitDescription = 'Perfect Fit';
+      else if (fitScore >= 75) fitDescription = 'Great Fit';
+      else if (fitScore >= 60) fitDescription = 'Good Fit';
+      else if (fitScore >= 40) fitDescription = 'Acceptable Fit';
+      else                     fitDescription = 'Poor Fit';
+    }
 
     recommendations.push({
       size: sizeOption.size,
       fitScore,
       fitDescription,
       stock: sizeOption.stock,
-      measurements: sizeMeasurements
+      measurements: m
     });
   });
 
-  // Sort by fit score (best first)
-  recommendations.sort((a, b) => b.fitScore - a.fitScore);
+  // ── Sort ──────────────────────────────────────────────────────────────
+  // Sizes with real scores come first (highest score first).
+  // Sizes whose garment measurements are missing fall to the bottom.
+  // If NO sizes have measurements (common when items are added without
+  // measurement data), fall back to a sensible default order so we don't
+  // silently return 'S' every time just because it's first in the array.
+  const scored   = recommendations.filter(r => r.fitScore !== null);
+  const unscored = recommendations.filter(r => r.fitScore === null);
 
-  return recommendations;
+  scored.sort((a, b) => b.fitScore - a.fitScore);
+
+  if (scored.length === 0) {
+    // No garment measurements at all — rank by proximity to median size
+    const fallbackOrder = ['M', 'L', 'S', 'XL', 'XS', 'XXL', '3XL'];
+    unscored.sort((a, b) => {
+      const ai = fallbackOrder.indexOf(a.size);
+      const bi = fallbackOrder.indexOf(b.size);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+    // Give them a score of 0 so downstream code doesn't need null-checks
+    return unscored.map(r => ({ ...r, fitScore: 0 }));
+  }
+
+  return [
+    ...scored,
+    ...unscored.map(r => ({ ...r, fitScore: 0 }))
+  ];
 };
 
 // Get size recommendation for a specific clothing item
@@ -96,7 +129,8 @@ exports.getSizeRecommendation = async (req, res) => {
       {
         chest: userMeasurement.chest,
         waist: userMeasurement.waist,
-        hips: userMeasurement.hips
+        hips: userMeasurement.hips,
+        unit: userMeasurement.unit || 'cm'
       },
       clothing.sizes
     );
@@ -176,7 +210,8 @@ exports.getBulkSizeRecommendations = async (req, res) => {
         {
           chest: userMeasurement.chest,
           waist: userMeasurement.waist,
-          hips: userMeasurement.hips
+          hips: userMeasurement.hips,
+          unit: userMeasurement.unit || 'cm'
         },
         clothing.sizes
       );

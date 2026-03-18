@@ -9,6 +9,7 @@ import '../../providers/try_on_provider.dart';
 import '../../widgets/common/empty_state_widget.dart';
 import '../../widgets/common/loomee_logo.dart';
 import '../../widgets/common/loading_shimmer.dart';
+import '../../widgets/common/animated_tab_header.dart';
 import '../../widgets/try_on/try_on_status_badge.dart';
 
 class TryOnHistoryScreen extends StatefulWidget {
@@ -19,8 +20,6 @@ class TryOnHistoryScreen extends StatefulWidget {
 }
 
 class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
-  String? _statusFilter;
-
   @override
   void initState() {
     super.initState();
@@ -31,212 +30,185 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            child: Text(
-              'Try-On History',
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.fontColor,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 36,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+    final canPop = Navigator.canPop(context);
+
+    final scheme = Theme.of(context).colorScheme;
+    return Scaffold(
+      body: SafeArea(
+        top: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                _filterChip('All', null),
-                const SizedBox(width: 8),
-                _filterChip('Completed', 'completed'),
-                const SizedBox(width: 8),
-                _filterChip('Processing', 'processing'),
-                const SizedBox(width: 8),
-                _filterChip('Failed', 'failed'),
+                const AnimatedTabHeader(title: 'Try Ons'),
+                if (canPop)
+                  Positioned(
+                    top: 22,
+                    right: 20,
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Consumer<TryOnProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading) return const LoadingShimmer.list();
-                if (provider.tryOns.isEmpty) {
-                  return EmptyStateWidget(
-                    icon: Icons.camera_alt_outlined,
-                    title: 'No try-ons yet',
-                    subtitle: 'Start a virtual try-on from the catalog',
-                    actionLabel: 'Browse Catalog',
-                    onAction: () =>
-                        Navigator.pushReplacementNamed(context, AppRoutes.home),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () =>
-                      provider.fetchTryOns(status: _statusFilter),
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: provider.tryOns.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      final tryOn = provider.tryOns[index];
-                      return Dismissible(
-                        key: Key(tryOn.id),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(
-                            color: AppTheme.errorColor,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: const Icon(Icons.delete, color: Colors.white),
-                        ),
-                        onDismissed: (_) async {
-                          final success = await provider.deleteTryOn(tryOn.id);
-                          if (!success && mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(provider.error ?? 'Failed to delete try-on'),
-                                backgroundColor: AppTheme.errorColor,
-                              ),
-                            );
-                            await provider.fetchTryOns(status: _statusFilter);
-                          }
-                        },
-                        child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.tryOnResult,
-                            arguments: tryOn.id,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
+            const SizedBox(height: 12),
+            Expanded(
+              child: Consumer<TryOnProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) return const LoadingShimmer.list();
+                  if (provider.tryOns.isEmpty) {
+                    return EmptyStateWidget(
+                      icon: Icons.camera_alt_outlined,
+                      title: 'No try-ons yet',
+                      subtitle: 'Start a virtual try-on from the catalog',
+                      actionLabel: 'Browse Catalog',
+                      onAction: () =>
+                          Navigator.pushReplacementNamed(context, AppRoutes.home),
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () => provider.fetchTryOns(),
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                      itemCount: provider.tryOns.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final tryOn = provider.tryOns[index];
+                        return Dismissible(
+                          key: Key(tryOn.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20),
                             decoration: BoxDecoration(
-                              color: AppTheme.white,
+                              color: AppTheme.errorColor,
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.fontColor.withValues(alpha: 0.06),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
                             ),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: tryOn.clothing?.images.isNotEmpty == true
-                                      ? CachedNetworkImage(
-                                          imageUrl: tryOn.clothing!.images.first,
-                                          width: 65,
-                                          height: 65,
-                                          fit: BoxFit.cover,
-                                          errorWidget: (_, __, ___) =>
-                                              _placeholder(),
-                                        )
-                                      : _placeholder(),
+                            child:
+                                const Icon(Icons.delete, color: Colors.white),
+                          ),
+                          onDismissed: (_) async {
+                            final success =
+                                await provider.deleteTryOn(tryOn.id);
+                            if (!success && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(provider.error ??
+                                      'Failed to delete try-on'),
+                                  backgroundColor: AppTheme.errorColor,
                                 ),
-                                const SizedBox(width: 14),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        tryOn.clothing?.name ?? 'Unknown Item',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppTheme.fontColor,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        tryOn.clothing?.brand ?? '',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 12,
-                                          color: AppTheme.fontColor
-                                              .withValues(alpha: 0.5),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          TryOnStatusBadge(status: tryOn.status),
-                                          const Spacer(),
-                                          if (tryOn.createdAt != null)
-                                            Text(
-                                              DateFormat('MMM d')
-                                                  .format(tryOn.createdAt!),
-                                              style: GoogleFonts.inter(
-                                                fontSize: 11,
-                                                color: AppTheme.fontColor
-                                                    .withValues(alpha: 0.4),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ],
+                              );
+                              await provider.fetchTryOns();
+                            }
+                          },
+                          child: GestureDetector(
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              AppRoutes.tryOnResult,
+                              arguments: tryOn.id,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: scheme.surface,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: scheme.onSurface
+                                        .withValues(alpha: 0.06),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color: AppTheme.fontColor.withValues(alpha: 0.3),
-                                ),
-                              ],
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child:
+                                        tryOn.clothing?.images.isNotEmpty == true
+                                            ? CachedNetworkImage(
+                                                imageUrl: tryOn
+                                                    .clothing!.images.first,
+                                                width: 65,
+                                                height: 65,
+                                                fit: BoxFit.cover,
+                                                errorWidget: (_, __, ___) =>
+                                                    _placeholder(),
+                                              )
+                                            : _placeholder(),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          tryOn.clothing?.name ??
+                                              'Unknown Item',
+                                          style: GoogleFonts.playfairDisplay(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: scheme.onSurface,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          tryOn.clothing?.brand ?? '',
+                                          style: GoogleFonts.playfairDisplay(
+                                            fontSize: 12,
+                                            color: scheme.onSurface
+                                                .withValues(alpha: 0.5),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Row(
+                                          children: [
+                                            TryOnStatusBadge(
+                                                status: tryOn.status),
+                                            const Spacer(),
+                                            if (tryOn.createdAt != null)
+                                              Text(
+                                                DateFormat('MMM d')
+                                                    .format(tryOn.createdAt!),
+                                                style: GoogleFonts.playfairDisplay(
+                                                  fontSize: 11,
+                                                  color: scheme.onSurface
+                                                      .withValues(alpha: 0.4),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.chevron_right,
+                                    color: scheme.onSurface
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _filterChip(String label, String? status) {
-    final isSelected = _statusFilter == status;
-    return GestureDetector(
-      onTap: () {
-        setState(() => _statusFilter = status);
-        context.read<TryOnProvider>().fetchTryOns(status: status);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.widgetColor : AppTheme.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.widgetColor
-                : AppTheme.fontColor.withValues(alpha: 0.15),
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            color: isSelected ? AppTheme.white : AppTheme.fontColor,
-          ),
+          ],
         ),
       ),
     );
@@ -246,7 +218,7 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
     return Container(
       width: 65,
       height: 65,
-      color: AppTheme.backgroundColor,
+      color: Theme.of(context).colorScheme.surface,
       child: const LomeeLogo(size: 28, color: Colors.grey),
     );
   }

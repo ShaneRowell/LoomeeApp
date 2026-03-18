@@ -62,7 +62,7 @@ class PresetImageCard extends StatelessWidget {
                   ),
                   child: Text(
                     image.imageType.toUpperCase(),
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 9,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.white,

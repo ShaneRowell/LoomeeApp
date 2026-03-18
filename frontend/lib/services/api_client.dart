@@ -110,6 +110,7 @@ class ApiClient {
     required String filePath,
     required String fieldName,
     Map<String, String>? fields,
+    Duration timeout = const Duration(minutes: 2),
   }) async {
     try {
       final uri = Uri.parse('$_baseUrl$path');
@@ -121,11 +122,12 @@ class ApiClient {
       }
 
       final ext = p.extension(filePath).toLowerCase();
-      MediaType? contentType;
-      if (ext == '.jpg' || ext == '.jpeg') {
-        contentType = MediaType('image', 'jpeg');
-      } else if (ext == '.png') {
+      MediaType contentType;
+      if (ext == '.png') {
         contentType = MediaType('image', 'png');
+      } else {
+        // Default to jpeg for .jpg, .jpeg, and camera-captured files
+        contentType = MediaType('image', 'jpeg');
       }
 
       request.files.add(await http.MultipartFile.fromPath(
@@ -138,11 +140,13 @@ class ApiClient {
         request.fields.addAll(fields);
       }
 
-      final streamedResponse = await request.send();
+      final streamedResponse = await request.send().timeout(timeout);
       final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response);
     } on SocketException {
       throw ApiException('No internet connection');
+    } on TimeoutException {
+      throw ApiException('Upload timed out. Please try again.');
     }
   }
 

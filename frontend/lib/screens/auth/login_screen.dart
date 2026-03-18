@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../config/app_routes.dart';
+import '../../config/app_routes.dart'; // used for login→home and login→register navigation
 import '../../config/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/loomee_logo.dart';
@@ -27,25 +28,36 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      HapticFeedback.mediumImpact();
+      return;
+    }
+    HapticFeedback.lightImpact();
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.login(
       _emailController.text.trim(),
       _passwordController.text,
     );
     if (success && mounted) {
+      HapticFeedback.mediumImpact();
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else if (mounted && authProvider.error != null) {
+      HapticFeedback.vibrate();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authProvider.error!), backgroundColor: AppTheme.errorColor),
+        SnackBar(
+          content: Text(authProvider.error!,
+              style: GoogleFonts.playfairDisplay()),
+          backgroundColor: AppTheme.errorColor,
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -55,33 +67,35 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 80),
                 // Logo / Brand
-                LomeeLogo(size: 72, color: AppTheme.widgetColor),
+                const LomeeLogo(size: 72),
                 const SizedBox(height: 12),
                 Text(
                   'Loomeé',
-                  style: GoogleFonts.poppins(
+                  style: GoogleFonts.playfairDisplay(
                     fontSize: 40,
                     fontWeight: FontWeight.w700,
-                    color: AppTheme.fontColor,
+                    color: scheme.onSurface,
                     letterSpacing: 1,
                   ),
                 ),
                 const SizedBox(height: 60),
+
                 // Email field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    hintText: 'Email',
-                  ),
+                  decoration: const InputDecoration(hintText: 'Email'),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Email is required';
+                    if (value == null || value.isEmpty) {
+                      return 'Email is required';
+                    }
                     if (!value.contains('@')) return 'Enter a valid email';
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
+
                 // Password field
                 TextFormField(
                   controller: _passwordController,
@@ -92,20 +106,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: 'Password',
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         size: 20,
-                        color: AppTheme.fontColor.withValues(alpha: 0.4),
+                        color: scheme.onSurface.withValues(alpha: 0.4),
                       ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword),
                     ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Password is required';
-                    if (value.length < 6) return 'Password must be at least 6 characters';
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
                     return null;
                   },
                 ),
                 const SizedBox(height: 32),
+
                 // Login button
                 SizedBox(
                   width: double.infinity,
@@ -125,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                             : Text(
                                 'Login',
-                                style: GoogleFonts.poppins(
+                                style: GoogleFonts.playfairDisplay(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -135,40 +157,46 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
                 // Forgot password
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    // TODO: wire up forgot-password screen when backend endpoint is ready
+                  },
                   child: Text(
                     'Forgot password?',
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.fontColor.withValues(alpha: 0.6),
+                      color: scheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
+
                 // Sign up link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'No account? ',
-                      style: GoogleFonts.inter(
+                      style: GoogleFonts.playfairDisplay(
                         fontSize: 14,
-                        color: AppTheme.fontColor.withValues(alpha: 0.6),
+                        color: scheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pushReplacementNamed(
-                        context,
-                        AppRoutes.register,
-                      ),
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Navigator.pushReplacementNamed(
+                            context, AppRoutes.register);
+                      },
                       child: Text(
                         'Sign up',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.playfairDisplay(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.accentColor,
+                          color: scheme.primary,
                         ),
                       ),
                     ),

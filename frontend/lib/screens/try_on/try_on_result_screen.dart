@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../config/app_routes.dart';
@@ -25,25 +24,16 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<TryOnProvider>();
-      if (provider.currentTryOn?.id == widget.tryOnId) {
-        // Already have data from createTryOn — start polling if still processing
-        if (provider.currentTryOn!.status == 'processing') {
-          provider.startPolling(widget.tryOnId);
-        }
-      } else {
-        // Coming from history — fetch first, then poll if still processing
-        provider.fetchTryOnDetail(widget.tryOnId).then((_) {
-          if (mounted && provider.currentTryOn?.status == 'processing') {
-            provider.startPolling(widget.tryOnId);
-          }
-        });
+      // Backend is synchronous — result is already complete when we arrive here.
+      // Only fetch if we don't already have this try-on loaded.
+      if (provider.currentTryOn?.id != widget.tryOnId) {
+        provider.fetchTryOnDetail(widget.tryOnId);
       }
     });
   }
 
   @override
   void dispose() {
-    context.read<TryOnProvider>().stopPolling();
     super.dispose();
   }
 
@@ -53,6 +43,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
       appBar: const CustomAppBar(title: 'Try-On Result'),
       body: Consumer<TryOnProvider>(
         builder: (context, provider, _) {
+          final scheme = Theme.of(context).colorScheme;
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -76,10 +67,10 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                       Expanded(
                         child: Text(
                           tryOn.clothing!.name,
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                       ),
@@ -90,9 +81,9 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                   const SizedBox(height: 4),
                   Text(
                     tryOn.clothing!.brand,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.accentColor,
+                      color: scheme.secondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -106,34 +97,34 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 48, horizontal: 24),
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.08)),
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
                     ),
                     child: Column(
                       children: [
                         CircularProgressIndicator(
-                          color: AppTheme.accentColor,
+                          color: scheme.secondary,
                           strokeWidth: 3,
                         ),
                         const SizedBox(height: 24),
                         Text(
                           'Generating your virtual try-on...',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Our AI is working on it.\nThis usually takes 60–90 seconds.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
-                            color: AppTheme.fontColor.withValues(alpha: 0.55),
+                            color: scheme.onSurface.withValues(alpha: 0.55),
                             height: 1.5,
                           ),
                         ),
@@ -146,49 +137,54 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 if (tryOn.status == 'completed' &&
                     tryOn.resultImageUrl != null &&
                     tryOn.resultImageUrl!.startsWith('http')) ...[
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      tryOn.resultImageUrl!,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (_, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
-                          height: 380,
-                          color: AppTheme.backgroundColor,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: progress.expectedTotalBytes != null
-                                  ? progress.cumulativeBytesLoaded /
-                                      progress.expectedTotalBytes!
-                                  : null,
-                              color: AppTheme.accentColor,
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (_, error, __) => Container(
-                        height: 380,
-                        color: AppTheme.backgroundColor,
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.image_not_supported,
-                                  size: 48, color: Colors.grey),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Failed to load image',
-                                style: GoogleFonts.inter(
-                                    fontSize: 13, color: Colors.grey),
+                  AspectRatio(
+                    aspectRatio: 3 / 4, // portrait — shows full body correctly
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        tryOn.resultImageUrl!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        loadingBuilder: (_, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            height: 380,
+                            color: scheme.surface,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: progress.expectedTotalBytes != null
+                                    ? progress.cumulativeBytesLoaded /
+                                        progress.expectedTotalBytes!
+                                    : null,
+                                color: scheme.secondary,
                               ),
-                            ],
+                            ),
+                          );
+                        },
+                        errorBuilder: (_, error, __) => Container(
+                          height: 380,
+                          color: scheme.surface,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.image_not_supported,
+                                    size: 48, color: Colors.grey),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Failed to load image',
+                                  style: GoogleFonts.playfairDisplay(
+                                      fontSize: 13, color: Colors.grey),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                  ), // AspectRatio
                 ],
 
                 // No image available (Replicate failed — fit analysis still shows)
@@ -199,31 +195,31 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     width: double.infinity,
                     height: 160,
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.08)),
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.image_not_supported_outlined,
                             size: 40,
-                            color: AppTheme.fontColor.withValues(alpha: 0.3)),
+                            color: scheme.onSurface.withValues(alpha: 0.3)),
                         const SizedBox(height: 10),
                         Text(
                           'Virtual try-on image unavailable',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
-                            color: AppTheme.fontColor.withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'AI image generation did not complete',
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 11,
-                            color: AppTheme.fontColor.withValues(alpha: 0.35),
+                            color: scheme.onSurface.withValues(alpha: 0.35),
                           ),
                         ),
                       ],
@@ -248,11 +244,11 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Recommended Size: ',
-                          style: GoogleFonts.inter(fontSize: 14),
+                          style: GoogleFonts.playfairDisplay(fontSize: 14),
                         ),
                         Text(
                           tryOn.recommendedSize!,
-                          style: GoogleFonts.poppins(
+                          style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.successColor,
@@ -269,18 +265,18 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'AI Analysis',
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.fontColor,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     tryOn.aiDescription!,
-                    style: GoogleFonts.inter(
+                    style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.fontColor.withValues(alpha: 0.7),
+                      color: scheme.onSurface.withValues(alpha: 0.7),
                       height: 1.5,
                     ),
                   ),
@@ -310,7 +306,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         Expanded(
                           child: Text(
                             tryOn.errorMessage!,
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.playfairDisplay(
                                 fontSize: 13, color: AppTheme.errorColor),
                           ),
                         ),
@@ -320,24 +316,14 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 ],
 
                 const SizedBox(height: 28),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pushReplacementNamed(
-                            context, AppRoutes.tryOnHistory),
-                        child: const Text('View History'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pushReplacementNamed(
-                            context, AppRoutes.home),
-                        child: const Text('Try Another'),
-                      ),
-                    ),
-                  ],
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pushReplacementNamed(
+                        context, AppRoutes.home,
+                        arguments: {'initialTab': 1}),
+                    child: const Text('Try Another'),
+                  ),
                 ),
                 const SizedBox(height: 32),
               ],

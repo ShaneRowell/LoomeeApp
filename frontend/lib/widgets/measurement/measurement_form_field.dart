@@ -35,13 +35,13 @@ class MeasurementFormField extends StatelessWidget {
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
         ],
-        style: GoogleFonts.inter(fontSize: 15, color: AppTheme.fontColor),
+        style: GoogleFonts.playfairDisplay(fontSize: 15, color: AppTheme.fontColor),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
           suffixText: unit,
           prefixIcon: icon != null ? Icon(icon, size: 20) : null,
-          suffixStyle: GoogleFonts.inter(
+          suffixStyle: GoogleFonts.playfairDisplay(
             fontSize: 14,
             color: AppTheme.fontColor.withValues(alpha: 0.5),
           ),
