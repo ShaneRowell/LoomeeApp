@@ -38,7 +38,6 @@ const List<String> _heroAssets = [
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   double? _navDragFraction; // null = resting; 0.0–4.0 = live drag position
-  double _pillStretch = 0.0; // px the pill is stretched left/right during drag
   final _searchController = TextEditingController();
 
   // Hero carousel
@@ -140,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Floating navbar with glass pill + fluid drag ──────────────────────
+  // ── Floating liquid-glass navbar ─────────────────────────────────────
   Widget _buildFloatingNavBar() {
     return SafeArea(
       top: false,
@@ -149,54 +148,57 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
             child: Container(
               decoration: BoxDecoration(
-                color: AppTheme.accentColor,
+                // Liquid-glass body: rose tint + bright specular streak at top
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.0, 0.10, 0.55, 1.0],
+                  colors: [
+                    Colors.white.withValues(alpha: 0.38), // top specular
+                    Colors.white.withValues(alpha: 0.10),
+                    AppTheme.accentColor.withValues(alpha: 0.72),
+                    AppTheme.accentColor.withValues(alpha: 0.82),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(30),
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  width: 1,
+                  color: Colors.white.withValues(alpha: 0.32),
+                  width: 1.0,
                 ),
+                boxShadow: [
+                  // Outer glow / depth
+                  BoxShadow(
+                    color: AppTheme.accentColor.withValues(alpha: 0.30),
+                    blurRadius: 24,
+                    spreadRadius: -4,
+                    offset: const Offset(0, 8),
+                  ),
+                  // Inner top-light reflection
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    blurRadius: 0,
+                    spreadRadius: 0,
+                    offset: const Offset(0, -1),
+                  ),
+                ],
               ),
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final totalWidth = constraints.maxWidth;
                   final itemWidth = totalWidth / 5;
-                  final basePillWidth = itemWidth * 0.92;
+                  final pillWidth = itemWidth * 0.88;
 
                   final fraction = _navDragFraction ?? _currentIndex.toDouble();
-                  final centerLeft =
-                      fraction * itemWidth + (itemWidth - basePillWidth) / 2;
-
-                  final stretchLeft = _pillStretch < 0 ? _pillStretch : 0.0;
-                  final pillLeft = (centerLeft + stretchLeft)
-                      .clamp(0.0, totalWidth - basePillWidth);
-                  final pillWidth = (basePillWidth + _pillStretch.abs())
-                      .clamp(basePillWidth, totalWidth);
-
-                  // ── Morph: leading edge tapers as pill stretches ──────
-                  // Trailing side → fully rounded (r = 22)
-                  // Leading side → slightly tapered when moving fast
-                  const baseR = 22.0;
-                  final morphT =
-                      (_pillStretch / 20.0).clamp(-1.0, 1.0).abs();
-                  final taperedR = baseR * (1.0 - morphT * 0.38);
-                  final leftR =
-                      _pillStretch < 0 ? taperedR : baseR; // left leads when dragging left
-                  final rightR =
-                      _pillStretch > 0 ? taperedR : baseR; // right leads when dragging right
-                  final pillRadius = BorderRadius.only(
-                    topLeft: Radius.circular(leftR),
-                    bottomLeft: Radius.circular(leftR),
-                    topRight: Radius.circular(rightR),
-                    bottomRight: Radius.circular(rightR),
-                  );
+                  final pillLeft = (fraction * itemWidth + (itemWidth - pillWidth) / 2)
+                      .clamp(0.0, totalWidth - pillWidth);
 
                   return GestureDetector(
                     behavior: HitTestBehavior.opaque,
-                    // ── Tap: navigate to tapped tab ──────────────────
+                    // ── Tap ──────────────────────────────────────────
                     onTapUp: (details) {
                       final idx =
                           (details.localPosition.dx / itemWidth).floor().clamp(0, 4);
@@ -204,10 +206,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       setState(() {
                         _currentIndex = idx;
                         _navDragFraction = null;
-                        _pillStretch = 0.0;
                       });
                     },
-                    // ── Drag: pill follows finger + stretches in motion dir ─
+                    // ── Drag ─────────────────────────────────────────
                     onHorizontalDragUpdate: (details) {
                       final raw =
                           (details.localPosition.dx / totalWidth) * 5 - 0.5;
@@ -216,53 +217,56 @@ class _HomeScreenState extends State<HomeScreen> {
                       final oldHovered = _navDragFraction != null
                           ? _navDragFraction!.round().clamp(0, 4)
                           : _currentIndex;
-                      if (newHovered != oldHovered) {
-                        HapticFeedback.selectionClick();
-                      }
-                      // Smooth exponential blend — subtle water-droplet stretch
-                      final targetStretch = (details.delta.dx * 2.0).clamp(-20.0, 20.0);
-                      setState(() {
-                        _navDragFraction = clamped;
-                        _pillStretch = _pillStretch * 0.6 + targetStretch * 0.4;
-                      });
+                      if (newHovered != oldHovered) HapticFeedback.selectionClick();
+                      setState(() => _navDragFraction = clamped);
                     },
-                    // ── Release: spring snap, stretch collapses ───────
+                    // ── Release ──────────────────────────────────────
                     onHorizontalDragEnd: (_) {
                       if (_navDragFraction != null) {
                         setState(() {
                           _currentIndex = _navDragFraction!.round().clamp(0, 4);
                           _navDragFraction = null;
-                          _pillStretch = 0.0; // AnimatedPositioned springs this back
                         });
                       }
                     },
-                    onHorizontalDragCancel: () => setState(() {
-                      _navDragFraction = null;
-                      _pillStretch = 0.0;
-                    }),
+                    onHorizontalDragCancel: () =>
+                        setState(() => _navDragFraction = null),
                     child: Stack(
-                      clipBehavior: Clip.none,
+                      // Pill is strictly clipped to navbar bounds — no overshoot
+                      clipBehavior: Clip.hardEdge,
                       children: [
-                        // Pill: zero-duration during drag (instant track),
-                        // elasticOut spring when snapping back to a tab
+                        // ── Frosted-glass pill indicator ─────────────
                         AnimatedPositioned(
+                          // Instant during drag; smooth easeOutCubic on release
+                          // (no overshoot — easeOutBack removed)
                           duration: _navDragFraction != null
                               ? Duration.zero
-                              : const Duration(milliseconds: 380),
-                          curve: _navDragFraction != null
-                              ? Curves.linear
-                              : Curves.easeOutBack,
+                              : const Duration(milliseconds: 320),
+                          curve: Curves.easeOutCubic,
                           left: pillLeft,
                           top: 0,
                           bottom: 0,
                           width: pillWidth,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppTheme.backgroundColor,
-                              borderRadius: pillRadius,
-                              border: Border.all(
-                                color: AppTheme.accentColor.withValues(alpha: 0.20),
-                                width: 1,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.82),
+                                      Colors.white.withValues(alpha: 0.52),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.70),
+                                    width: 0.8,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
