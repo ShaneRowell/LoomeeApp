@@ -145,148 +145,98 @@ class _HomeScreenState extends State<HomeScreen> {
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(6, 0, 6, 4),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-            child: Container(
-              decoration: BoxDecoration(
-                // Liquid-glass body: rose tint + bright specular streak at top
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.10, 0.55, 1.0],
-                  colors: [
-                    Colors.white.withValues(alpha: 0.38), // top specular
-                    Colors.white.withValues(alpha: 0.10),
-                    AppTheme.accentColor.withValues(alpha: 0.72),
-                    AppTheme.accentColor.withValues(alpha: 0.82),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.32),
-                  width: 1.0,
-                ),
-                boxShadow: [
-                  // Outer glow / depth
-                  BoxShadow(
-                    color: AppTheme.accentColor.withValues(alpha: 0.30),
-                    blurRadius: 24,
-                    spreadRadius: -4,
-                    offset: const Offset(0, 8),
-                  ),
-                  // Inner top-light reflection
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    blurRadius: 0,
-                    spreadRadius: 0,
-                    offset: const Offset(0, -1),
-                  ),
-                ],
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.accentColor,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.18),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final totalWidth = constraints.maxWidth;
-                  final itemWidth = totalWidth / 5;
-                  final pillWidth = itemWidth * 0.88;
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final totalWidth = constraints.maxWidth;
+              final itemWidth = totalWidth / 5;
+              final pillWidth = itemWidth * 0.88;
 
-                  final fraction = _navDragFraction ?? _currentIndex.toDouble();
-                  final pillLeft = (fraction * itemWidth + (itemWidth - pillWidth) / 2)
-                      .clamp(0.0, totalWidth - pillWidth);
+              final fraction = _navDragFraction ?? _currentIndex.toDouble();
+              final pillLeft = (fraction * itemWidth + (itemWidth - pillWidth) / 2)
+                  .clamp(0.0, totalWidth - pillWidth);
 
-                  return GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    // ── Tap ──────────────────────────────────────────
-                    onTapUp: (details) {
-                      final idx =
-                          (details.localPosition.dx / itemWidth).floor().clamp(0, 4);
-                      if (idx != _currentIndex) HapticFeedback.selectionClick();
-                      setState(() {
-                        _currentIndex = idx;
-                        _navDragFraction = null;
-                      });
-                    },
-                    // ── Drag ─────────────────────────────────────────
-                    onHorizontalDragUpdate: (details) {
-                      final raw =
-                          (details.localPosition.dx / totalWidth) * 5 - 0.5;
-                      final clamped = raw.clamp(0.0, 4.0);
-                      final newHovered = clamped.round().clamp(0, 4);
-                      final oldHovered = _navDragFraction != null
-                          ? _navDragFraction!.round().clamp(0, 4)
-                          : _currentIndex;
-                      if (newHovered != oldHovered) HapticFeedback.selectionClick();
-                      setState(() => _navDragFraction = clamped);
-                    },
-                    // ── Release ──────────────────────────────────────
-                    onHorizontalDragEnd: (_) {
-                      if (_navDragFraction != null) {
-                        setState(() {
-                          _currentIndex = _navDragFraction!.round().clamp(0, 4);
-                          _navDragFraction = null;
-                        });
-                      }
-                    },
-                    onHorizontalDragCancel: () =>
-                        setState(() => _navDragFraction = null),
-                    child: Stack(
-                      // Pill is strictly clipped to navbar bounds — no overshoot
-                      clipBehavior: Clip.hardEdge,
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                // ── Tap ────────────────────────────────────────────
+                onTapUp: (details) {
+                  final idx =
+                      (details.localPosition.dx / itemWidth).floor().clamp(0, 4);
+                  if (idx != _currentIndex) HapticFeedback.selectionClick();
+                  setState(() {
+                    _currentIndex = idx;
+                    _navDragFraction = null;
+                  });
+                },
+                // ── Drag ───────────────────────────────────────────
+                onHorizontalDragUpdate: (details) {
+                  final raw =
+                      (details.localPosition.dx / totalWidth) * 5 - 0.5;
+                  final clamped = raw.clamp(0.0, 4.0);
+                  final newHovered = clamped.round().clamp(0, 4);
+                  final oldHovered = _navDragFraction != null
+                      ? _navDragFraction!.round().clamp(0, 4)
+                      : _currentIndex;
+                  if (newHovered != oldHovered) HapticFeedback.selectionClick();
+                  setState(() => _navDragFraction = clamped);
+                },
+                // ── Release ────────────────────────────────────────
+                onHorizontalDragEnd: (_) {
+                  if (_navDragFraction != null) {
+                    setState(() {
+                      _currentIndex = _navDragFraction!.round().clamp(0, 4);
+                      _navDragFraction = null;
+                    });
+                  }
+                },
+                onHorizontalDragCancel: () =>
+                    setState(() => _navDragFraction = null),
+                child: Stack(
+                  clipBehavior: Clip.hardEdge,
+                  children: [
+                    // ── Pill indicator ─────────────────────────────
+                    AnimatedPositioned(
+                      duration: _navDragFraction != null
+                          ? Duration.zero
+                          : const Duration(milliseconds: 320),
+                      curve: Curves.easeOutCubic,
+                      left: pillLeft,
+                      top: 0,
+                      bottom: 0,
+                      width: pillWidth,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.backgroundColor,
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                      ),
+                    ),
+                    // ── Nav items ──────────────────────────────────
+                    Row(
                       children: [
-                        // ── Frosted-glass pill indicator ─────────────
-                        AnimatedPositioned(
-                          // Instant during drag; smooth easeOutCubic on release
-                          // (no overshoot — easeOutBack removed)
-                          duration: _navDragFraction != null
-                              ? Duration.zero
-                              : const Duration(milliseconds: 320),
-                          curve: Curves.easeOutCubic,
-                          left: pillLeft,
-                          top: 0,
-                          bottom: 0,
-                          width: pillWidth,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(22),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.82),
-                                      Colors.white.withValues(alpha: 0.52),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(22),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.70),
-                                    width: 0.8,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        // ── Nav items ─────────────────────────────────
-                        Row(
-                          children: [
-                            _buildNavItem(Icons.home_rounded, 'Home', 0),
-                            _buildNavItem(Icons.explore_rounded, 'Explore', 1),
-                            _buildNavItem(Icons.straighten_rounded, 'Measure', 2),
-                            _buildNavItem(Icons.camera_alt_rounded, 'Upload', 3),
-                            _buildNavItem(Icons.replay_rounded, 'Try ons', 4),
-                          ],
-                        ),
+                        _buildNavItem(Icons.home_rounded, 'Home', 0),
+                        _buildNavItem(Icons.explore_rounded, 'Explore', 1),
+                        _buildNavItem(Icons.straighten_rounded, 'Measure', 2),
+                        _buildNavItem(Icons.camera_alt_rounded, 'Upload', 3),
+                        _buildNavItem(Icons.replay_rounded, 'Try ons', 4),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
