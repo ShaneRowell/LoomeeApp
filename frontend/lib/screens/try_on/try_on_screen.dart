@@ -254,7 +254,7 @@ class _TryOnScreenState extends State<TryOnScreen> {
     return Container(
       width: 70,
       height: 70,
-      color: scheme.surface,
+      color: Theme.of(context).colorScheme.surface,
       child: const LomeeLogo(size: 28, color: Colors.grey),
     );
   }
