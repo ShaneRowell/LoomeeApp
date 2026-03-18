@@ -17,8 +17,8 @@ class AppTheme {
   static const Color darkBackgroundColor = Color(0xFF0F1720);
   // Cards / containers: clearly lifted above the scaffold
   static const Color darkSurfaceColor = Color(0xFF1E2B3F);
-  // Primary text on dark: warm cream (the light-mode scaffold colour)
-  static const Color darkFontColor = Color(0xFFF0EBE0);
+  // Primary text on dark: exact cream — matches the light-mode scaffold colour
+  static const Color darkFontColor = Color(0xFFF5F0E8);
   // Interactive accent on dark: a readable steel-blue
   static const Color darkAccentColor = Color(0xFF5B8BB5);
 
