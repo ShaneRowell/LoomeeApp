@@ -27,6 +27,17 @@ class CategoryTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Selected: cream in dark mode, dark navy in light mode
+    final selectedBg = isDark ? AppTheme.backgroundColor : AppTheme.accentColor;
+    final selectedText = isDark ? AppTheme.fontColor : AppTheme.white;
+
+    // Unselected: theme surface (dark blue in dark mode, white in light mode)
+    final unselectedBg = scheme.surface;
+    final unselectedText = scheme.onSurface;
+
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -43,12 +54,12 @@ class CategoryTabs extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.accentColor : AppTheme.white,
+                color: isSelected ? selectedBg : unselectedBg,
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: isSelected
-                      ? AppTheme.accentColor
-                      : AppTheme.fontColor.withValues(alpha: 0.15),
+                      ? selectedBg
+                      : scheme.onSurface.withValues(alpha: 0.15),
                 ),
               ),
               alignment: Alignment.center,
@@ -57,7 +68,7 @@ class CategoryTabs extends StatelessWidget {
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 13,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? AppTheme.white : AppTheme.fontColor,
+                  color: isSelected ? selectedText : unselectedText,
                 ),
               ),
             ),
