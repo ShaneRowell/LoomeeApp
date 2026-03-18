@@ -40,14 +40,15 @@ class FitAnalysisCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.white,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.fontColor.withValues(alpha: 0.08),
+            color: scheme.onSurface.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -75,7 +76,7 @@ class FitAnalysisCard extends StatelessWidget {
               ),
               const Spacer(),
               if (fitAnalysis.confidence != null)
-                _buildConfidenceIndicator(fitAnalysis.confidence!),
+                _buildConfidenceIndicator(fitAnalysis.confidence!, scheme),
             ],
           ),
           if (fitAnalysis.tightAreas.isNotEmpty) ...[
@@ -85,7 +86,7 @@ class FitAnalysisCard extends StatelessWidget {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 6),
@@ -110,7 +111,7 @@ class FitAnalysisCard extends StatelessWidget {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 6),
@@ -135,7 +136,7 @@ class FitAnalysisCard extends StatelessWidget {
               style: GoogleFonts.playfairDisplay(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 6),
@@ -150,7 +151,7 @@ class FitAnalysisCard extends StatelessWidget {
                           rec,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
-                            color: AppTheme.fontColor.withValues(alpha: 0.7),
+                            color: scheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ),
@@ -163,7 +164,7 @@ class FitAnalysisCard extends StatelessWidget {
     );
   }
 
-  Widget _buildConfidenceIndicator(double confidence) {
+  Widget _buildConfidenceIndicator(double confidence, ColorScheme scheme) {
     return Column(
       children: [
         SizedBox(
@@ -175,7 +176,7 @@ class FitAnalysisCard extends StatelessWidget {
               CircularProgressIndicator(
                 value: confidence / 100,
                 strokeWidth: 4,
-                backgroundColor: Colors.grey[200],
+                backgroundColor: scheme.onSurface.withValues(alpha: 0.12),
                 valueColor: AlwaysStoppedAnimation<Color>(_fitColor),
               ),
               Center(
@@ -184,7 +185,7 @@ class FitAnalysisCard extends StatelessWidget {
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.fontColor,
+                    color: scheme.onSurface,
                   ),
                 ),
               ),

@@ -43,6 +43,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
       appBar: const CustomAppBar(title: 'Try-On Result'),
       body: Consumer<TryOnProvider>(
         builder: (context, provider, _) {
+          final scheme = Theme.of(context).colorScheme;
           if (provider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -69,7 +70,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                       ),
@@ -96,10 +97,10 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 48, horizontal: 24),
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.08)),
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
                     ),
                     child: Column(
                       children: [
@@ -114,7 +115,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.fontColor,
+                            color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -123,7 +124,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
-                            color: AppTheme.fontColor.withValues(alpha: 0.55),
+                            color: scheme.onSurface.withValues(alpha: 0.55),
                             height: 1.5,
                           ),
                         ),
@@ -150,7 +151,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         if (progress == null) return child;
                         return Container(
                           height: 380,
-                          color: AppTheme.backgroundColor,
+                          color: scheme.surface,
                           child: Center(
                             child: CircularProgressIndicator(
                               value: progress.expectedTotalBytes != null
@@ -164,7 +165,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                       },
                       errorBuilder: (_, error, __) => Container(
                         height: 380,
-                        color: AppTheme.backgroundColor,
+                        color: scheme.surface,
                         child: Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -194,23 +195,23 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     width: double.infinity,
                     height: 160,
                     decoration: BoxDecoration(
-                      color: AppTheme.white,
+                      color: scheme.surface,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.fontColor.withValues(alpha: 0.08)),
+                          color: scheme.onSurface.withValues(alpha: 0.08)),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.image_not_supported_outlined,
                             size: 40,
-                            color: AppTheme.fontColor.withValues(alpha: 0.3)),
+                            color: scheme.onSurface.withValues(alpha: 0.3)),
                         const SizedBox(height: 10),
                         Text(
                           'Virtual try-on image unavailable',
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 13,
-                            color: AppTheme.fontColor.withValues(alpha: 0.5),
+                            color: scheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -218,7 +219,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                           'AI image generation did not complete',
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 11,
-                            color: AppTheme.fontColor.withValues(alpha: 0.35),
+                            color: scheme.onSurface.withValues(alpha: 0.35),
                           ),
                         ),
                       ],
@@ -267,7 +268,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.fontColor,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -275,7 +276,7 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     tryOn.aiDescription!,
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 14,
-                      color: AppTheme.fontColor.withValues(alpha: 0.7),
+                      color: scheme.onSurface.withValues(alpha: 0.7),
                       height: 1.5,
                     ),
                   ),
