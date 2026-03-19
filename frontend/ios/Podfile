@@ -44,6 +44,10 @@ post_install do |installer|
         'PERMISSION_CAMERA=1',
         'PERMISSION_PHOTOS=1',
       ]
+      # Build pod products outside iCloud Drive to prevent xattr-related codesigning failures.
+      # (iCloud adds com.apple.fileprovider.fpfs#P to files in ~/Documents; rsync preserves
+      # those xattrs when frameworks are embedded, causing codesign to silently fail.)
+      config.build_settings['SYMROOT'] = '/private/tmp/LoomeeApp-ios-build'
     end
   end
 end

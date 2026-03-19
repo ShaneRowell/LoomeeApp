@@ -7,6 +7,10 @@ class TryOn {
   final String? resultImageUrl;
   final FitAnalysis? fitAnalysis;
   final String status;
+  /// 0–100, written by the backend at each pipeline milestone.
+  final int progress;
+  /// Backend stage key — maps to a display label in the progress card.
+  final String? currentStage;
   final String? errorMessage;
   final String? aiDescription;
   final String? recommendedSize;
@@ -22,6 +26,8 @@ class TryOn {
     this.resultImageUrl,
     this.fitAnalysis,
     this.status = 'pending',
+    this.progress = 0,
+    this.currentStage,
     this.errorMessage,
     this.aiDescription,
     this.recommendedSize,
@@ -45,6 +51,8 @@ class TryOn {
           ? FitAnalysis.fromJson(json['fitAnalysis'])
           : null,
       status: json['status'] ?? 'pending',
+      progress: (json['progress'] as num?)?.toInt() ?? 0,
+      currentStage: json['currentStage'] as String?,
       errorMessage: json['errorMessage'],
       aiDescription: json['aiDescription'],
       recommendedSize: json['recommendedSize'],

@@ -324,81 +324,149 @@ exports.createTryOn = async (req, res) => {
 
     await tryOn.save();
 
-    try {
-      let geminiResult;
-      let permanentImageUrl = null;
-      
-      // Step 1: Gemini fit analysis
-      if (genAI && process.env.GEMINI_API_KEY) {
-        console.log('🤖 Using Gemini AI for fit analysis...');
-        geminiResult = await processWithGemini(
-          presetImage.imageUrl,
-          tryOn.clothingImageUrl,
-          {
-            chest: measurements.chest,
-            waist: measurements.waist,
-            hips: measurements.hips,
-            height: measurements.height
-          },
-          {
-            name: clothing.name,
-            category: clothing.category,
-            brand: clothing.brand
-          }
-        );
-      } else {
-        console.log('🔄 Using simulation mode for fit analysis...');
-        geminiResult = await simulateAITryOn(
-          presetImage.imageUrl,
-          tryOn.clothingImageUrl,
-          {
-            chest: measurements.chest,
-            waist: measurements.waist,
-            hips: measurements.hips,
-            height: measurements.height
-          }
-        );
-      }
-
-      // Step 2: Get garment description using Gemini
-      const garmentDescription = await describeGarment(tryOn.clothingImageUrl);
-
-      // Step 3: Generate virtual try-on image with Replicate
-      if (replicate && process.env.REPLICATE_API_TOKEN) {
-        const replicateTempUrl = await processWithReplicate(
-          presetImage.imageUrl,
-          tryOn.clothingImageUrl,
-          garmentDescription
-        );
-        
-        // Step 4: Save to Cloudinary for permanent storage
-        if (replicateTempUrl) {
-          permanentImageUrl = await saveToCloudinary(replicateTempUrl);
-        }
-      }
-
-      // Save results
-      tryOn.resultImageUrl = permanentImageUrl || '/uploads/tryon-result-placeholder.jpg';
-      tryOn.fitAnalysis = geminiResult.fitAnalysis;
-      tryOn.status = 'completed';
-      tryOn.completedAt = Date.now();
-      
-      await tryOn.save();
-
-    } catch (aiError) {
-      console.error('AI processing error:', aiError.message);
-      tryOn.status = 'failed';
-      tryOn.errorMessage = aiError.message;
-      tryOn.completedAt = Date.now();
-      await tryOn.save();
-    }
-
+    // Respond immediately — the client can start polling straight away
+    // instead of waiting ~2 minutes for the AI pipeline to finish.
     res.status(201).json({
       success: true,
-      message: 'Try-on request created successfully',
-      tryOn: await TryOn.findById(tryOn._id)
-        .populate('clothingId', 'name brand price')
-        .populate('presetImageId', 'imageUrl imageType')
+      message: 'Try-on started — AI is processing in the background.',
+      tryOn: {
+        _id: tryOn._id,
+        status: tryOn.status,
+        clothingId: tryOn.clothingId,
+        presetImageId: tryOn.presetImageId,
+        clothingImageUrl: tryOn.clothingImageUrl,
+        createdAt: tryOn.createdAt,
+      }
+    });
+
+    // ── Background AI pipeline (runs after response is sent) ──────────────
+    setImmediate(async () => {
+      /**
+       * Persists progress + stage to the DB so the polling client can display
+       * a real live progress bar.  Errors are swallowed so a failed save never
+       * kills the main pipeline.
+       */
+      const setProgress = async (pct, stage) => {
+        try {
+          tryOn.progress = pct;
+          tryOn.currentStage = stage;
+          await tryOn.save();
+          console.log(`📊 Progress: ${pct}% — ${stage}`);
+        } catch (err) {
+          console.error('setProgress save error:', err.message);
+        }
+      };
+
+      try {
+        let geminiResult;
+        let garmentDescription;
+        let permanentImageUrl = null;
+
+        // ── Stage 1: Gemini analysis ──────────────────────────────────────
+        await setProgress(10, 'analysing_garment');
+
+        const measurementData = {
+          chest: measurements.chest,
+          waist: measurements.waist,
+          hips: measurements.hips,
+          height: measurements.height
+        };
+
+        if (genAI && process.env.GEMINI_API_KEY) {
+          // Run both Gemini calls in parallel — they're independent and both
+          // analyse the same clothing image, so there's no reason to serialise them.
+          console.log('🤖 Running Gemini fit analysis + garment description in parallel...');
+          try {
+            [geminiResult, garmentDescription] = await Promise.all([
+              processWithGemini(
+                presetImage.imageUrl,
+                tryOn.clothingImageUrl,
+                measurementData,
+                { name: clothing.name, category: clothing.category, brand: clothing.brand }
+              ),
+              describeGarment(tryOn.clothingImageUrl),
+            ]);
+          } catch (geminiError) {
+            // Gemini quota (429) or any other transient error — degrade gracefully
+            // so the virtual try-on image can still be generated via Replicate.
+            const isQuota = geminiError.message?.includes('429') ||
+                            geminiError.message?.toLowerCase().includes('quota');
+            console.warn(
+              isQuota
+                ? '⚠️ Gemini quota exceeded — falling back to simulation for fit analysis.'
+                : `⚠️ Gemini error (${geminiError.message}) — falling back to simulation.`
+            );
+            [geminiResult, garmentDescription] = await Promise.all([
+              simulateAITryOn(presetImage.imageUrl, tryOn.clothingImageUrl, measurementData),
+              Promise.resolve('clothing item'),
+            ]);
+          }
+        } else {
+          console.log('🔄 Using simulation mode for fit analysis...');
+          [geminiResult, garmentDescription] = await Promise.all([
+            simulateAITryOn(presetImage.imageUrl, tryOn.clothingImageUrl, measurementData),
+            Promise.resolve('clothing item'),
+          ]);
+        }
+
+        // ── Stage 2: Virtual try-on image generation (Replicate) ─────────
+        // Replicate must wait for the garment description, so it stays sequential.
+        if (replicate && process.env.REPLICATE_API_TOKEN) {
+          await setProgress(50, 'generating_tryon');
+
+          // While Replicate is running (typically 60–90 s) we tick the progress
+          // forward every 8 seconds so the client bar keeps moving instead of
+          // stalling.  The ticker stops as soon as Replicate returns.
+          const replicateStart = Date.now();
+          const REPLICATE_EXPECTED_MS = 75_000; // 75 s baseline
+          const progressTicker = setInterval(async () => {
+            const elapsed = Date.now() - replicateStart;
+            const t = Math.min(elapsed / REPLICATE_EXPECTED_MS, 1.0);
+            // Ease-out so the bar slows near the end, acknowledging uncertainty.
+            const eased = 1 - Math.pow(1 - t, 3);
+            const pct = Math.round(50 + eased * 33); // 50 → 83 %
+            if (pct > tryOn.progress) {
+              await setProgress(pct, 'generating_tryon');
+            }
+          }, 8_000);
+
+          let replicateTempUrl;
+          try {
+            replicateTempUrl = await processWithReplicate(
+              presetImage.imageUrl,
+              tryOn.clothingImageUrl,
+              garmentDescription
+            );
+          } finally {
+            clearInterval(progressTicker);
+          }
+
+          if (replicateTempUrl) {
+            // ── Stage 3: Upload generated image to Cloudinary ─────────────
+            await setProgress(85, 'saving_result');
+            permanentImageUrl = await saveToCloudinary(replicateTempUrl);
+            await setProgress(95, 'finalising');
+          }
+        }
+
+        tryOn.resultImageUrl = permanentImageUrl || '/uploads/tryon-result-placeholder.jpg';
+        tryOn.fitAnalysis = geminiResult.fitAnalysis;
+        tryOn.aiDescription = geminiResult.aiDescription;
+        tryOn.recommendedSize = geminiResult.recommendedSize;
+        tryOn.progress = 100;
+        tryOn.currentStage = 'completed';
+        tryOn.status = 'completed';
+        tryOn.completedAt = Date.now();
+        await tryOn.save();
+        console.log('✅ Try-on background processing complete:', tryOn._id);
+
+      } catch (aiError) {
+        console.error('AI processing error:', aiError.message);
+        tryOn.status = 'failed';
+        tryOn.errorMessage = aiError.message;
+        tryOn.completedAt = Date.now();
+        await tryOn.save();
+      }
     });
 
   } catch (error) {

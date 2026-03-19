@@ -39,6 +39,18 @@ const tryOnSchema = new mongoose.Schema({
     enum: ['pending', 'processing', 'completed', 'failed'],
     default: 'pending'
   },
+  // Live progress tracking — updated by the background AI pipeline so the
+  // client can show a real progress bar instead of a wall-clock simulation.
+  progress: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 100
+  },
+  currentStage: {
+    type: String,
+    default: 'starting'
+  },
   errorMessage: String,  // Populated only when status is 'failed'
   createdAt: {
     type: Date,
