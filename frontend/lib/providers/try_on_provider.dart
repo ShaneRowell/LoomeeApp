@@ -65,6 +65,11 @@ class TryOnProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTryOnDetail(String id) async {
+    // If we're loading a *different* try-on, clear the stale one immediately
+    // so the result screen never briefly flashes the previous item's data.
+    if (_currentTryOn != null && _currentTryOn!.id != id) {
+      _currentTryOn = null;
+    }
     _isLoading = true;
     _error = null;
     notifyListeners();

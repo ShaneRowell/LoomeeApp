@@ -59,6 +59,11 @@ class _AnimatedTabHeaderState extends State<AnimatedTabHeader>
       child: Stack(
         clipBehavior: Clip.none, // let wave overflow downward
         children: [
+          // Pinned solid background — fills the full slot so no gap appears
+          // at the top when the float animation drifts the content downward.
+          Positioned.fill(
+            child: Container(color: AppTheme.accentColor),
+          ),
           AnimatedBuilder(
             animation: _floatAnim,
             builder: (context, child) => Transform.translate(
