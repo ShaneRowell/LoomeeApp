@@ -42,12 +42,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'Privacy Policy',
             LegalContent.privacyPolicy,
           );
+    _emailController.addListener(_onFieldChanged);
+    _passwordController.addListener(_onFieldChanged);
   }
+
+  void _onFieldChanged() => setState(() {});
+
+  bool get _canSubmit =>
+      _emailController.text.isNotEmpty &&
+      _passwordController.text.isNotEmpty &&
+      _consentAccepted;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.removeListener(_onFieldChanged);
     _emailController.dispose();
+    _passwordController.removeListener(_onFieldChanged);
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _tosRecognizer.dispose();
@@ -286,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 52,
                   child: Consumer<AuthProvider>(
                     builder: (context, auth, _) {
-                      final enabled = !auth.isLoading && _consentAccepted;
+                      final enabled = !auth.isLoading && _canSubmit;
                       return ElevatedButton(
                         onPressed: enabled ? _register : null,
                         child: auth.isLoading
