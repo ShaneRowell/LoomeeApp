@@ -5,6 +5,7 @@ import '../../config/app_theme.dart';
 import '../../models/measurement.dart';
 import '../../providers/measurement_provider.dart';
 import '../../widgets/common/animated_tab_header.dart';
+import '../../widgets/common/glass_container.dart';
 
 class MeasurementsScreen extends StatefulWidget {
   const MeasurementsScreen({super.key});
@@ -233,40 +234,60 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     double? max,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: scheme.onSurface.withValues(alpha: 0.1),
-        ),
-      ),
+    return GlassContainer(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      borderRadius: BorderRadius.circular(14),
       child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Icon(icon, size: 20, color: scheme.onSurface.withValues(alpha: 0.6)),
-          ),
+          Icon(icon, size: 20, color: scheme.onSurface.withValues(alpha: 0.55)),
+          const SizedBox(width: 14),
           Expanded(
-            child: TextFormField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                hintText: label,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                filled: false,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Required';
-                final parsed = double.tryParse(value);
-                if (parsed == null) return 'Invalid number';
-                if (min != null && parsed < min) return 'Min value is $min';
-                if (max != null && parsed > max) return 'Max value is $max';
-                return null;
-              },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: scheme.onSurface.withValues(alpha: 0.55),
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                TextFormField(
+                  controller: controller,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: scheme.onSurface,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '—',
+                    hintStyle: GoogleFonts.playfairDisplay(
+                      fontSize: 16,
+                      color: scheme.onSurface.withValues(alpha: 0.25),
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    contentPadding: const EdgeInsets.only(top: 4),
+                    isDense: true,
+                    filled: false,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Required';
+                    final parsed = double.tryParse(value);
+                    if (parsed == null) return 'Invalid number';
+                    if (min != null && parsed < min) return 'Min $min';
+                    if (max != null && parsed > max) return 'Max $max';
+                    return null;
+                  },
+                ),
+              ],
             ),
           ),
         ],
