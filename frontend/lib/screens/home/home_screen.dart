@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Stack(
                   clipBehavior: Clip.hardEdge,
                   children: [
-                    // ── Pill indicator ─────────────────────────────
+                    // ── Pill indicator — liquid glass ──────────────
                     AnimatedPositioned(
                       duration: _navDragFraction != null
                           ? Duration.zero
@@ -218,8 +218,40 @@ class _HomeScreenState extends State<HomeScreen> {
                       width: pillWidth,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: AppTheme.backgroundColor,
                           borderRadius: BorderRadius.circular(22),
+                          boxShadow: [
+                            // Outer white glow
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.18),
+                              blurRadius: 14,
+                              spreadRadius: 0,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(22),
+                                // Frosted glass gradient — bright top, fades down
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.white.withValues(alpha: 0.32),
+                                    Colors.white.withValues(alpha: 0.10),
+                                  ],
+                                ),
+                                // Glass edge highlight
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.45),
+                                  width: 0.8,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
