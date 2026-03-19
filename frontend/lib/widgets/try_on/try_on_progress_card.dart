@@ -75,7 +75,12 @@ class _TryOnProgressCardState extends State<TryOnProgressCard> {
         final t = (_stopwatch.elapsed.inMilliseconds / 1000 / _simTotalSeconds)
             .clamp(0.0, 1.0);
         final eased = 1.0 - (1.0 - t) * (1.0 - t) * (1.0 - t);
-        setState(() => _target = eased * _simMaxProgress);
+        final newTarget = eased * _simMaxProgress;
+        // Skip setState when the change is negligible — TweenAnimationBuilder
+        // already animates at 60 fps so tiny deltas produce no visible difference.
+        if ((newTarget - _target).abs() > 0.005) {
+          setState(() => _target = newTarget);
+        }
       });
     }
   }
@@ -97,6 +102,8 @@ class _TryOnProgressCardState extends State<TryOnProgressCard> {
         widget.serverProgress != old.serverProgress) {
       _simTicker?.cancel();
       _simTicker = null;
+      _stopwatch.stop();
+      _stopwatch.reset();
       final incoming = widget.serverProgress!.clamp(0.0, 1.0);
       // Never move the bar backwards (guards against out-of-order poll responses).
       if (incoming > _target) {
@@ -108,6 +115,7 @@ class _TryOnProgressCardState extends State<TryOnProgressCard> {
   @override
   void dispose() {
     _simTicker?.cancel();
+    _stopwatch.stop();
     super.dispose();
   }
 
@@ -223,8 +231,12 @@ class _TryOnProgressCardState extends State<TryOnProgressCard> {
 
               // ── Step indicators ────────────────────────────────────────
               ..._stages.map((stage) {
-                final done = progress >= stage.threshold + 0.01 &&
-                    stage != _stages.last;
+                // A stage is "done" once progress has clearly passed its
+                // threshold.  The +0.01 guard avoids a brief flicker where
+                // the bar lands exactly on the threshold value.
+                // Note: _stages.last is intentionally included — when the
+                // job completes (progress → 1.0) all four stages show ✓.
+                final done = progress >= stage.threshold + 0.01;
                 final isActive = active == stage;
 
                 IconData stepIcon;

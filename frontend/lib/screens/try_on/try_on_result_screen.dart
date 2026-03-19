@@ -36,9 +36,16 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      // Always fetch fresh data — the object cached from createTryOn is
-      // partial (clothing not populated) and may have a stale status.
-      await _tryOnProvider.fetchTryOnDetail(widget.tryOnId);
+      // Fetch fresh data only when necessary:
+      //   • Different try-on ID cached (e.g. navigated from history list), OR
+      //   • Clothing relationship not populated (object came from createTryOn
+      //     which returns a partial record without the populated clothingId).
+      // This avoids a redundant round-trip when the result screen is opened
+      // from TryOnScreen, where polling has already fetched full data.
+      final cached = _tryOnProvider.currentTryOn;
+      if (cached?.id != widget.tryOnId || cached?.clothing == null) {
+        await _tryOnProvider.fetchTryOnDetail(widget.tryOnId);
+      }
 
       if (!mounted) return;
       // Always start polling. It stops itself once status is completed/failed.
@@ -247,7 +254,6 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                       ),
                     ),
                   ),
-                  ), // AspectRatio
                 ],
 
                 // No image available (Replicate failed — fit analysis still shows)

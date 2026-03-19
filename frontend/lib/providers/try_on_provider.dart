@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../models/try_on.dart';
 import '../services/try_on_service.dart';
@@ -11,6 +13,7 @@ class TryOnProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isProcessing = false;
   String? _error;
+  Timer? _pollingTimer;
 
   TryOnProvider(this._tryOnService);
 
@@ -76,14 +79,23 @@ class TryOnProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Polls GET /api/try-on/:id every 5 seconds until status is completed or failed.
+  /// Polls GET /api/try-on/:id every 2 seconds until status is completed or failed.
   void startPolling(String tryOnId) {
     _stopPolling();
     _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
       try {
         final updated = await _tryOnService.getTryOnById(tryOnId);
+
+        // Only rebuild listeners when something the UI cares about actually changed.
+        // Unconditional notifyListeners() on every poll fires 30–45 rebuilds over
+        // a 90-second job even when status/progress/stage are all identical.
+        final changed = _currentTryOn?.status != updated.status ||
+            _currentTryOn?.progress != updated.progress ||
+            _currentTryOn?.currentStage != updated.currentStage;
+
         _currentTryOn = updated;
-        notifyListeners();
+        if (changed) notifyListeners();
+
         if (updated.status == 'completed' || updated.status == 'failed') {
           _stopPolling();
         }
@@ -99,7 +111,6 @@ class TryOnProvider extends ChangeNotifier {
     _pollingTimer?.cancel();
     _pollingTimer = null;
   }
-
 
   Future<bool> deleteTryOn(String id) async {
     try {
