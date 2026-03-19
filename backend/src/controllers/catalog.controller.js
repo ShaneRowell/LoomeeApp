@@ -33,7 +33,7 @@ exports.addClothing = async (req, res) => {
 // Get all clothing items with filters
 exports.getAllClothing = async (req, res) => {
   try {
-    const { category, gender, minPrice, maxPrice, brand, search, sortBy = 'createdAt', order = 'desc' } = req.query;
+    const { category, gender, minPrice, maxPrice, brand, search, sortBy = 'createdAt', order = 'asc' } = req.query;
 
     let filter = { isActive: true };
 
@@ -110,7 +110,7 @@ exports.getClothingByCategory = async (req, res) => {
     const clothing = await Clothing.find({
       category: normalizedCategory,
       isActive: true
-    }).sort({ createdAt: -1 });
+    }).sort({ createdAt: 1 });
 
     res.json({
       success: true,
