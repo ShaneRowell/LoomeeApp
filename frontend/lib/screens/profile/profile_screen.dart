@@ -11,6 +11,7 @@ import '../../providers/preset_image_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/try_on_provider.dart';
 import '../../widgets/common/animated_tab_header.dart';
+import '../../widgets/common/glass_container.dart';
 import '../../widgets/common/legal_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -223,19 +224,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String label,
     required ColorScheme scheme,
   }) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      borderRadius: BorderRadius.circular(16),
       child: Column(
         children: [
           Icon(icon, size: 20, color: scheme.primary),
@@ -274,22 +265,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 HapticFeedback.selectionClick();
                 Navigator.pop(context, 2);
               },
-              child: Container(
+              child: GlassContainer(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: scheme.surface,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: scheme.primary.withValues(alpha: 0.3),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: scheme.primary.withValues(alpha: 0.45),
+                  width: 1.5,
                 ),
                 child: Row(
                   children: [
@@ -348,19 +329,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
+          child: GlassContainer(
             padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: scheme.surface,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.07),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -505,19 +476,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required ValueChanged<bool> onChanged,
     required ColorScheme scheme,
   }) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      borderRadius: BorderRadius.circular(16),
       child: Row(
         children: [
           Container(
@@ -694,19 +655,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: GlassContainer(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(16),
         child: Row(
           children: [
             Container(
@@ -792,22 +743,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
           }
         },
-        child: Container(
-          width: double.infinity,
+        child: GlassContainer(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: AppTheme.errorColor.withValues(alpha: 0.30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.errorColor.withValues(alpha: 0.45),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

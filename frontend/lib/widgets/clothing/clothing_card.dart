@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,23 +26,40 @@ class ClothingCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           boxShadow: [
-            // Main lift shadow
             BoxShadow(
-              color: AppTheme.fontColor.withValues(alpha: 0.16),
-              blurRadius: 16,
-              offset: const Offset(0, 5),
+              color: AppTheme.fontColor.withValues(alpha: 0.12),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
             ),
-            // Close contact shadow for crispness
             BoxShadow(
-              color: AppTheme.fontColor.withValues(alpha: 0.07),
+              color: AppTheme.fontColor.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),
           ],
         ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withValues(alpha: 0.92),
+                    Colors.white.withValues(alpha: 0.75),
+                  ],
+                ),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.80),
+                  width: 0.8,
+                ),
+              ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,6 +185,9 @@ class ClothingCard extends StatelessWidget {
             ),
           ],
         ),
+            ), // BackdropFilter child
+          ), // BackdropFilter
+        ), // ClipRRect
       ),
     );
   }
