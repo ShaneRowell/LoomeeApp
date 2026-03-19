@@ -7,6 +7,7 @@ import '../../providers/try_on_provider.dart';
 import '../../widgets/common/custom_app_bar.dart';
 import '../../widgets/common/error_widget.dart';
 import '../../widgets/try_on/fit_analysis_card.dart';
+import '../../widgets/try_on/try_on_progress_card.dart';
 import '../../widgets/try_on/try_on_status_badge.dart';
 
 class TryOnResultScreen extends StatefulWidget {
@@ -19,22 +20,67 @@ class TryOnResultScreen extends StatefulWidget {
 }
 
 class _TryOnResultScreenState extends State<TryOnResultScreen> {
+  /// Cached provider reference — safe to use in dispose() where
+  /// context.read() is forbidden on a deactivated element.
+  late TryOnProvider _tryOnProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tryOnProvider = context.read<TryOnProvider>();
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<TryOnProvider>();
-      // Backend is synchronous — result is already complete when we arrive here.
-      // Only fetch if we don't already have this try-on loaded.
-      if (provider.currentTryOn?.id != widget.tryOnId) {
-        provider.fetchTryOnDetail(widget.tryOnId);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+
+      // Always fetch fresh data — the object cached from createTryOn is
+      // partial (clothing not populated) and may have a stale status.
+      await _tryOnProvider.fetchTryOnDetail(widget.tryOnId);
+
+      if (!mounted) return;
+      // Always start polling. It stops itself once status is completed/failed.
+      _tryOnProvider.startPolling(widget.tryOnId);
     });
   }
 
   @override
   void dispose() {
+    // Use the cached reference — context.read() is unsafe in dispose().
+    _tryOnProvider.stopPolling();
     super.dispose();
+  }
+
+  /// Converts a raw backend error string into something the user can
+  /// actually understand and act on.  Never exposes API quota messages,
+  /// JSON payloads, or stack traces.
+  String _friendlyError(String? raw) {
+    if (raw == null || raw.isEmpty) {
+      return 'Something went wrong. Please try again.';
+    }
+    final lower = raw.toLowerCase();
+    if (lower.contains('429') || lower.contains('quota') || lower.contains('rate limit')) {
+      return 'Our AI service has reached its daily limit. '
+          'Please try again in a few hours — your quota resets at midnight.';
+    }
+    if (lower.contains('timeout') || lower.contains('timed out')) {
+      return 'The AI took too long to respond. '
+          'This can happen during busy periods — please try again.';
+    }
+    if (lower.contains('network') ||
+        lower.contains('econnrefused') ||
+        lower.contains('fetch')) {
+      return 'A network error occurred. '
+          'Check your connection and try again.';
+    }
+    if (lower.contains('replicate') || lower.contains('prediction')) {
+      return 'The virtual try-on image could not be generated. '
+          'Please try again with a different photo.';
+    }
+    // Generic fallback — don't show the raw message.
+    return 'The try-on could not be completed. Please try again.';
   }
 
   @override
@@ -44,10 +90,69 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
       body: Consumer<TryOnProvider>(
         builder: (context, provider, _) {
           final scheme = Theme.of(context).colorScheme;
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+
           final tryOn = provider.currentTryOn;
+
+          // Only show the progress card while the AI pipeline is genuinely
+          // in flight.  If we already have a completed/failed result cached
+          // (e.g. navigated here from try_on_screen after polling confirmed
+          // completion), skip straight to the result view even if isLoading is
+          // briefly true while we refresh the detail in the background.
+          final alreadyDone = tryOn?.status == 'completed' ||
+              tryOn?.status == 'failed';
+          final isProcessing = !alreadyDone &&
+              (provider.isLoading ||
+                  tryOn?.status == 'processing' ||
+                  tryOn?.status == 'pending');
+
+          // While loading OR while AI is still running, show the progress card.
+          // Never replace the whole screen with a plain spinner — the user needs
+          // to see something meaningful during the 60–90 second wait.
+          if (isProcessing) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (tryOn?.clothing != null) ...[
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            tryOn!.clothing!.name,
+                            style: GoogleFonts.playfairDisplay(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        TryOnStatusBadge(status: tryOn.status),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      tryOn.clothing!.brand,
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 14,
+                        color: scheme.secondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  TryOnProgressCard(
+                    isCompleted: false,
+                    serverProgress: tryOn != null
+                        ? (tryOn.progress / 100.0).clamp(0.0, 1.0)
+                        : null,
+                    serverStage: tryOn?.currentStage,
+                  ),
+                ],
+              ),
+            );
+          }
+
           if (tryOn == null) {
             return AppErrorWidget(
               message: provider.error ?? 'Result not found',
@@ -90,49 +195,6 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 ],
                 const SizedBox(height: 24),
 
-                // Processing state — AI is still generating
-                if (tryOn.status == 'processing') ...[
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 48, horizontal: 24),
-                    decoration: BoxDecoration(
-                      color: scheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                          color: scheme.onSurface.withValues(alpha: 0.08)),
-                    ),
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(
-                          color: scheme.secondary,
-                          strokeWidth: 3,
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'Generating your virtual try-on...',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: scheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Our AI is working on it.\nThis usually takes 60–90 seconds.',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 13,
-                            color: scheme.onSurface.withValues(alpha: 0.55),
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-
                 // Completed — show result image (only if URL is absolute)
                 if (tryOn.status == 'completed' &&
                     tryOn.resultImageUrl != null &&
@@ -140,45 +202,46 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                   AspectRatio(
                     aspectRatio: 3 / 4, // portrait — shows full body correctly
                     child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      tryOn.resultImageUrl!,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
-                      loadingBuilder: (_, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        tryOn.resultImageUrl!,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.topCenter,
+                        loadingBuilder: (_, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            height: 380,
+                            color: scheme.surface,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: progress.expectedTotalBytes != null
+                                    ? progress.cumulativeBytesLoaded /
+                                        progress.expectedTotalBytes!
+                                    : null,
+                                color: scheme.secondary,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (_, err, st) => Container(
                           height: 380,
                           color: scheme.surface,
                           child: Center(
-                            child: CircularProgressIndicator(
-                              value: progress.expectedTotalBytes != null
-                                  ? progress.cumulativeBytesLoaded /
-                                      progress.expectedTotalBytes!
-                                  : null,
-                              color: scheme.secondary,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.image_not_supported,
+                                    size: 48, color: Colors.grey),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Failed to load image',
+                                  style: GoogleFonts.playfairDisplay(
+                                      fontSize: 13, color: Colors.grey),
+                                ),
+                              ],
                             ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (_, error, __) => Container(
-                        height: 380,
-                        color: scheme.surface,
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.image_not_supported,
-                                  size: 48, color: Colors.grey),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Failed to load image',
-                                style: GoogleFonts.playfairDisplay(
-                                    fontSize: 13, color: Colors.grey),
-                              ),
-                            ],
                           ),
                         ),
                       ),
@@ -288,27 +351,42 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                   FitAnalysisCard(fitAnalysis: tryOn.fitAnalysis!),
                 ],
 
-                // Failed state — show error
-                if (tryOn.status == 'failed' &&
-                    tryOn.errorMessage != null) ...[
+                // Failed state — show a friendly error (never expose raw API text)
+                if (tryOn.status == 'failed') ...[
                   const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.errorColor.withValues(alpha: 0.08),
+                      color: AppTheme.errorColor.withValues(alpha: 0.07),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: AppTheme.errorColor.withValues(alpha: 0.2)),
                     ),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.error_outline,
-                            color: AppTheme.errorColor),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            tryOn.errorMessage!,
-                            style: GoogleFonts.playfairDisplay(
-                                fontSize: 13, color: AppTheme.errorColor),
-                          ),
+                        Row(
+                          children: [
+                            const Icon(Icons.error_outline,
+                                color: AppTheme.errorColor, size: 20),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Try-On Failed',
+                              style: GoogleFonts.playfairDisplay(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.errorColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _friendlyError(tryOn.errorMessage),
+                          style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AppTheme.errorColor.withValues(alpha: 0.85),
+                              height: 1.45),
                         ),
                       ],
                     ),
@@ -334,3 +412,4 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
     );
   }
 }
+
