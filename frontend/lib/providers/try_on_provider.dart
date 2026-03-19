@@ -95,7 +95,6 @@ class TryOnProvider extends ChangeNotifier {
 
         _currentTryOn = updated;
         if (changed) notifyListeners();
-
         if (updated.status == 'completed' || updated.status == 'failed') {
           _stopPolling();
         }
@@ -124,5 +123,11 @@ class TryOnProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  @override
+  void dispose() {
+    _stopPolling();
+    super.dispose();
   }
 }

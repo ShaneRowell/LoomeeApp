@@ -55,19 +55,27 @@ class ApiClient {
     }
   }
 
-  Future<dynamic> post(String path,
-      {Map<String, dynamic>? body, bool withAuth = true}) async {
+  Future<dynamic> post(
+    String path, {
+    Map<String, dynamic>? body,
+    bool withAuth = true,
+    Duration timeout = const Duration(minutes: 5),
+  }) async {
     try {
       final uri = Uri.parse('$_baseUrl$path');
       final headers = await _getHeaders(withAuth: withAuth);
-      final response = await http.post(
-        uri,
-        headers: headers,
-        body: body != null ? jsonEncode(body) : null,
-      );
+      final response = await http
+          .post(
+            uri,
+            headers: headers,
+            body: body != null ? jsonEncode(body) : null,
+          )
+          .timeout(timeout);
       return _handleResponse(response);
     } on SocketException {
       throw ApiException('No internet connection');
+    } on TimeoutException {
+      throw ApiException('Request timed out. Please try again.');
     }
   }
 
