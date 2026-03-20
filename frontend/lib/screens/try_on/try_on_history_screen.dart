@@ -68,8 +68,11 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                       title: 'No try-ons yet',
                       subtitle: 'Start a virtual try-on from the catalog',
                       actionLabel: 'Browse Catalog',
-                      onAction: () =>
-                          Navigator.pushReplacementNamed(context, AppRoutes.home),
+                      onAction: () => Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.home,
+                        arguments: {'initialTab': 1},
+                      ),
                     );
                   }
                   return RefreshIndicator(
