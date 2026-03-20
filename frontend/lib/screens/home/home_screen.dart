@@ -208,10 +208,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   clipBehavior: Clip.hardEdge,
                   children: [
                     // ── Pill indicator — liquid glass ──────────────
-                    // RepaintBoundary isolates the pill's repaints so
-                    // the rest of the navbar doesn't redraw on every drag.
-                    RepaintBoundary(
-                      child: AnimatedPositioned(
+                    // AnimatedPositioned MUST be a direct child of Stack
+                    // for positioning to work. RepaintBoundary goes inside
+                    // it, wrapping only the visual pill content so its
+                    // backdrop/gradient repaints don't propagate outward.
+                    AnimatedPositioned(
                       duration: _navDragFraction != null
                           ? Duration.zero
                           : const Duration(milliseconds: 320),
@@ -220,46 +221,47 @@ class _HomeScreenState extends State<HomeScreen> {
                       top: 0,
                       bottom: 0,
                       width: pillWidth,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22),
-                          boxShadow: [
-                            // Outer white glow
-                            BoxShadow(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              blurRadius: 14,
-                              spreadRadius: 0,
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(22),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(22),
-                                // Frosted glass gradient — bright top, fades down
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.white.withValues(alpha: 0.32),
-                                    Colors.white.withValues(alpha: 0.10),
-                                  ],
-                                ),
-                                // Glass edge highlight
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.45),
-                                  width: 0.8,
+                      child: RepaintBoundary(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            boxShadow: [
+                              // Outer white glow
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                blurRadius: 14,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22),
+                                  // Frosted glass gradient — bright top, fades down
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.32),
+                                      Colors.white.withValues(alpha: 0.10),
+                                    ],
+                                  ),
+                                  // Glass edge highlight
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.45),
+                                    width: 0.8,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),   // AnimatedPositioned
-                    ), // RepaintBoundary
+                    ),
                     // ── Nav items ──────────────────────────────────
                     Row(
                       children: [
