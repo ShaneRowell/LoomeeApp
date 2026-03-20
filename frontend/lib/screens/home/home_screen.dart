@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -207,7 +208,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   clipBehavior: Clip.hardEdge,
                   children: [
                     // ── Pill indicator — liquid glass ──────────────
-                    AnimatedPositioned(
+                    // RepaintBoundary isolates the pill's repaints so
+                    // the rest of the navbar doesn't redraw on every drag.
+                    RepaintBoundary(
+                      child: AnimatedPositioned(
                       duration: _navDragFraction != null
                           ? Duration.zero
                           : const Duration(milliseconds: 320),
@@ -254,7 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-                    ),
+                    ),   // AnimatedPositioned
+                    ), // RepaintBoundary
                     // ── Nav items ──────────────────────────────────
                     Row(
                       children: [
@@ -618,10 +623,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: imageUrl != null
-                      ? Image.network(
-                          imageUrl,
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorWidget: (_, __, ___) => Container(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                             child: Icon(
                               Icons.image_not_supported_outlined,

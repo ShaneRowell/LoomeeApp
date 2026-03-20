@@ -17,10 +17,12 @@ class ClothingCard extends StatelessWidget {
     required this.onTap,
   });
 
+  // Static so the formatter is created once for all cards, not per-build.
+  static final _priceFormat =
+      NumberFormat.currency(locale: 'en_LK', symbol: 'LKR ', decimalDigits: 0);
+
   @override
   Widget build(BuildContext context) {
-    final priceFormat =
-        NumberFormat.currency(locale: 'en_LK', symbol: 'LKR ', decimalDigits: 0);
 
     return GestureDetector(
       onTap: onTap,
@@ -151,7 +153,7 @@ class ClothingCard extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            priceFormat.format(clothing.price),
+                            _priceFormat.format(clothing.price),
                             style: GoogleFonts.playfairDisplay(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

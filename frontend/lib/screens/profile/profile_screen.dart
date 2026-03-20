@@ -69,7 +69,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 110),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 90,
+                ),
                 child: Column(
                   children: [
                     const SizedBox(height: 28),

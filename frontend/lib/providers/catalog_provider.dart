@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../models/clothing.dart';
 import '../services/catalog_service.dart';
@@ -13,6 +15,9 @@ class CatalogProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLoadingDetail = false;
   String? _error;
+
+  // Debounce timer — prevents a network request on every keystroke.
+  Timer? _searchDebounce;
 
   CatalogProvider(this._catalogService);
 
@@ -71,17 +76,25 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Category changes fetch immediately — the user made a deliberate tap.
   void setCategory(String category) {
+    _searchDebounce?.cancel();
     _selectedCategory = category;
     fetchClothing();
   }
 
+  /// Search debounces 300 ms so we don't fire a request on every keystroke.
   void setSearchQuery(String query) {
     _searchQuery = query;
-    fetchClothing();
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      fetchClothing,
+    );
   }
 
   void clearFilters() {
+    _searchDebounce?.cancel();
     _selectedCategory = '';
     _searchQuery = '';
     fetchClothing();
@@ -89,5 +102,11 @@ class CatalogProvider extends ChangeNotifier {
 
   void clearSelectedClothing() {
     _selectedClothing = null;
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 }

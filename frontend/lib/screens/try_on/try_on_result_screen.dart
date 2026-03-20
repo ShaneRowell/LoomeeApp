@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -210,30 +211,23 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     aspectRatio: 3 / 4, // portrait — shows full body correctly
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        tryOn.resultImageUrl!,
+                      // CachedNetworkImage stores the result on disk so
+                      // re-opening this screen skips the download entirely.
+                      child: CachedNetworkImage(
+                        imageUrl: tryOn.resultImageUrl!,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
                         alignment: Alignment.topCenter,
-                        loadingBuilder: (_, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            height: 380,
-                            color: scheme.surface,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value: progress.expectedTotalBytes != null
-                                    ? progress.cumulativeBytesLoaded /
-                                        progress.expectedTotalBytes!
-                                    : null,
-                                color: scheme.secondary,
-                              ),
+                        placeholder: (_, __) => Container(
+                          color: scheme.surface,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: scheme.secondary,
                             ),
-                          );
-                        },
-                        errorBuilder: (_, err, st) => Container(
-                          height: 380,
+                          ),
+                        ),
+                        errorWidget: (_, __, ___) => Container(
                           color: scheme.surface,
                           child: Center(
                             child: Column(

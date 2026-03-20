@@ -22,8 +22,15 @@ class AppTheme {
   // Interactive accent on dark: a readable steel-blue
   static const Color darkAccentColor = Color(0xFF5B8BB5);
 
+  // ── Cached themes — built once, reused on every rebuild ───────────────
+  // Using `static final` instead of `get` means the ThemeData (and all the
+  // GoogleFonts.playfairDisplay() calls inside it) is constructed exactly
+  // once per app launch, not on every Consumer<ThemeProvider> rebuild.
+  static final ThemeData lightTheme = _buildLightTheme();
+  static final ThemeData darkTheme = _buildDarkTheme();
+
   // ── Light theme ────────────────────────────────────────────────────────
-  static ThemeData get lightTheme {
+  static ThemeData _buildLightTheme() {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: backgroundColor,
@@ -156,7 +163,7 @@ class AppTheme {
   }
 
   // ── Dark theme ─────────────────────────────────────────────────────────
-  static ThemeData get darkTheme {
+  static ThemeData _buildDarkTheme() {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
