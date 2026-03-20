@@ -140,6 +140,7 @@ class TryOnProvider extends ChangeNotifier {
   }
 
   Future<bool> deleteTryOn(String id) async {
+    _error = null; // clear stale error so success doesn't leave old error visible
     try {
       await _tryOnService.deleteTryOn(id);
       _tryOns.removeWhere((t) => t.id == id);

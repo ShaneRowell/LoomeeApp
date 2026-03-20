@@ -19,6 +19,11 @@ class CatalogProvider extends ChangeNotifier {
   // Debounce timer — prevents a network request on every keystroke.
   Timer? _searchDebounce;
 
+  // Sequence counter — each fetchClothing() call captures the current value.
+  // If a newer call starts before this one completes, the stale response is
+  // discarded so it can never overwrite fresher data.
+  int _fetchSequence = 0;
+
   CatalogProvider(this._catalogService);
 
   List<Clothing> get clothingItems => _clothingItems;
@@ -37,12 +42,17 @@ class CatalogProvider extends ChangeNotifier {
     String? brand,
     String? search,
   }) async {
+    // Capture this call's sequence number before the first await.
+    // If _fetchSequence has advanced by the time the response arrives,
+    // a newer request is already in flight and we discard this result.
+    final mySeq = ++_fetchSequence;
+
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _clothingItems = await _catalogService.getAllClothing(
+      final items = await _catalogService.getAllClothing(
         category: category ?? (_selectedCategory.isNotEmpty ? _selectedCategory : null),
         gender: gender,
         minPrice: minPrice,
@@ -50,10 +60,14 @@ class CatalogProvider extends ChangeNotifier {
         brand: brand,
         search: search ?? (_searchQuery.isNotEmpty ? _searchQuery : null),
       );
+      if (mySeq != _fetchSequence) return; // stale — discard silently
+      _clothingItems = items;
       _error = null;
     } on ApiException catch (e) {
+      if (mySeq != _fetchSequence) return;
       _error = e.message;
     } catch (e) {
+      if (mySeq != _fetchSequence) return;
       _error = 'Failed to load clothing';
     }
 

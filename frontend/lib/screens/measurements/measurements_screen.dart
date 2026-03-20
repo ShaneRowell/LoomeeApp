@@ -30,6 +30,10 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<MeasurementProvider>();
       await provider.fetchMeasurements();
+      // Guard required: if the widget is disposed while fetchMeasurements() is
+      // in flight, the TextEditingControllers will already be disposed and
+      // setting their .text would throw an assertion error.
+      if (!mounted) return;
       _prefillForm(provider.measurement);
     });
   }
