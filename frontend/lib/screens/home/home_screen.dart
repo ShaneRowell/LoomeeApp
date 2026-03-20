@@ -314,10 +314,13 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Home Tab ──────────────────────────────────────────────────────────
 
   Widget _buildHomeTab() {
+    final mq = MediaQuery.of(context);
+    // Navbar is ~80 dp tall + bottom safe area.  Add a small buffer.
+    final navbarClearance = mq.padding.bottom + 90.0;
+
     return SafeArea(
       child: SingleChildScrollView(
-        // Extra bottom space so last content scrolls fully above the navbar
-        padding: const EdgeInsets.only(bottom: 110),
+        padding: EdgeInsets.only(bottom: navbarClearance),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -411,10 +414,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeroCard() {
+    // Clamp so it looks good on both compact (SE) and tall (Pro Max) screens.
+    final heroHeight =
+        (MediaQuery.sizeOf(context).height * 0.44).clamp(320.0, 480.0);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: SizedBox(
-        height: 420,
+        height: heroHeight,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -700,7 +707,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 110),
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom + 90,
+                  ),
                   child: ClothingGrid(
                     items: catalog.clothingItems,
                     onRefresh: () => catalog.fetchClothing(),
