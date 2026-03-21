@@ -414,21 +414,24 @@ exports.createTryOn = async (req, res) => {
         if (replicate && process.env.REPLICATE_API_TOKEN) {
           await setProgress(50, 'generating_tryon');
 
-          // While Replicate is running (typically 60–90 s) we tick the progress
-          // forward every 8 seconds so the client bar keeps moving instead of
-          // stalling.  The ticker stops as soon as Replicate returns.
+          // While Replicate is running we tick progress forward every 6 s.
+          // Exponential-decay formula: pct = 50 + 43 * (1 - e^(-1.8 * t))
+          // where t = elapsed / baseline.  This asymptotically approaches 93%
+          // so the bar *always* keeps moving — it can never hard-cap and freeze
+          // the way a linear/cubic curve does once elapsed exceeds the baseline.
+          //
+          // Sample values (baseline = 80 s):
+          //   30 s → ~66%   60 s → ~81%   90 s → ~87%   120 s → ~91%
           const replicateStart = Date.now();
-          const REPLICATE_EXPECTED_MS = 75_000; // 75 s baseline
+          const REPLICATE_BASELINE_MS = 80_000;
           const progressTicker = setInterval(async () => {
             const elapsed = Date.now() - replicateStart;
-            const t = Math.min(elapsed / REPLICATE_EXPECTED_MS, 1.0);
-            // Ease-out so the bar slows near the end, acknowledging uncertainty.
-            const eased = 1 - Math.pow(1 - t, 3);
-            const pct = Math.round(50 + eased * 33); // 50 → 83 %
+            const t = elapsed / REPLICATE_BASELINE_MS;
+            const pct = Math.min(Math.round(50 + 43 * (1 - Math.exp(-1.8 * t))), 93);
             if (pct > tryOn.progress) {
               await setProgress(pct, 'generating_tryon');
             }
-          }, 8_000);
+          }, 6_000);
 
           let replicateTempUrl;
           try {

@@ -68,8 +68,11 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                       title: 'No try-ons yet',
                       subtitle: 'Start a virtual try-on from the catalog',
                       actionLabel: 'Browse Catalog',
-                      onAction: () =>
-                          Navigator.pushReplacementNamed(context, AppRoutes.home),
+                      onAction: () => Navigator.pushReplacementNamed(
+                        context,
+                        AppRoutes.home,
+                        arguments: {'initialTab': 1},
+                      ),
                     );
                   }
                   return RefreshIndicator(
@@ -150,22 +153,25 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
+                                        // List item label — rule 2
                                         Text(
                                           tryOn.clothing?.name ??
                                               'Unknown Item',
-                                          style: GoogleFonts.playfairDisplay(
+                                          style: GoogleFonts.dmSans(
                                             fontSize: 14,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w700,
                                             color: scheme.onSurface,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 4),
+                                        // Brand name on a card — rule 2
                                         Text(
                                           tryOn.clothing?.brand ?? '',
-                                          style: GoogleFonts.playfairDisplay(
-                                            fontSize: 12,
+                                          style: GoogleFonts.dmSans(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
                                             color: scheme.onSurface
                                                 .withValues(alpha: 0.5),
                                           ),
@@ -176,12 +182,14 @@ class _TryOnHistoryScreenState extends State<TryOnHistoryScreen> {
                                             TryOnStatusBadge(
                                                 status: tryOn.status),
                                             const Spacer(),
+                                            // Date/timestamp — rule 2
                                             if (tryOn.createdAt != null)
                                               Text(
                                                 DateFormat('MMM d')
                                                     .format(tryOn.createdAt!),
-                                                style: GoogleFonts.playfairDisplay(
-                                                  fontSize: 11,
+                                                style: GoogleFonts.dmSans(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
                                                   color: scheme.onSurface
                                                       .withValues(alpha: 0.4),
                                                 ),

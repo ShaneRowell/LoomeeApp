@@ -11,6 +11,7 @@ import '../../providers/preset_image_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/try_on_provider.dart';
 import '../../widgets/common/animated_tab_header.dart';
+import '../../widgets/common/glass_container.dart';
 import '../../widgets/common/legal_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -68,7 +69,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 110),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 90,
+                ),
                 child: Column(
                   children: [
                     const SizedBox(height: 28),
@@ -133,6 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 14),
+            // User name — fontSize 24 >= 20, KEEP playfairDisplay
             Text(
               user?.name ?? 'User',
               style: GoogleFonts.playfairDisplay(
@@ -142,10 +146,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 4),
+            // Email — rule 2
             Text(
               user?.email ?? '',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -157,12 +163,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(Icons.calendar_today_rounded,
                       size: 12, color: scheme.primary),
                   const SizedBox(width: 5),
+                  // Date/timestamp — rule 2
                   Text(
                     'Member since $memberSince',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 12,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                       color: scheme.primary,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -223,23 +230,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String label,
     required ColorScheme scheme,
   }) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      borderRadius: BorderRadius.circular(16),
       child: Column(
         children: [
           Icon(icon, size: 20, color: scheme.primary),
           const SizedBox(height: 6),
+          // Stat value — fontSize 20 >= 20, KEEP playfairDisplay
           Text(
             value,
             style: GoogleFonts.playfairDisplay(
@@ -249,10 +247,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 2),
+          // Stat label — rule 2
           Text(
             label,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 10,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: scheme.onSurface.withValues(alpha: 0.65),
             ),
             textAlign: TextAlign.center,
@@ -274,22 +274,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 HapticFeedback.selectionClick();
                 Navigator.pop(context, 2);
               },
-              child: Container(
+              child: GlassContainer(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: scheme.surface,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: scheme.primary.withValues(alpha: 0.3),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
-                      blurRadius: 10,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: scheme.primary.withValues(alpha: 0.45),
+                  width: 1.5,
                 ),
                 child: Row(
                   children: [
@@ -307,19 +297,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Menu tile title — rule 2
                           Text(
                             'Add your measurements',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: scheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
+                          // Subtitle — rule 2
                           Text(
                             'Get better size recommendations',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.65),
                             ),
                           ),
@@ -348,19 +341,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
+          child: GlassContainer(
             padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: scheme.surface,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.07),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -376,9 +359,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           size: 18, color: scheme.primary),
                     ),
                     const SizedBox(width: 10),
+                    // Card title — rule 2
                     Text(
                       'Body Measurements',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: scheme.onSurface,
@@ -392,10 +376,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       child: Text(
                         'Edit',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 13,
+                          fontWeight: FontWeight.w700,
                           color: scheme.primary,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -441,20 +425,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
+          // Stat value — rule 2
           Text(
             value,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 13,
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
               fontWeight: FontWeight.w700,
               color: scheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 2),
+          // Label — rule 2
           Text(
             label,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 10,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: scheme.onSurface.withValues(alpha: 0.65),
             ),
             textAlign: TextAlign.center,
@@ -505,19 +492,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required ValueChanged<bool> onChanged,
     required ColorScheme scheme,
   }) {
-    return Container(
+    return GlassContainer(
       padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      borderRadius: BorderRadius.circular(16),
       child: Row(
         children: [
           Container(
@@ -533,19 +510,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Tile title — rule 2
                 Text(
                   title,
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.dmSans(
                     fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
+                // Tile subtitle — rule 2
                 Text(
                   subtitle,
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.dmSans(
                     fontSize: 13,
+                    fontWeight: FontWeight.w500,
                     color: scheme.onSurface.withValues(alpha: 0.65),
                   ),
                 ),
@@ -584,8 +564,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: Consumer<PresetImageProvider>(
               builder: (context, p, _) => Text(
                 '${p.images.length} uploaded',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.dmSans(
                   fontSize: 13,
+                  fontWeight: FontWeight.w500,
                   color: scheme.onSurface.withValues(alpha: 0.65),
                 ),
               ),
@@ -602,8 +583,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Try-On History',
             subtitle: Text(
               'Browse past virtual try-ons',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -623,8 +605,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Terms of Service',
             subtitle: Text(
               'Usage rules and your rights',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -642,8 +625,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Privacy Policy',
             subtitle: Text(
               'How we handle your data',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -663,9 +647,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSectionLabel(String label, ColorScheme scheme) {
     return Text(
       label.toUpperCase(),
-      style: GoogleFonts.playfairDisplay(
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
+      style: GoogleFonts.dmSans(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
         color: scheme.onSurface.withValues(alpha: 0.55),
         letterSpacing: 1.2,
       ),
@@ -694,19 +678,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: GlassContainer(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: scheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(16),
         child: Row(
           children: [
             Container(
@@ -722,11 +696,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Tile title — rule 2
                   Text(
                     title,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: scheme.onSurface,
                     ),
                   ),
@@ -757,19 +732,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             builder: (ctx) => AlertDialog(
               title: Text(
                 'Log out',
-                style: GoogleFonts.playfairDisplay(
-                    fontWeight: FontWeight.w700),
+                style: GoogleFonts.dmSans(
+                    fontSize: 16, fontWeight: FontWeight.w700),
               ),
               content: Text(
                 'Are you sure you want to log out?',
-                style: GoogleFonts.playfairDisplay(),
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w500),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
                   child: Text(
                     'Cancel',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.w500,
                         color: scheme.onSurface),
                   ),
                 ),
@@ -777,7 +753,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () => Navigator.pop(ctx, true),
                   child: Text(
                     'Log out',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.w600,
                         color: AppTheme.errorColor),
                   ),
                 ),
@@ -792,22 +769,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }
           }
         },
-        child: Container(
-          width: double.infinity,
+        child: GlassContainer(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: AppTheme.errorColor.withValues(alpha: 0.30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.errorColor.withValues(alpha: 0.45),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -815,11 +781,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(Icons.logout_rounded,
                   size: 18, color: AppTheme.errorColor),
               const SizedBox(width: 8),
+              // Button label — rule 2
               Text(
                 'Log Out',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.dmSans(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.errorColor,
                 ),
               ),

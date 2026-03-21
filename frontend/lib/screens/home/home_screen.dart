@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -206,7 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Stack(
                   clipBehavior: Clip.hardEdge,
                   children: [
-                    // ── Pill indicator ─────────────────────────────
+                    // ── Pill indicator — liquid glass ──────────────
+                    // AnimatedPositioned MUST be a direct child of Stack
+                    // for positioning to work. RepaintBoundary goes inside
+                    // it, wrapping only the visual pill content so its
+                    // backdrop/gradient repaints don't propagate outward.
                     AnimatedPositioned(
                       duration: _navDragFraction != null
                           ? Duration.zero
@@ -216,10 +221,44 @@ class _HomeScreenState extends State<HomeScreen> {
                       top: 0,
                       bottom: 0,
                       width: pillWidth,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppTheme.backgroundColor,
-                          borderRadius: BorderRadius.circular(22),
+                      child: RepaintBoundary(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            boxShadow: [
+                              // Outer white glow
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                blurRadius: 14,
+                                spreadRadius: 0,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22),
+                                  // Frosted glass gradient — bright top, fades down
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.white.withValues(alpha: 0.32),
+                                      Colors.white.withValues(alpha: 0.10),
+                                    ],
+                                  ),
+                                  // Glass edge highlight
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.45),
+                                    width: 0.8,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -265,9 +304,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 3),
             Text(
               label,
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
                     ? AppTheme.fontColor
                     : Colors.white.withValues(alpha: 0.85),
@@ -282,10 +321,13 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Home Tab ──────────────────────────────────────────────────────────
 
   Widget _buildHomeTab() {
+    final mq = MediaQuery.of(context);
+    // Navbar is ~80 dp tall + bottom safe area.  Add a small buffer.
+    final navbarClearance = mq.padding.bottom + 90.0;
+
     return SafeArea(
       child: SingleChildScrollView(
-        // Extra bottom space so last content scrolls fully above the navbar
-        padding: const EdgeInsets.only(bottom: 110),
+        padding: EdgeInsets.only(bottom: navbarClearance),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -355,8 +397,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => setState(() => _currentIndex = 1),
                     child: Text(
                       'View all',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                       ),
                     ),
@@ -379,10 +422,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeroCard() {
+    // Clamp so it looks good on both compact (SE) and tall (Pro Max) screens.
+    final heroHeight =
+        (MediaQuery.sizeOf(context).height * 0.44).clamp(320.0, 480.0);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: SizedBox(
-        height: 420,
+        height: heroHeight,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -483,9 +530,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         'Upload Photo',
-                                        style: GoogleFonts.playfairDisplay(
+                                        style: GoogleFonts.dmSans(
                                           fontSize: 15,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -579,10 +626,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(14),
                   child: imageUrl != null
-                      ? Image.network(
-                          imageUrl,
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
+                          errorWidget: (_, __, ___) => Container(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                             child: Icon(
                               Icons.image_not_supported_outlined,
@@ -606,9 +653,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCatalogTab() {
     return SafeArea(
+      top: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const AnimatedTabHeader(title: 'Explore'),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -666,7 +715,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 110),
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).padding.bottom + 90,
+                  ),
                   child: ClothingGrid(
                     items: catalog.clothingItems,
                     onRefresh: () => catalog.fetchClothing(),

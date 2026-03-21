@@ -42,12 +42,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'Privacy Policy',
             LegalContent.privacyPolicy,
           );
+    _emailController.addListener(_onFieldChanged);
+    _passwordController.addListener(_onFieldChanged);
   }
+
+  void _onFieldChanged() => setState(() {});
+
+  bool get _canSubmit =>
+      _emailController.text.isNotEmpty &&
+      _passwordController.text.isNotEmpty &&
+      _consentAccepted;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.removeListener(_onFieldChanged);
     _emailController.dispose();
+    _passwordController.removeListener(_onFieldChanged);
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _tosRecognizer.dispose();
@@ -77,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SnackBar(
           content: Text(
             'Please accept the Terms of Service and Privacy Policy to continue.',
-            style: GoogleFonts.playfairDisplay(),
+            style: GoogleFonts.dmSans(),
           ),
           backgroundColor: AppTheme.errorColor,
         ),
@@ -100,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.error!,
-              style: GoogleFonts.playfairDisplay()),
+              style: GoogleFonts.dmSans()),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -242,18 +253,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         padding: const EdgeInsets.only(top: 3),
                         child: RichText(
                           text: TextSpan(
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.7),
                             ),
                             children: [
                               const TextSpan(text: 'I agree to the '),
                               TextSpan(
                                 text: 'Terms of Service',
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.dmSans(
                                   fontSize: 13,
+                                  fontWeight: FontWeight.w700,
                                   color: accentLink,
-                                  fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.underline,
                                   decorationColor: accentLink,
                                 ),
@@ -262,10 +274,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               const TextSpan(text: ' and '),
                               TextSpan(
                                 text: 'Privacy Policy',
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.dmSans(
                                   fontSize: 13,
+                                  fontWeight: FontWeight.w700,
                                   color: accentLink,
-                                  fontWeight: FontWeight.w600,
                                   decoration: TextDecoration.underline,
                                   decorationColor: accentLink,
                                 ),
@@ -286,7 +298,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 52,
                   child: Consumer<AuthProvider>(
                     builder: (context, auth, _) {
-                      final enabled = !auth.isLoading && _consentAccepted;
+                      final enabled = !auth.isLoading && _canSubmit;
                       return ElevatedButton(
                         onPressed: enabled ? _register : null,
                         child: auth.isLoading
@@ -300,9 +312,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               )
                             : Text(
                                 'Create Account',
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.dmSans(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                       );
@@ -317,8 +329,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Text(
                       'Already have an account? ',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: scheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
@@ -330,9 +343,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                       child: Text(
                         'Sign in',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           color: scheme.primary,
                         ),
                       ),

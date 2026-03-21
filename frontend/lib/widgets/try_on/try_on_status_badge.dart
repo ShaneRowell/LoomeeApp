@@ -42,8 +42,19 @@ class TryOnStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.12),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            _color.withValues(alpha: 0.18),
+            _color.withValues(alpha: 0.08),
+          ],
+        ),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _color.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
       ),
       child: Text(
         _label,

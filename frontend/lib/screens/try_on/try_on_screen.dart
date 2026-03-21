@@ -153,11 +153,12 @@ class _TryOnScreenState extends State<TryOnScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── Selected clothing item ────────────────────────────────────
+            // Section label — rule 2
             Text(
               'Selected Item',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: scheme.onSurface,
               ),
             ),
@@ -190,9 +191,9 @@ class _TryOnScreenState extends State<TryOnScreen> {
                   Expanded(
                     child: Text(
                       widget.clothingName ?? 'Select a clothing item',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         color: scheme.onSurface,
                       ),
                     ),
@@ -224,11 +225,12 @@ class _TryOnScreenState extends State<TryOnScreen> {
               ),
             ] else ...[
               // ── Preset photo selector ─────────────────────────────────
+              // Section label — rule 2
               Text(
                 'Your Photo',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.dmSans(
                   fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: scheme.onSurface,
                 ),
               ),

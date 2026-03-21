@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import '../services/storage_service.dart';
 
 class ThemeProvider extends ChangeNotifier {
@@ -8,7 +9,17 @@ class ThemeProvider extends ChangeNotifier {
   ThemeProvider(this._storage);
 
   ThemeMode get themeMode => _themeMode;
-  bool get isDark => _themeMode == ThemeMode.dark;
+
+  /// Returns the *effective* dark state.
+  /// When the user hasn't chosen a preference (system mode), this reflects
+  /// the device's current brightness so toggle icons / glass tints are correct.
+  bool get isDark {
+    if (_themeMode == ThemeMode.system) {
+      return SchedulerBinding.instance.platformDispatcher.platformBrightness ==
+          Brightness.dark;
+    }
+    return _themeMode == ThemeMode.dark;
+  }
 
   /// Load persisted preference on startup.
   Future<void> init() async {

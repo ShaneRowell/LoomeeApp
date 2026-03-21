@@ -14,6 +14,7 @@ class TryOnProvider extends ChangeNotifier {
   bool _isProcessing = false;
   String? _error;
   Timer? _pollingTimer;
+  int _consecutiveErrors = 0;
 
   TryOnProvider(this._tryOnService);
 
@@ -65,6 +66,11 @@ class TryOnProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTryOnDetail(String id) async {
+    // If we're loading a *different* try-on, clear the stale one immediately
+    // so the result screen never briefly flashes the previous item's data.
+    if (_currentTryOn != null && _currentTryOn!.id != id) {
+      _currentTryOn = null;
+    }
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -79,29 +85,51 @@ class TryOnProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Polls GET /api/try-on/:id every 2 seconds until status is completed or failed.
+  /// Polls GET /api/try-on/:id until status is completed or failed.
+  ///
+  /// Uses a recursive Timer (not Timer.periodic) so we can implement
+  /// exponential backoff on errors without a fixed 2 s cadence.
+  /// Stops automatically after 5 consecutive network failures.
   void startPolling(String tryOnId) {
     _stopPolling();
-    _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      try {
-        final updated = await _tryOnService.getTryOnById(tryOnId);
+    _consecutiveErrors = 0;
+    _scheduleNextPoll(tryOnId, const Duration(seconds: 2));
+  }
 
-        // Only rebuild listeners when something the UI cares about actually changed.
-        // Unconditional notifyListeners() on every poll fires 30–45 rebuilds over
-        // a 90-second job even when status/progress/stage are all identical.
-        final changed = _currentTryOn?.status != updated.status ||
-            _currentTryOn?.progress != updated.progress ||
-            _currentTryOn?.currentStage != updated.currentStage;
+  void _scheduleNextPoll(String tryOnId, Duration delay) {
+    _pollingTimer = Timer(delay, () => _doPoll(tryOnId));
+  }
 
-        _currentTryOn = updated;
-        if (changed) notifyListeners();
-        if (updated.status == 'completed' || updated.status == 'failed') {
-          _stopPolling();
-        }
-      } catch (_) {
-        // Silently ignore polling errors to avoid disrupting the UX
+  Future<void> _doPoll(String tryOnId) async {
+    try {
+      final updated = await _tryOnService.getTryOnById(tryOnId);
+      _consecutiveErrors = 0; // reset on success
+
+      // Only rebuild the UI when something meaningful changed.
+      final changed = _currentTryOn?.status != updated.status ||
+          _currentTryOn?.progress != updated.progress ||
+          _currentTryOn?.currentStage != updated.currentStage;
+
+      _currentTryOn = updated;
+      if (changed) notifyListeners();
+
+      if (updated.status == 'completed' || updated.status == 'failed') {
+        _stopPolling();
+      } else {
+        // Still in progress — schedule next poll at the normal interval.
+        _scheduleNextPoll(tryOnId, const Duration(seconds: 2));
       }
-    });
+    } catch (_) {
+      _consecutiveErrors++;
+      // Give up entirely after 5 consecutive failures (e.g. lost network).
+      if (_consecutiveErrors >= 5) {
+        _stopPolling();
+        return;
+      }
+      // Exponential backoff: 4 s → 8 s → 16 s → 30 s (capped).
+      final backoffSec = (4 * (1 << (_consecutiveErrors - 1))).clamp(4, 30);
+      _scheduleNextPoll(tryOnId, Duration(seconds: backoffSec));
+    }
   }
 
   void stopPolling() => _stopPolling();
@@ -112,6 +140,7 @@ class TryOnProvider extends ChangeNotifier {
   }
 
   Future<bool> deleteTryOn(String id) async {
+    _error = null; // clear stale error so success doesn't leave old error visible
     try {
       await _tryOnService.deleteTryOn(id);
       _tryOns.removeWhere((t) => t.id == id);

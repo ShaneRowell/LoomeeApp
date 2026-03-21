@@ -65,10 +65,11 @@ class PresetImageProvider extends ChangeNotifier {
   }
 
   Future<bool> setDefault(String id) async {
+    _error = null; // clear any stale error before starting the call
     try {
       final image = await _presetImageService.setDefault(id);
       _defaultImage = image;
-      await fetchImages();
+      await fetchImages(); // re-fetches and notifies
       return true;
     } on ApiException catch (e) {
       _error = e.message;

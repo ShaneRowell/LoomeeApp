@@ -30,6 +30,10 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = context.read<MeasurementProvider>();
       await provider.fetchMeasurements();
+      // Guard required: if the widget is disposed while fetchMeasurements() is
+      // in flight, the TextEditingControllers will already be disposed and
+      // setting their .text would throw an assertion error.
+      if (!mounted) return;
       _prefillForm(provider.measurement);
     });
   }
@@ -115,6 +119,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 16),
+                          // Screen section title — fontSize 22 >= 20, KEEP playfairDisplay
                           Text(
                             'Body Measurements',
                             style: GoogleFonts.playfairDisplay(
@@ -124,10 +129,12 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             ),
                           ),
                           const SizedBox(height: 6),
+                          // Body paragraph — rule 2
                           Text(
                             'Used for size recommendation and AI try ons, enter your measurements below.',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
@@ -173,10 +180,12 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             max: 300,
                           ),
                           const SizedBox(height: 10),
+                          // Caption — rule 2 (fontSize 12 <= 12, bump to 13)
                           Text(
                             'All measurements in ($unitLabel)',
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 12,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.4),
                             ),
                           ),
@@ -195,9 +204,10 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                                     )
                                   : Text(
                                       'Save Measurements',
-                                      style: GoogleFonts.playfairDisplay(
+                                      // Button label — rule 2
+                                      style: GoogleFonts.dmSans(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                             ),
@@ -233,44 +243,21 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
     double? max,
   }) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: scheme.onSurface.withValues(alpha: 0.1),
-        ),
+    return TextFormField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20, color: scheme.onSurface.withValues(alpha: 0.55)),
       ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Icon(icon, size: 20, color: scheme.onSurface.withValues(alpha: 0.6)),
-          ),
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(
-                hintText: label,
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                filled: false,
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Required';
-                final parsed = double.tryParse(value);
-                if (parsed == null) return 'Invalid number';
-                if (min != null && parsed < min) return 'Min value is $min';
-                if (max != null && parsed > max) return 'Max value is $max';
-                return null;
-              },
-            ),
-          ),
-        ],
-      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'Required';
+        final parsed = double.tryParse(value);
+        if (parsed == null) return 'Invalid number';
+        if (min != null && parsed < min) return 'Min value is $min';
+        if (max != null && parsed > max) return 'Max value is $max';
+        return null;
+      },
     );
   }
 }
