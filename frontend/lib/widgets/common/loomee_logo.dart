@@ -13,13 +13,12 @@ class LomeeLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = color ?? Theme.of(context).colorScheme.onSurface;
     return SvgPicture.asset(
       'assets/images/loomee_logo.svg',
       width: size,
       height: size,
-      colorFilter: color != null
-          ? ColorFilter.mode(color!, BlendMode.srcIn)
-          : null,
+      colorFilter: ColorFilter.mode(effectiveColor, BlendMode.srcIn),
     );
   }
 }

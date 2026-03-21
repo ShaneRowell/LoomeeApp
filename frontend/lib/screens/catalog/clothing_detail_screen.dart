@@ -144,16 +144,18 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Brand label — small caps badge, rule 2 (fontSize 12 < 20)
                       Text(
                         clothing.brand.toUpperCase(),
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                        style: GoogleFonts.dmSans(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
                           color: scheme.secondary,
                           letterSpacing: 1,
                         ),
                       ),
                       const SizedBox(height: 4),
+                      // Product name — fontSize 24 >= 20, KEEP playfairDisplay
                       Text(
                         clothing.name,
                         style: GoogleFonts.playfairDisplay(
@@ -163,6 +165,7 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      // Price — fontSize 22 >= 20, KEEP playfairDisplay
                       Text(
                         _priceFormat.format(clothing.price),
                         style: GoogleFonts.playfairDisplay(
@@ -172,21 +175,24 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+                      // Description — body paragraph, rule 2
                       Text(
                         clothing.description,
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           color: scheme.onSurface.withValues(alpha: 0.7),
                           height: 1.5,
                         ),
                       ),
                       if (clothing.colors.isNotEmpty) ...[
                         const SizedBox(height: 20),
+                        // Section label — rule 2
                         Text(
                           'Colors',
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: scheme.onSurface,
                           ),
                         ),
@@ -268,11 +274,12 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
             const SizedBox(height: 20),
             Row(
               children: [
+                // Section label — rule 2
                 Text(
                   'Sizes',
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.dmSans(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: scheme.onSurface,
                   ),
                 ),
@@ -287,9 +294,9 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     ),
                     child: Text(
                       'Recommended: ${sizeRec.recommendedSize}',
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
                         color: AppTheme.successColor,
                       ),
                     ),
@@ -344,8 +351,9 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     Expanded(
                       child: Text(
                         sizeRec.advice,
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 13,
+                          fontWeight: FontWeight.w500,
                           color: scheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
@@ -368,15 +376,15 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
         children: [
           Text(
             '$label: ',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.dmSans(
               fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: scheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
           Text(
             value,
-            style: GoogleFonts.playfairDisplay(fontSize: 14, color: scheme.onSurface),
+            style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w500, color: scheme.onSurface),
           ),
         ],
       ),
@@ -394,11 +402,12 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 24),
+            // Section label — rule 2
             Text(
               'Style Suggestions',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 16,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: scheme.onSurface,
               ),
             ),
@@ -416,19 +425,22 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Card subtitle — rule 2
                         Text(
                           outfit.name,
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: scheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
+                        // Card subtitle text — rule 2
                         Text(
                           outfit.items.join(' + '),
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 13,
+                            fontWeight: FontWeight.w500,
                             color: scheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
@@ -442,10 +454,10 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                           ),
                           child: Text(
                             outfit.occasion,
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 11,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                               color: scheme.secondary,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
@@ -466,8 +478,9 @@ class _ClothingDetailScreenState extends State<ClothingDetailScreen> {
                         Expanded(
                           child: Text(
                             tip,
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),

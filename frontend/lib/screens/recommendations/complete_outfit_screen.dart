@@ -150,16 +150,17 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
                               Expanded(
                                 child: Text(
                                   outfit.name,
-                                  style: GoogleFonts.playfairDisplay(
+                                  style: GoogleFonts.dmSans(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w700,
                                     color: AppTheme.fontColor,
                                   ),
                                 ),
                               ),
+                              // Price — rule 2
                               Text(
                                 _priceFormat.format(outfit.totalPrice),
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.dmSans(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: AppTheme.widgetColor,
@@ -189,10 +190,12 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
                                 outfit.items.accessories.join(', ')),
                           if (outfit.reasoning.isNotEmpty) ...[
                             const SizedBox(height: 12),
+                            // Body paragraph — rule 2
                             Text(
                               outfit.reasoning,
-                              style: GoogleFonts.playfairDisplay(
+                              style: GoogleFonts.dmSans(
                                 fontSize: 13,
+                                fontWeight: FontWeight.w500,
                                 fontStyle: FontStyle.italic,
                                 color:
                                     AppTheme.fontColor.withValues(alpha: 0.5),
@@ -221,8 +224,8 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
       ),
       child: Text(
         text,
-        style: GoogleFonts.playfairDisplay(
-            fontSize: 11, fontWeight: FontWeight.w600, color: color),
+        style: GoogleFonts.dmSans(
+            fontSize: 12, fontWeight: FontWeight.w700, color: color),
       ),
     );
   }
@@ -234,11 +237,12 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
         children: [
           Icon(icon, size: 16, color: AppTheme.fontColor.withValues(alpha: 0.4)),
           const SizedBox(width: 8),
+          // List item label — rule 2
           Text(
             '$label: ',
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.dmSans(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: AppTheme.fontColor.withValues(alpha: 0.5),
             ),
           ),
@@ -246,7 +250,7 @@ class _CompleteOutfitScreenState extends State<CompleteOutfitScreen> {
             child: Text(
               value,
               style:
-                  GoogleFonts.playfairDisplay(fontSize: 13, color: AppTheme.fontColor),
+                  GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w500, color: AppTheme.fontColor),
             ),
           ),
         ],

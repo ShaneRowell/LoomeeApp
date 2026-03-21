@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../models/clothing.dart';
 import '../services/catalog_service.dart';
@@ -13,6 +15,14 @@ class CatalogProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isLoadingDetail = false;
   String? _error;
+
+  // Debounce timer — prevents a network request on every keystroke.
+  Timer? _searchDebounce;
+
+  // Sequence counter — each fetchClothing() call captures the current value.
+  // If a newer call starts before this one completes, the stale response is
+  // discarded so it can never overwrite fresher data.
+  int _fetchSequence = 0;
 
   CatalogProvider(this._catalogService);
 
@@ -32,12 +42,17 @@ class CatalogProvider extends ChangeNotifier {
     String? brand,
     String? search,
   }) async {
+    // Capture this call's sequence number before the first await.
+    // If _fetchSequence has advanced by the time the response arrives,
+    // a newer request is already in flight and we discard this result.
+    final mySeq = ++_fetchSequence;
+
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _clothingItems = await _catalogService.getAllClothing(
+      final items = await _catalogService.getAllClothing(
         category: category ?? (_selectedCategory.isNotEmpty ? _selectedCategory : null),
         gender: gender,
         minPrice: minPrice,
@@ -45,10 +60,14 @@ class CatalogProvider extends ChangeNotifier {
         brand: brand,
         search: search ?? (_searchQuery.isNotEmpty ? _searchQuery : null),
       );
+      if (mySeq != _fetchSequence) return; // stale — discard silently
+      _clothingItems = items;
       _error = null;
     } on ApiException catch (e) {
+      if (mySeq != _fetchSequence) return;
       _error = e.message;
     } catch (e) {
+      if (mySeq != _fetchSequence) return;
       _error = 'Failed to load clothing';
     }
 
@@ -71,17 +90,25 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Category changes fetch immediately — the user made a deliberate tap.
   void setCategory(String category) {
+    _searchDebounce?.cancel();
     _selectedCategory = category;
     fetchClothing();
   }
 
+  /// Search debounces 300 ms so we don't fire a request on every keystroke.
   void setSearchQuery(String query) {
     _searchQuery = query;
-    fetchClothing();
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(
+      const Duration(milliseconds: 300),
+      fetchClothing,
+    );
   }
 
   void clearFilters() {
+    _searchDebounce?.cancel();
     _selectedCategory = '';
     _searchQuery = '';
     fetchClothing();
@@ -89,5 +116,11 @@ class CatalogProvider extends ChangeNotifier {
 
   void clearSelectedClothing() {
     _selectedClothing = null;
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 }

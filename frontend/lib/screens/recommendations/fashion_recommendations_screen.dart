@@ -37,6 +37,7 @@ class _FashionRecommendationsScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Screen hero title — fontSize 24 >= 20, KEEP playfairDisplay
                   Text(
                     'Style Guide',
                     style: GoogleFonts.playfairDisplay(
@@ -46,10 +47,12 @@ class _FashionRecommendationsScreenState
                     ),
                   ),
                   const SizedBox(height: 4),
+                  // Subtitle — rule 2
                   Text(
                     'Personalized fashion recommendations',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: AppTheme.fontColor.withValues(alpha: 0.5),
                     ),
                   ),
@@ -88,11 +91,13 @@ class _FashionRecommendationsScreenState
                                 color:
                                     AppTheme.fontColor.withValues(alpha: 0.2)),
                             const SizedBox(height: 16),
+                            // Body paragraph — rule 2
                             Text(
                               'Add your measurements for\npersonalized recommendations',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.playfairDisplay(
+                              style: GoogleFonts.dmSans(
                                 fontSize: 15,
+                                fontWeight: FontWeight.w500,
                                 color:
                                     AppTheme.fontColor.withValues(alpha: 0.5),
                               ),
@@ -140,11 +145,12 @@ class _FashionRecommendationsScreenState
               child: Icon(icon, size: 20, color: color),
             ),
             const SizedBox(width: 12),
+            // Section header — fontSize 18 >= 20? No, 18 < 20 — rule 2
             Text(
               title,
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 18,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: AppTheme.fontColor,
               ),
             ),
@@ -175,8 +181,9 @@ class _FashionRecommendationsScreenState
                     Expanded(
                       child: Text(
                         item,
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 14,
+                          fontWeight: FontWeight.w500,
                           color: AppTheme.fontColor.withValues(alpha: 0.8),
                         ),
                       ),

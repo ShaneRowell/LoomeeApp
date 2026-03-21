@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../config/app_theme.dart';
+import '../common/glass_container.dart';
 
 class _Stage {
   final double threshold; // progress value at which step becomes "active"
@@ -167,14 +168,9 @@ class _TryOnProgressCardState extends State<TryOnProgressCard> {
             ? _stageForServerKey(widget.serverStage!, progress)
             : _stageForProgress(progress);
 
-        return Container(
-          width: double.infinity,
+        return GlassContainer(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: scheme.onSurface.withValues(alpha: 0.08)),
-          ),
+          borderRadius: BorderRadius.circular(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

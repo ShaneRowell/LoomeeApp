@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.error!,
-              style: GoogleFonts.playfairDisplay()),
+              style: GoogleFonts.dmSans()),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -147,9 +147,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                             : Text(
                                 'Login',
-                                style: GoogleFonts.playfairDisplay(
+                                style: GoogleFonts.dmSans(
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                       );
@@ -166,8 +166,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                   child: Text(
                     'Forgot password?',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: scheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
@@ -180,8 +181,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     Text(
                       'No account? ',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: scheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
@@ -193,9 +195,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       child: Text(
                         'Sign up',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           color: scheme.primary,
                         ),
                       ),

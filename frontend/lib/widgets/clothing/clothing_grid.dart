@@ -17,6 +17,11 @@ class ClothingGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final grid = GridView.builder(
       padding: const EdgeInsets.all(16),
+      // Only keep 150 dp of off-screen tiles in the GPU layer cache.
+      // Default (250 dp) + BackdropFilter on each card = too many live blurs.
+      cacheExtent: 150,
+      // Off-screen items don't need to preserve state between scrolls.
+      addAutomaticKeepAlives: false,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,

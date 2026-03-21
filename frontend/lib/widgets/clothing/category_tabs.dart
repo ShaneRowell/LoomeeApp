@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../config/app_theme.dart';
@@ -52,23 +53,60 @@ class CategoryTabs extends StatelessWidget {
             onTap: () => onCategorySelected(cat['value']),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: isSelected ? selectedBg : unselectedBg,
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: isSelected
-                      ? selectedBg
-                      : scheme.onSurface.withValues(alpha: 0.15),
-                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: selectedBg.withValues(alpha: 0.30),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : null,
               ),
-              alignment: Alignment.center,
-              child: Text(
-                cat['label'],
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected ? selectedText : unselectedText,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      gradient: isSelected
+                          ? null
+                          : LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: isDark
+                                  ? [
+                                      Colors.white.withValues(alpha: 0.14),
+                                      Colors.white.withValues(alpha: 0.06),
+                                    ]
+                                  : [
+                                      Colors.white.withValues(alpha: 0.88),
+                                      Colors.white.withValues(alpha: 0.65),
+                                    ],
+                            ),
+                      color: isSelected ? selectedBg : null,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: isSelected
+                            ? selectedBg
+                            : Colors.white.withValues(alpha: isDark ? 0.20 : 0.75),
+                        width: 0.8,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      cat['label'],
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color: isSelected ? selectedText : unselectedText,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

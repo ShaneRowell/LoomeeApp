@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -138,12 +139,13 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    // Brand — rule 2
                     Text(
                       tryOn.clothing!.brand,
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         color: scheme.secondary,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -191,12 +193,13 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 ),
                 if (tryOn.clothing != null) ...[
                   const SizedBox(height: 4),
+                  // Brand — rule 2
                   Text(
                     tryOn.clothing!.brand,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: scheme.secondary,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -210,30 +213,23 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                     aspectRatio: 3 / 4, // portrait — shows full body correctly
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        tryOn.resultImageUrl!,
+                      // CachedNetworkImage stores the result on disk so
+                      // re-opening this screen skips the download entirely.
+                      child: CachedNetworkImage(
+                        imageUrl: tryOn.resultImageUrl!,
                         width: double.infinity,
                         height: double.infinity,
                         fit: BoxFit.cover,
                         alignment: Alignment.topCenter,
-                        loadingBuilder: (_, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            height: 380,
-                            color: scheme.surface,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                value: progress.expectedTotalBytes != null
-                                    ? progress.cumulativeBytesLoaded /
-                                        progress.expectedTotalBytes!
-                                    : null,
-                                color: scheme.secondary,
-                              ),
+                        placeholder: (_, __) => Container(
+                          color: scheme.surface,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: scheme.secondary,
                             ),
-                          );
-                        },
-                        errorBuilder: (_, err, st) => Container(
-                          height: 380,
+                          ),
+                        ),
+                        errorWidget: (_, __, ___) => Container(
                           color: scheme.surface,
                           child: Center(
                             child: Column(
@@ -244,8 +240,10 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'Failed to load image',
-                                  style: GoogleFonts.playfairDisplay(
-                                      fontSize: 13, color: Colors.grey),
+                                  style: GoogleFonts.dmSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -278,16 +276,18 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         const SizedBox(height: 10),
                         Text(
                           'Virtual try-on image unavailable',
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 13,
+                            fontWeight: FontWeight.w500,
                             color: scheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'AI image generation did not complete',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 11,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: scheme.onSurface.withValues(alpha: 0.35),
                           ),
                         ),
@@ -313,11 +313,14 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Recommended Size: ',
-                          style: GoogleFonts.playfairDisplay(fontSize: 14),
+                          style: GoogleFonts.dmSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         Text(
                           tryOn.recommendedSize!,
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.successColor,
@@ -332,19 +335,22 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 if (tryOn.aiDescription != null &&
                     tryOn.aiDescription!.isNotEmpty) ...[
                   const SizedBox(height: 16),
+                  // Section label — rule 2
                   Text(
                     'AI Analysis',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Body paragraph — rule 2
                   Text(
                     tryOn.aiDescription!,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: scheme.onSurface.withValues(alpha: 0.7),
                       height: 1.5,
                     ),
@@ -376,11 +382,12 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                             const Icon(Icons.error_outline,
                                 color: AppTheme.errorColor, size: 20),
                             const SizedBox(width: 10),
+                            // Status text — rule 2
                             Text(
                               'Try-On Failed',
-                              style: GoogleFonts.playfairDisplay(
+                              style: GoogleFonts.dmSans(
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 color: AppTheme.errorColor,
                               ),
                             ),
@@ -418,4 +425,3 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
     );
   }
 }
-

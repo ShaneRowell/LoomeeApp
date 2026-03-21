@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../config/app_theme.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
@@ -19,6 +19,7 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -28,24 +29,24 @@ class EmptyStateWidget extends StatelessWidget {
             Icon(
               icon,
               size: 64,
-              color: AppTheme.fontColor.withValues(alpha: 0.2),
+              color: scheme.onSurface.withValues(alpha: 0.25),
             ),
             const SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppTheme.fontColor,
+                color: scheme.onSurface,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               subtitle,
-              style: TextStyle(
+              style: GoogleFonts.playfairDisplay(
                 fontSize: 14,
-                color: AppTheme.fontColor.withValues(alpha: 0.5),
+                color: scheme.onSurface.withValues(alpha: 0.55),
               ),
               textAlign: TextAlign.center,
             ),
