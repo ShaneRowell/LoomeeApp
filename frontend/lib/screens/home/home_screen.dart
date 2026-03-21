@@ -304,9 +304,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 3),
             Text(
               label,
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
                     ? AppTheme.fontColor
                     : Colors.white.withValues(alpha: 0.85),
@@ -397,8 +397,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () => setState(() => _currentIndex = 1),
                     child: Text(
                       'View all',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                       ),
                     ),
@@ -529,9 +530,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         'Upload Photo',
-                                        style: GoogleFonts.playfairDisplay(
+                                        style: GoogleFonts.dmSans(
                                           fontSize: 15,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
                                       ),

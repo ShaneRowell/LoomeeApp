@@ -180,8 +180,8 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title, style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.w600)),
-        content: Text(message, style: GoogleFonts.playfairDisplay(fontSize: 14)),
+        title: Text(title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
+        content: Text(message, style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w500)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -245,8 +245,9 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
                                       padding: const EdgeInsets.only(top: 8),
                                       child: Text(
                                         '${provider.images.length} photo${provider.images.length == 1 ? '' : 's'}',
-                                        style: GoogleFonts.playfairDisplay(
+                                        style: GoogleFonts.dmSans(
                                           fontSize: 13,
+                                          fontWeight: FontWeight.w500,
                                           color: scheme.onSurface.withValues(alpha: 0.5),
                                         ),
                                       ),
@@ -426,11 +427,12 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
             child: Icon(icon, color: Colors.white, size: 28),
           ),
           const SizedBox(height: 8),
+          // Button label — rule 2
           Text(
             label,
-            style: GoogleFonts.playfairDisplay(
+            style: GoogleFonts.dmSans(
               fontSize: 13,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
               color: scheme.onSurface,
             ),
           ),
@@ -446,9 +448,9 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
       children: [
         Text(
           number,
-          style: GoogleFonts.playfairDisplay(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          style: GoogleFonts.dmSans(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
             color: scheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
@@ -456,8 +458,9 @@ class _PresetImagesScreenState extends State<PresetImagesScreen> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 12,
+            style: GoogleFonts.dmSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
               color: scheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
@@ -495,13 +498,13 @@ class _UploadOptionsDialogState extends State<_UploadOptionsDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('Photo Options',
-          style: GoogleFonts.playfairDisplay(fontWeight: FontWeight.w600)),
+          style: GoogleFonts.dmSans(fontWeight: FontWeight.w700)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Photo Type',
-              style: GoogleFonts.playfairDisplay(fontSize: 14, fontWeight: FontWeight.w500)),
+              style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           ImageTypeSelector(
             selectedType: _imageType,

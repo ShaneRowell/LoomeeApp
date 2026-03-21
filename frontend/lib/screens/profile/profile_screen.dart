@@ -136,6 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 14),
+            // User name — fontSize 24 >= 20, KEEP playfairDisplay
             Text(
               user?.name ?? 'User',
               style: GoogleFonts.playfairDisplay(
@@ -145,10 +146,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 4),
+            // Email — rule 2
             Text(
               user?.email ?? '',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -160,12 +163,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Icon(Icons.calendar_today_rounded,
                       size: 12, color: scheme.primary),
                   const SizedBox(width: 5),
+                  // Date/timestamp — rule 2
                   Text(
                     'Member since $memberSince',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 12,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
                       color: scheme.primary,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -233,6 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           Icon(icon, size: 20, color: scheme.primary),
           const SizedBox(height: 6),
+          // Stat value — fontSize 20 >= 20, KEEP playfairDisplay
           Text(
             value,
             style: GoogleFonts.playfairDisplay(
@@ -242,10 +247,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 2),
+          // Stat label — rule 2
           Text(
             label,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 10,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: scheme.onSurface.withValues(alpha: 0.65),
             ),
             textAlign: TextAlign.center,
@@ -290,19 +297,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Menu tile title — rule 2
                           Text(
                             'Add your measurements',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: scheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 2),
+                          // Subtitle — rule 2
                           Text(
                             'Get better size recommendations',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.65),
                             ),
                           ),
@@ -349,9 +359,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           size: 18, color: scheme.primary),
                     ),
                     const SizedBox(width: 10),
+                    // Card title — rule 2
                     Text(
                       'Body Measurements',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: scheme.onSurface,
@@ -365,10 +376,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                       child: Text(
                         'Edit',
-                        style: GoogleFonts.playfairDisplay(
+                        style: GoogleFonts.dmSans(
                           fontSize: 13,
+                          fontWeight: FontWeight.w700,
                           color: scheme.primary,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
@@ -414,20 +425,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
+          // Stat value — rule 2
           Text(
             value,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 13,
+            style: GoogleFonts.dmSans(
+              fontSize: 14,
               fontWeight: FontWeight.w700,
               color: scheme.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 2),
+          // Label — rule 2
           Text(
             label,
-            style: GoogleFonts.playfairDisplay(
-              fontSize: 10,
+            style: GoogleFonts.dmSans(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
               color: scheme.onSurface.withValues(alpha: 0.65),
             ),
             textAlign: TextAlign.center,
@@ -496,19 +510,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Tile title — rule 2
                 Text(
                   title,
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.dmSans(
                     fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
                     color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 2),
+                // Tile subtitle — rule 2
                 Text(
                   subtitle,
-                  style: GoogleFonts.playfairDisplay(
+                  style: GoogleFonts.dmSans(
                     fontSize: 13,
+                    fontWeight: FontWeight.w500,
                     color: scheme.onSurface.withValues(alpha: 0.65),
                   ),
                 ),
@@ -547,8 +564,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: Consumer<PresetImageProvider>(
               builder: (context, p, _) => Text(
                 '${p.images.length} uploaded',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.dmSans(
                   fontSize: 13,
+                  fontWeight: FontWeight.w500,
                   color: scheme.onSurface.withValues(alpha: 0.65),
                 ),
               ),
@@ -565,8 +583,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Try-On History',
             subtitle: Text(
               'Browse past virtual try-ons',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -586,8 +605,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Terms of Service',
             subtitle: Text(
               'Usage rules and your rights',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -605,8 +625,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Privacy Policy',
             subtitle: Text(
               'How we handle your data',
-              style: GoogleFonts.playfairDisplay(
+              style: GoogleFonts.dmSans(
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
                 color: scheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
@@ -626,9 +647,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildSectionLabel(String label, ColorScheme scheme) {
     return Text(
       label.toUpperCase(),
-      style: GoogleFonts.playfairDisplay(
-        fontSize: 11,
-        fontWeight: FontWeight.w600,
+      style: GoogleFonts.dmSans(
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
         color: scheme.onSurface.withValues(alpha: 0.55),
         letterSpacing: 1.2,
       ),
@@ -675,11 +696,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Tile title — rule 2
                   Text(
                     title,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 15,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: scheme.onSurface,
                     ),
                   ),
@@ -710,19 +732,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             builder: (ctx) => AlertDialog(
               title: Text(
                 'Log out',
-                style: GoogleFonts.playfairDisplay(
-                    fontWeight: FontWeight.w700),
+                style: GoogleFonts.dmSans(
+                    fontSize: 16, fontWeight: FontWeight.w700),
               ),
               content: Text(
                 'Are you sure you want to log out?',
-                style: GoogleFonts.playfairDisplay(),
+                style: GoogleFonts.dmSans(fontWeight: FontWeight.w500),
               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx, false),
                   child: Text(
                     'Cancel',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.w500,
                         color: scheme.onSurface),
                   ),
                 ),
@@ -730,7 +753,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () => Navigator.pop(ctx, true),
                   child: Text(
                     'Log out',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
+                        fontWeight: FontWeight.w600,
                         color: AppTheme.errorColor),
                   ),
                 ),
@@ -757,11 +781,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Icon(Icons.logout_rounded,
                   size: 18, color: AppTheme.errorColor),
               const SizedBox(width: 8),
+              // Button label — rule 2
               Text(
                 'Log Out',
-                style: GoogleFonts.playfairDisplay(
+                style: GoogleFonts.dmSans(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppTheme.errorColor,
                 ),
               ),

@@ -119,6 +119,7 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 16),
+                          // Screen section title — fontSize 22 >= 20, KEEP playfairDisplay
                           Text(
                             'Body Measurements',
                             style: GoogleFonts.playfairDisplay(
@@ -128,10 +129,12 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             ),
                           ),
                           const SizedBox(height: 6),
+                          // Body paragraph — rule 2
                           Text(
                             'Used for size recommendation and AI try ons, enter your measurements below.',
-                            style: GoogleFonts.playfairDisplay(
+                            style: GoogleFonts.dmSans(
                               fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
@@ -177,10 +180,12 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                             max: 300,
                           ),
                           const SizedBox(height: 10),
+                          // Caption — rule 2 (fontSize 12 <= 12, bump to 13)
                           Text(
                             'All measurements in ($unitLabel)',
-                            style: GoogleFonts.playfairDisplay(
-                              fontSize: 12,
+                            style: GoogleFonts.dmSans(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
                               color: scheme.onSurface.withValues(alpha: 0.4),
                             ),
                           ),
@@ -199,9 +204,10 @@ class _MeasurementsScreenState extends State<MeasurementsScreen> {
                                     )
                                   : Text(
                                       'Save Measurements',
-                                      style: GoogleFonts.playfairDisplay(
+                                      // Button label — rule 2
+                                      style: GoogleFonts.dmSans(
                                         fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                             ),

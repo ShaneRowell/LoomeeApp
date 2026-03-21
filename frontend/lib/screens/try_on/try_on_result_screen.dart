@@ -139,12 +139,13 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    // Brand — rule 2
                     Text(
                       tryOn.clothing!.brand,
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 14,
+                        fontWeight: FontWeight.w600,
                         color: scheme.secondary,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -192,12 +193,13 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 ),
                 if (tryOn.clothing != null) ...[
                   const SizedBox(height: 4),
+                  // Brand — rule 2
                   Text(
                     tryOn.clothing!.brand,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
+                      fontWeight: FontWeight.w600,
                       color: scheme.secondary,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -238,8 +240,10 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'Failed to load image',
-                                  style: GoogleFonts.playfairDisplay(
-                                      fontSize: 13, color: Colors.grey),
+                                  style: GoogleFonts.dmSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey),
                                 ),
                               ],
                             ),
@@ -272,16 +276,18 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         const SizedBox(height: 10),
                         Text(
                           'Virtual try-on image unavailable',
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 13,
+                            fontWeight: FontWeight.w500,
                             color: scheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'AI image generation did not complete',
-                          style: GoogleFonts.playfairDisplay(
-                            fontSize: 11,
+                          style: GoogleFonts.dmSans(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: scheme.onSurface.withValues(alpha: 0.35),
                           ),
                         ),
@@ -307,11 +313,14 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'Recommended Size: ',
-                          style: GoogleFonts.playfairDisplay(fontSize: 14),
+                          style: GoogleFonts.dmSans(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         Text(
                           tryOn.recommendedSize!,
-                          style: GoogleFonts.playfairDisplay(
+                          style: GoogleFonts.dmSans(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: AppTheme.successColor,
@@ -326,19 +335,22 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                 if (tryOn.aiDescription != null &&
                     tryOn.aiDescription!.isNotEmpty) ...[
                   const SizedBox(height: 16),
+                  // Section label — rule 2
                   Text(
                     'AI Analysis',
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Body paragraph — rule 2
                   Text(
                     tryOn.aiDescription!,
-                    style: GoogleFonts.playfairDisplay(
+                    style: GoogleFonts.dmSans(
                       fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: scheme.onSurface.withValues(alpha: 0.7),
                       height: 1.5,
                     ),
@@ -370,11 +382,12 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
                             const Icon(Icons.error_outline,
                                 color: AppTheme.errorColor, size: 20),
                             const SizedBox(width: 10),
+                            // Status text — rule 2
                             Text(
                               'Try-On Failed',
-                              style: GoogleFonts.playfairDisplay(
+                              style: GoogleFonts.dmSans(
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 color: AppTheme.errorColor,
                               ),
                             ),
@@ -412,4 +425,3 @@ class _TryOnResultScreenState extends State<TryOnResultScreen> {
     );
   }
 }
-

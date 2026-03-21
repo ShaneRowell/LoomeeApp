@@ -138,7 +138,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 24),
 
-                // ── Title ─────────────────────────────────────────────────
+                // ── Title — brand logo, fontSize 44 >= 20, KEEP playfairDisplay ──
                 Opacity(
                   opacity: _titleOpacity.value,
                   child: Transform.translate(
@@ -180,15 +180,16 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 const SizedBox(height: 10),
 
-                // ── Subtitle ──────────────────────────────────────────────
+                // ── Subtitle — rule 2 ──────────────────────────────────────
                 Opacity(
                   opacity: _subtitleOpacity.value,
                   child: Transform.translate(
                     offset: Offset(0, subtitleDY),
                     child: Text(
                       'Virtual Fashion Try-On',
-                      style: GoogleFonts.playfairDisplay(
+                      style: GoogleFonts.dmSans(
                         fontSize: 15,
+                        fontWeight: FontWeight.w500,
                         color: scheme.onSurface.withValues(alpha: 0.6),
                         letterSpacing: 0.3,
                       ),
