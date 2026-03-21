@@ -12,7 +12,11 @@ mobile-app/.flutter-plugins-dependencies
 mobile-app/.packages
 mobile-app/pubspec.lock
 frontend/build/
+frontend/build */
 frontend/.dart_tool/
+.dart_tool/
+frontend/ios/codesign_wrapper/
+frontend/ios/Flutter/Flutter *.podspec
 
 # Claude Code
 .claude/
