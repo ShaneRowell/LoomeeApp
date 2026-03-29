@@ -453,7 +453,14 @@ exports.createTryOn = async (req, res) => {
         }
 
         tryOn.resultImageUrl = permanentImageUrl || '/uploads/tryon-result-placeholder.jpg';
-        tryOn.fitAnalysis = geminiResult.fitAnalysis;
+        // FIX: Force lowercase for overallFit to prevent validation errors
+        tryOn.fitAnalysis = {
+          overallFit: geminiResult.fitAnalysis.overallFit.toLowerCase(),
+          tightAreas: geminiResult.fitAnalysis.tightAreas,
+          looseAreas: geminiResult.fitAnalysis.looseAreas,
+          recommendations: geminiResult.fitAnalysis.recommendations,
+          confidence: geminiResult.fitAnalysis.confidence
+        };
         tryOn.aiDescription = geminiResult.aiDescription;
         tryOn.recommendedSize = geminiResult.recommendedSize;
         tryOn.progress = 100;
